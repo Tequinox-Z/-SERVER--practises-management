@@ -1,0 +1,130 @@
+package com.tx.practisesmanagement.service;
+
+
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.tx.practisesmanagement.model.Enrollment;
+import com.tx.practisesmanagement.model.ProfessionalDegree;
+import com.tx.practisesmanagement.model.School;
+import com.tx.practisesmanagement.model.Teacher;
+import com.tx.practisesmanagement.repository.ProfessionalDegreeRepository;
+
+/**
+ * Servicio de ciclos
+ * @author Salva
+ *
+ */
+@Service
+public class ProfessionalDegreeService {
+	
+	// Repositorios
+		@Autowired ProfessionalDegreeRepository professionalDegreeRepository;
+		
+	// Servicios
+		@Autowired TeacherService teacherService;
+		@Autowired EnrollmentService enrollmentService;
+	/**
+	 * Guarda un ciclo
+	 * @param professionalDegree: Ciclo a guardar
+	 * @return Ciclo guardado
+	 */
+	public ProfessionalDegree saveProfessionalDegree(ProfessionalDegree professionalDegree) {
+		return professionalDegreeRepository.save(professionalDegree);
+	}
+	
+	/**
+	 * Obtiene un determinado ciclo
+	 * @param professionalDegree: Ciclo a obtener
+	 * @return: Ciclo solicitado
+	 */
+	public ProfessionalDegree get(Integer professionalDegree) {
+		return professionalDegreeRepository.findById(professionalDegree).orElse(null);
+	}
+	
+	/**
+	 * Borra un determinado ciclo
+	 * @param idDegree: Identificador del ciclo
+	 */
+	public void removeDegree(Integer idDegree) {
+		ProfessionalDegree professionalDegree = this.get(idDegree);						// Obtiene el ciclo
+		
+		professionalDegree.setSchool(null);												// Establece el colegio a nulo
+		
+		for (Enrollment currentEnrollment : professionalDegree.getEnrollments()) {
+			currentEnrollment.setProfessionalDegree(null);								// Por cada matrícula establece el ciclo a nulo
+			enrollmentService.save(currentEnrollment);
+			// Ejecutar el delete de matrícula
+		}
+		
+		for (Teacher teacher: professionalDegree.getTeachers()) {
+			teacher.getProfessionalDegrees().remove(professionalDegree);
+			teacherService.save(teacher);
+		}
+		
+		professionalDegree.setTeachers(null);
+		
+		professionalDegreeRepository.save(professionalDegree);							// Guarda el ciclo
+		professionalDegreeRepository.delete(professionalDegree);						// Borra el ciclo
+	}
+	
+	/**
+	 * Comprueba si existe el ciclo
+	 * @param professionalDegree: Ciclo
+	 * @return Boolean existe True, no existe False
+	 */
+	public boolean existProfessionalDegree(ProfessionalDegree professionalDegree) {
+		return this.professionalDegreeRepository.existsById(professionalDegree.getId());
+	}
+	
+	/**
+	 * Obtiene un ciclo por id
+	 * @param professionalDegree: Ciclo a obtener
+	 * @return Ciclo solicitado
+	 */
+	public School getSchoolByProfessionalDegree(ProfessionalDegree professionalDegree) {
+		return this.professionalDegreeRepository.findById(professionalDegree.getId()).orElse(null).getSchool();
+	}
+	
+	/**
+	 * Obtiene todos los ciclos
+	 * @return: Lista de ciclos
+	 */
+	public List<ProfessionalDegree> getAll() {
+		return professionalDegreeRepository.findAll();
+	}
+	
+	/**
+	 * Añade un profesor a un ciclo
+	 * @param id: Identificador del ciclo
+	 * @param teacher: Profesor a añadir
+	 * @return Ciclo con profesor
+	 */
+	public ProfessionalDegree addTeacherToDegree(Integer id, Teacher teacher) {
+		ProfessionalDegree professionalDegree = this.get(id);   		// Obtenemos el ciclo		
+		
+		professionalDegree.getTeachers().add(teacher);					// Añadimos el profesor al ciclp
+		teacher.getProfessionalDegrees().add(professionalDegree);		// Añadimos el ciclo al profesor
+			
+		teacherService.save(teacher);									// Guardamos el profesor
+		professionalDegreeRepository.save(professionalDegree);			// Guardamos el ciclo
+		
+		return professionalDegree;										// Retornamos el ciclo
+	}
+	
+	/**
+	 * Actualiza el ciclo
+	 * @param idDegree: Identificador de ciclo
+	 * @param degree: Ciclo con los datos
+	 * @return: Ciclo actualizado
+	 */
+	public ProfessionalDegree updateDegree(Integer idDegree, ProfessionalDegree degree) {
+		ProfessionalDegree oldDegree = this.get(idDegree);						// Obtenemos el ciclo
+		oldDegree.setName(degree.getName());									// Establecemos el nombre
+		
+		return this.professionalDegreeRepository.save(oldDegree);				// Guardamos el ciclo y lo retornamos
+	}
+}
