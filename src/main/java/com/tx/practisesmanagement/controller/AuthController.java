@@ -138,6 +138,8 @@ public class AuthController {
 		    		);
 	        	}
 	        	
+	        	person.setDni(person.getDni().toUpperCase());
+	        	
 	            UsernamePasswordAuthenticationToken authInputToken = new UsernamePasswordAuthenticationToken(person.getDni(), person.getPassword());		// Creamos un nuevo usuario de autenticación
 
 	            authManager.authenticate(authInputToken);								// Autenticamos el usuari

@@ -26,7 +26,7 @@ public class SchoolService {
 	// Servicio
 		@Autowired AdministratorService administratorService;
 		@Autowired ProfessionalDegreeService professionalDegreeService; 
-	
+		
 	/**
 	 * Obtiene una escuela determinada
 	 * @param id: Identificador de la escuela
@@ -83,7 +83,7 @@ public class SchoolService {
 			
 		School school = this.get(schoolId);							// Obtenemos la escuela
 		administrator.setSchool(school);							// Establecemos la escuela
-			
+		
 		administratorService.save(administrator);					// Guardamos el administrador
 			
 		return school;												// Retornamos la escuela

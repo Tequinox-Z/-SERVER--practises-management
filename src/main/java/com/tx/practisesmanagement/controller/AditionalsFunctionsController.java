@@ -4,18 +4,22 @@ package com.tx.practisesmanagement.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tx.practisesmanagement.dto.ResetPasswordDTO;
 import com.tx.practisesmanagement.error.RestError;
 import com.tx.practisesmanagement.model.Person;
 import com.tx.practisesmanagement.model.School;
+import com.tx.practisesmanagement.model.SensorData;
 import com.tx.practisesmanagement.service.AditionalsFunctionsService;
 import com.tx.practisesmanagement.service.AdministratorService;
 import com.tx.practisesmanagement.service.SchoolService;
@@ -108,6 +112,19 @@ public class AditionalsFunctionsController {
 	@GetMapping("example")
 	public ResponseEntity get() {
 		return ResponseEntity.status(HttpStatus.OK).body(this.administratorService.getCountFromSchool(1) + " - " + teacherService.getCountTeacherFromSchool(1));
+	}
+	
+	@PostMapping("/motions")
+	public ResponseEntity registryMotion() {
+		System.out.println("Detectado movimiento");
+		return ResponseEntity.status(HttpStatus.CREATED).build();
+	}
+	
+	@PutMapping("/temp-humidity")
+	public ResponseEntity updateTemp(@RequestBody SensorData sensorData) {
+		System.out.println(sensorData);
+		System.out.println(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+		return ResponseEntity.status(HttpStatus.OK).build();
 	}
 
 }

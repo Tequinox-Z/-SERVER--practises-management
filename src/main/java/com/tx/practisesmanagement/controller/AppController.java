@@ -305,6 +305,38 @@ public class AppController {
 
 		return ResponseEntity.status(HttpStatus.OK).body(currentAdministrator.getSchool());							// Devolvemos la escuela
 	}
+	
+	@PostMapping("administrator/{dni}/school")
+	public ResponseEntity addSchoolToAdministrator(@PathVariable String dni, @RequestBody School school) {
+		Administrator currentAdministrator = administratorService.get(dni);											
+
+		if (currentAdministrator == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+				new RestError(HttpStatus.NOT_FOUND, "La persona no existe o no cuenta con privilegios de administrador")	
+			);
+		}
+		
+		if (school.getId() == null) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+					new RestError(HttpStatus.BAD_REQUEST, "Debe indicar el id de la escuela")	
+			);
+		}
+		
+		School schoolFromDB = schoolService.get(school.getId());
+		
+		if (schoolFromDB == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "La escuela con id " + school.getId() + " no existe")	
+			);
+		}
+		
+		currentAdministrator.setSchool(schoolFromDB);
+		
+		administratorService.save(currentAdministrator);
+		
+		return ResponseEntity.status(HttpStatus.OK).build();
+		
+	}
 
 
 	/* ============================================= Profesor =============================================  */
@@ -385,10 +417,9 @@ public class AppController {
 		}
 		
 		teacher.setPassword(passwordEncoder.encode(teacher.getPassword()));
+		teacherService.save(new Teacher(teacher));														// Si todo está correcto creamos el profesor
 
-		return ResponseEntity.status(HttpStatus.CREATED).body(
-				teacherService.save(new Teacher(teacher))														// Si todo está correcto creamos el profesor y lo retornamos
-		);
+		return ResponseEntity.status(HttpStatus.CREATED).build();
 	}
 	
 	/**
