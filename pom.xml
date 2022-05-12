@@ -70,11 +70,6 @@
    <artifactId>spring-boot-starter-tomcat</artifactId>
    <scope>provided</scope>
 </dependency>
-    <dependency>
-        <groupId>org.hibernate</groupId>
-        <artifactId>hibernate-search</artifactId>
-        <version>4.3.0.Final</version>
-    </dependency>
 	</dependencies>
 
 	<build>
