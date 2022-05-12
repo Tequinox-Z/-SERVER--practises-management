@@ -1,7 +1,4 @@
 package com.tx.practisesmanagement.service;
-
-
-
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +7,6 @@ import org.springframework.stereotype.Service;
 import com.tx.practisesmanagement.dto.PersonDTO;
 import com.tx.practisesmanagement.model.Teacher;
 import com.tx.practisesmanagement.repository.TeacherRepository;
-
 
 @Service
 public class TeacherService {

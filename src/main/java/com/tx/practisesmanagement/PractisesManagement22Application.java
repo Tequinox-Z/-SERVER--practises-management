@@ -26,7 +26,6 @@ public class PractisesManagement22Application extends SpringBootServletInitializ
 		SpringApplication.run(PractisesManagement22Application.class, args);
 	}
 
-
 	@Bean
 	CommandLineRunner initData(AdministratorRepository userRepositorio, TeacherRepository teacher, BCryptPasswordEncoder passwordEncoder) {
 		return (args) -> {			
@@ -87,8 +86,4 @@ public class PractisesManagement22Application extends SpringBootServletInitializ
 	    
 	    return mailSender;
 	}
-	
-	
-
-
 }
