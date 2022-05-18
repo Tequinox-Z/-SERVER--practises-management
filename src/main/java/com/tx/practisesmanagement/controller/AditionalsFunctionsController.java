@@ -1,10 +1,12 @@
 package com.tx.practisesmanagement.controller;
 
 
+
+import javax.mail.MessagingException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,13 +15,17 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.tx.practisesmanagement.component.SmtpMailSender;
+import com.tx.practisesmanagement.dto.PersonDTO;
 import com.tx.practisesmanagement.dto.ResetPasswordDTO;
 import com.tx.practisesmanagement.error.RestError;
 import com.tx.practisesmanagement.model.Person;
 import com.tx.practisesmanagement.model.School;
 import com.tx.practisesmanagement.model.SensorData;
+import com.tx.practisesmanagement.security.JWTUtil;
 import com.tx.practisesmanagement.service.AditionalsFunctionsService;
 import com.tx.practisesmanagement.service.AdministratorService;
+import com.tx.practisesmanagement.service.PersonService;
 import com.tx.practisesmanagement.service.SchoolService;
 import com.tx.practisesmanagement.service.StudentService;
 import com.tx.practisesmanagement.service.TeacherService;
@@ -29,7 +35,7 @@ import com.tx.practisesmanagement.service.TeacherService;
  * @author Salva
  */
 @RestController
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = {"http://localhost:4200", "http://practises-management.es"})
 public class AditionalsFunctionsController {
 	
 	// Servicios
@@ -39,55 +45,12 @@ public class AditionalsFunctionsController {
 		@Autowired private TeacherService teacherService;					// Servicio de profesor
 		@Autowired private AditionalsFunctionsService aditinalsFuncions;	// Servicio de funciones adicionales
 		@Autowired private SchoolService schoolService;						// Servicio de colegio
+		@Autowired private PersonService personService;
 		
-	// Encriptación / Desencriptación
-	
-		//@Autowired private BCryptPasswordEncoder desencoder;
-	
-	/**
-	 * Permite resetear una contraseña olvidada enviando la misma al correo del usuario
-	 * @param resetPassword : DTO que contiene el dni del usuario
-	 * @return NO_CONTENT
-	 */
-	@PostMapping("reset-password")
-	public ResponseEntity resetPassword(@RequestBody ResetPasswordDTO resetPassword) {
-		if (resetPassword.getDni() == null) {	
-    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-        			new RestError(HttpStatus.BAD_GATEWAY, "Indique su dirección de correo")		// Si el correo es nulo lanzamos error
-    		);
-		}
 		
-		Person user = administratorService.get(resetPassword.getDni() ); 						// Obtenemos el usuario
-    	
-    	if (user == null) {
-    		user = teacherService.get(resetPassword.getDni() );									// Si no existe lo buscamos en profesores
-    		
-    		if (user == null) {
-    			user = studentService.get(resetPassword.getDni() );								// Si no existe lo buscamos en estudiantes
-    			
-    			if (user == null) {
-    	    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-    	        			new RestError(HttpStatus.BAD_GATEWAY, "Dni no registrado")			// Si no existe el usuario no está registrado
-    	    		);
-    			}
-    		}
-    	}
-		
-    	
-    	//String result = "";																		// Esta variable almacenará el resultado
-    	
-    	// =================================== Desencriptar la contraseña cifrada por spring security ===================================
-    	
-    	try {
-    		//result = aditinalsFuncions.desencryptMd5(Encryptors.text("", "salt").toString());	// Quitamos el cifrado MD5
-    	}
-    	catch(Exception e) {
-    		
-    	}						
-				
-	    return ResponseEntity.status(HttpStatus.NO_CONTENT).build();							// Devolvemos un NO_CONTENT
-	}
-	
+		@Autowired private SmtpMailSender smtpMailSender;
+		@Autowired private JWTUtil jwtUtil;
+
 	
 	@GetMapping("school/{idSchool}/briefing")
 	public ResponseEntity getBriefingFromSchool(@PathVariable Integer idSchool) {
@@ -112,15 +75,95 @@ public class AditionalsFunctionsController {
 	
 	@PostMapping("/motions")
 	public ResponseEntity registryMotion() {
-		System.out.println("Detectado movimiento");
 		return ResponseEntity.status(HttpStatus.CREATED).build();
 	}
 	
 	@PutMapping("/temp-humidity")
 	public ResponseEntity updateTemp(@RequestBody SensorData sensorData) {
-		System.out.println(sensorData);
-		System.out.println(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
-		return ResponseEntity.status(HttpStatus.OK).build();
+		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 	}
+	
+	@PostMapping("/disable-user")
+	public ResponseEntity disableUser(@RequestBody PersonDTO person) {
+		if (person.getDni() == null || person.getDni().trim().length() < 8 || person.getDni().trim().length() > 9) {
+    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+        			new RestError(HttpStatus.BAD_REQUEST, "Especifique un dni válido")
+    		);
+		}
+		else if (!personService.existPerson(person.getDni())) {
+    		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+        			new RestError(HttpStatus.NOT_FOUND, "Persona no encontrada")
+    		);
+		}
+		else {
+			try {
+				personService.disable(person.getDni());
+			}
+			catch (Exception e) {
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new RestError(HttpStatus.NOT_FOUND, e.getMessage()));
+			}
+			
+			return ResponseEntity.status(HttpStatus.CREATED).build();
+		}		
+	}
+	
+	@PostMapping("/enable-user")
+	public ResponseEntity enableUser(@RequestBody PersonDTO person) {
+		if (person.getDni() == null || person.getDni().trim().length() < 8 || person.getDni().trim().length() > 9) {
+    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+        			new RestError(HttpStatus.BAD_REQUEST, "Especifique un dni válido")
+    		);
+		}
+		else if (!personService.existPerson(person.getDni())) {
+    		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+        			new RestError(HttpStatus.NOT_FOUND, "Persona no encontrada")
+    		);
+		}
+		else {
+			try {
+				personService.enable(person.getDni());
+			}
+			catch (Exception e) {
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new RestError(HttpStatus.NOT_FOUND, e.getMessage()));
+			}
+			return ResponseEntity.status(HttpStatus.CREATED).build();
+		}	
+	}
+	
+	/**
+	 * Permite resetear una contraseña olvidada enviando un token válido por un tiempo determinado al correo del usuario
+	 * @param resetPassword : DTO que contiene el dni del usuario
+	 * @return NO_CONTENT
+	 */
+	@PostMapping("send-reset-password")
+	public ResponseEntity resetPassword(@RequestBody ResetPasswordDTO resetPassword) {
+		if (resetPassword.getDni() == null || resetPassword.getDni().trim().length() < 8 || resetPassword.getDni().trim().length() > 9) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+	    			new RestError(HttpStatus.BAD_REQUEST, "Indique un dni válido")
+			);
+		}
+		
+		if (!personService.existPerson(resetPassword.getDni())) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "Usuario no registrado")
+			);
+		}
+		
+        String newToken = jwtUtil.generateToken(resetPassword.getDni());					// Obtenemos su token
 
+        Person person = personService.getPerson(resetPassword.getDni());
+		
+        try {
+			smtpMailSender.send(person.getEmail(), "Reestablecer contraseña", "Hola " + person.getName() + ", pulsa sobre el siguiente enlace para configurar de nuevo tu contraseña: https://practises-management.es/" + newToken );
+		} 
+        catch (MessagingException e) {
+			return ResponseEntity.status(HttpStatus.CONFLICT).body(
+	    			new RestError(HttpStatus.CONFLICT, "Error al enviar el correo")
+			);
+		}
+
+        String email = person.getEmail();
+        email = "··" + email.substring(2, email.length());
+		return ResponseEntity.status(HttpStatus.CREATED).body(new PersonDTO(resetPassword.getDni(), email));
+	}
 }

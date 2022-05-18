@@ -1,16 +1,16 @@
 package com.tx.practisesmanagement.controller;
 
 
+import java.util.Base64;
 import java.util.Collections;
-
-import javax.mail.MessagingException;
+import java.util.HashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,9 +18,19 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tx.practisesmanagement.component.SmtpMailSender;
 import com.tx.practisesmanagement.dto.PersonDTO;
+import com.tx.practisesmanagement.dto.TokenDTO;
+import com.tx.practisesmanagement.dto.TokenDecompressedDTO;
 import com.tx.practisesmanagement.error.RestError;
+import com.tx.practisesmanagement.exception.UserErrorException;
 import com.tx.practisesmanagement.model.Administrator;
 import com.tx.practisesmanagement.model.Student;
 import com.tx.practisesmanagement.model.Teacher;
@@ -53,6 +63,14 @@ public class AuthController {
     		@Autowired private PersonService personService;	    
     		@Autowired private SmtpMailSender smtpMailSender;
     		
+    		
+    		@Value("${jwt_secret}")
+    	    private String secret;										// Secreto	
+    		
+    		
+    		@Value("${token-expirated-refresh-time}")
+    		private long tokenExpiratedRefreshTime;
+    	
     	/**
     	 * Permite registrar un usuario, ya sea un administrador, estudiante o profesor
    		 * @param user: Usuario a registrar
@@ -61,7 +79,7 @@ public class AuthController {
 	    @PostMapping("auth/register")
 	    public ResponseEntity registerAdmin(@RequestBody PersonDTO user) {
 
-	    	if (user.getDni() == null) {
+	    	if (user.getDni() == null || user.getDni().trim().length() < 8 || user.getDni().trim().length() > 9) {
 	    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RestError(HttpStatus.BAD_REQUEST, "No se expecificó un dni"));						// Si no nos han pasado dni lo indicamos
 	    	} 
 	    	else if (user.getName() == null) {
@@ -125,9 +143,8 @@ public class AuthController {
 	     */
 	    @PostMapping("auth/login")
 	    public ResponseEntity loginHandler(@RequestBody PersonDTO person){
-	        try {
-	        	
-	        	if (person.getDni() == null) {
+	        try {	
+	        	if (person.getDni() == null || person.getDni().trim().length() < 8 || person.getDni().trim().length() > 9) {
 		    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
 		    				new RestError(HttpStatus.BAD_REQUEST, "Indique dni")			// Si no nos han indicado un dni lo indicamos
 		    		);
@@ -145,15 +162,15 @@ public class AuthController {
 	            authManager.authenticate(authInputToken);								// Autenticamos el usuari
 	            String token = jwtUtil.generateToken(person.getDni());					// Obtenemos su token
 
-	            return ResponseEntity.status(HttpStatus.OK).body(Collections.singletonMap("jwt_token", token));			// Retornamos el resultado
+	            return ResponseEntity.status(HttpStatus.CREATED).body(Collections.singletonMap("jwt_token", token));			// Retornamos el resultado
 	        }
-	        catch (AuthenticationException authExc){
-	        	if (personService.existPerson(person.getDni())) {
-		    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RestError(HttpStatus.BAD_REQUEST, "Contraseña incorrecta"));			// Si la contraseña es incorrecta lo indicamos
-	        	}
-	        	else {
-		    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RestError(HttpStatus.BAD_REQUEST, "El usuario no existe"));			// Si el usuario no existe lo indicamos 
-	        	}
+	        catch (Exception e) {
+	        	
+	        	HashMap<HttpStatus, String> errorGenerated = personService.getErrorLogin(person.getDni(), person.getPassword());
+	        	
+	        	HttpStatus codeHttp = errorGenerated.entrySet().iterator().next().getKey();
+	        	
+	    		return ResponseEntity.status(codeHttp).body(new RestError(codeHttp, errorGenerated.get(codeHttp)));			
 	        }
 	    }
 	    
@@ -163,6 +180,58 @@ public class AuthController {
 	    @GetMapping("auth/checktoken")
 	    public ResponseEntity isTokenValid() {
     		return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); 				// Si estamos autorizados devolveremos un NO_CONTENT si no spring devolverá un 401
+	    }
+	    
+	    
+	    @PostMapping("auth/refresh-token")
+	    public ResponseEntity refreshToken(@RequestBody TokenDTO token) {
+	    	
+	    	try {
+		        JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secret))
+		                .withSubject("User Details")
+		                .withIssuer("Practises/Management")
+		                .acceptExpiresAt(tokenExpiratedRefreshTime)
+		                .build();
+		        verifier.verify(token.getToken());
+	    	}
+	    	catch (JWTVerificationException e) {
+	    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+	    				new RestError(HttpStatus.BAD_REQUEST, "Tiempo de renovación agotado")			
+	    		);
+	    	}
+	    	catch (Exception e) {
+	    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+	    				new RestError(HttpStatus.BAD_REQUEST, "Token no válido")			
+	    		);
+	    	}
+	    	
+	    	String paiload = token.getToken().split("\\.")[1];
+	   
+	    	Base64.Decoder decoder = Base64.getUrlDecoder();
+	    	String pailoadDesencrypted = new String(decoder.decode(paiload));
+	    	
+	    	TokenDecompressedDTO dataToken;
+	    	
+	    	try {
+	    		dataToken = new ObjectMapper().readValue(pailoadDesencrypted, TokenDecompressedDTO.class);
+				
+				if (dataToken.getUsername() == null || dataToken.getUsername().trim().length() < 8 || dataToken.getUsername().trim().length() > 9) {
+					throw new UserErrorException("Dni incorrecto");
+				}
+			}
+	    	catch (Exception e) {
+	    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+	    				new RestError(HttpStatus.BAD_REQUEST, e.getMessage())			
+	    		);
+			} 
+
+	    	
+            String newToken = jwtUtil.generateToken(dataToken.getUsername());					// Obtenemos su token
+	    	
+    		return ResponseEntity.status(HttpStatus.CREATED).body(
+    				new RestError(HttpStatus.CREATED, newToken)			
+    		);
+	    	
 	    }
 	    
 }

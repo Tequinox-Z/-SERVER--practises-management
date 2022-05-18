@@ -12,8 +12,10 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
+import com.tx.practisesmanagement.exception.UserErrorException;
 import com.tx.practisesmanagement.model.Person;
 import com.tx.practisesmanagement.service.AdministratorService;
+import com.tx.practisesmanagement.service.PersonService;
 import com.tx.practisesmanagement.service.StudentService;
 import com.tx.practisesmanagement.service.TeacherService;
 
@@ -29,25 +31,18 @@ public class MyUserDetailsService implements UserDetailsService {
 		@Autowired private TeacherService teacherService;
     	@Autowired private StudentService studentService;
     	@Autowired private AdministratorService administratorService;
-
+    	
     /**
      * Obtiene un usuario por dni
      */
-    @Override
-    public UserDetails loadUserByUsername(String dni) throws UsernameNotFoundException {
-        
-    	Person user = administratorService.get(dni);						// Buscamos en administradores
     	
-    	if (user == null) {
-    		user = teacherService.get(dni);									// Si no existe lo buscamos en profesores
-    		
-    		if (user == null) {
-    			user = studentService.get(dni);								// SI no existe buscamos en Estudiantes
-    			
-    			if (user == null) {
-    	            throw new UsernameNotFoundException("No se encontró el usuario con dni " + dni);	// Si no existe lo indicamos
-    			}
-    		}
+    @Override
+    public UserDetails loadUserByUsername(String dni) throws RuntimeException {
+        
+    	Person user = this.getPerson(dni);
+    	
+    	if (!user.isEnabled()) {
+    		throw new UserErrorException("Usuario deshabilitado");
     	}
 
     	// Creamos un nuevo usuario
@@ -58,4 +53,19 @@ public class MyUserDetailsService implements UserDetailsService {
                 Collections.singletonList(new SimpleGrantedAuthority(user.getRol().toString()))
         );
     }
+    
+	public Person getPerson(String dni) throws UsernameNotFoundException {
+    	Person person = administratorService.get(dni);						// Buscamos en administradores
+
+    	if(person == null) {
+    		person = teacherService.get(dni);									// Si no existe lo buscamos en profesores
+    		
+    		if (person == null) {
+    			person = studentService.get(dni);								// Si no existe buscamos en Estudiantes
+    		}
+    	}
+    	
+    	return person;
+	}
+	
 }

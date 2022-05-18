@@ -35,6 +35,12 @@ public class RestError implements Serializable {
 		this.mensaje = mensaje;
 	}
 	
+	public RestError(String mensaje) {
+		super();
+		this.fecha = LocalDateTime.now();
+		this.mensaje = mensaje;
+	}
+	
 	/**
 	 * Obtiene el código de estado
 	 * @return Código de estado

@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -17,6 +18,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.tx.practisesmanagement.exception.UserErrorException;
+import com.tx.practisesmanagement.model.Person;
+import com.tx.practisesmanagement.service.PersonService;
 
 
 /**
@@ -29,7 +33,6 @@ public class JWTFilter extends OncePerRequestFilter {
 	// Servicio
 	
     	@Autowired private MyUserDetailsService userDetailsService; 
-
     // Utiles
     	
     	@Autowired private JWTUtil jwtUtil;
@@ -39,6 +42,7 @@ public class JWTFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
         String authHeader = request.getHeader("Authorization");
+        String dni = "";
         if (authHeader != null && !authHeader.isEmpty() && authHeader.startsWith("Bearer ")){
             String jwt = authHeader.substring(7);
             if(jwt == null || jwt.isEmpty()){
@@ -47,24 +51,21 @@ public class JWTFilter extends OncePerRequestFilter {
             }
             else {
                 try {
-                    String email = jwtUtil.validateTokenAndRetrieveSubject(jwt);
-                    UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+                    dni = jwtUtil.validateTokenAndRetrieveSubject(jwt);
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(dni);
                     UsernamePasswordAuthenticationToken authToken =
-                            new UsernamePasswordAuthenticationToken(email, userDetails.getPassword(), userDetails.getAuthorities());
+                            new UsernamePasswordAuthenticationToken(dni, userDetails.getPassword(), userDetails.getAuthorities());
                     if (SecurityContextHolder.getContext().getAuthentication() == null){
                         SecurityContextHolder.getContext().setAuthentication(authToken);
                     }
                 }
-                catch (JWTVerificationException exc) {
-                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Token no válido");
+                catch (JWTVerificationException | UserErrorException exception) {
+                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     return;
                 }
-                catch (UsernameNotFoundException user) {
-                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "El usuario no existe");
-                    return;
-                }
-                catch (Exception exp) {
-                    response.sendError(HttpServletResponse.SC_CONFLICT, "Error: " + exp.getMessage());
+
+                catch (Exception exception) {
+                	response.sendError(HttpServletResponse.SC_BAD_REQUEST);
                     return;
                 }
             }

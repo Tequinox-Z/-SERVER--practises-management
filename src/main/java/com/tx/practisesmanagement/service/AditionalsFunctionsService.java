@@ -38,29 +38,4 @@ public class AditionalsFunctionsService {
 	    return result;																				// Retornamos el string descifrado
 	}
 	
-	/**
-	 * Desencripta la seguridad de spring security
-	 */
-//	public String decryptEncoderJava(String encryptedData) {
-//	    String decodedPWD = "";
-//	    try {
-//	        Key key = generateKey();
-//	        Cipher c = Cipher.getInstance("AES");
-//	        c.init(Cipher.DECRYPT_MODE, key);
-//	        byte[] decordedValue = Base64.getDecoder().decode(encryptedData);
-//	        byte[] decValue = c.doFinal(decordedValue);
-//	        decodedPWD = new String(decValue);
-//
-//	    } catch (Exception e) {
-//
-//	    }
-//	    return decodedPWD;
-//	}
-//	
-//	private SecretKeySpec generateKey() {
-//		String ALGO = "AES";
-//		byte[] keyValue = new byte[] { 'T', 'E', 'S', 'T' };
-//		
-//	    return new SecretKeySpec(keyValue, ALGO);
-//	}
 }

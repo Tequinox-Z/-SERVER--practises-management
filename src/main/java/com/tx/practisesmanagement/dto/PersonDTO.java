@@ -37,6 +37,11 @@ public class PersonDTO implements Serializable {
 		super();
 	}
 	
+	public PersonDTO(String dni, String email) {
+		this.dni = dni;
+		this.email = email;
+	}
+	
 	/**
 	 * Constructor desde un administrador
 	 * @param administrator: Administrador

@@ -1,6 +1,7 @@
 package com.tx.practisesmanagement.security;
 
 
+import java.util.Calendar;
 import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -34,19 +35,18 @@ public class JWTUtil {
      * @throws JWTCreationException
      */
     public String generateToken(String username) throws IllegalArgumentException, JWTCreationException {
-    	
-    	Date date = new Date();								// Obtenemos la fecha
-    	
-    	date.setMinutes(date.getMinutes() + minutes);		// Establecemos la fecha de expiración
-    	    	
+      	
+    	Calendar date = Calendar.getInstance();
+    	Calendar expirationDate = Calendar.getInstance();
+    	expirationDate.add(Calendar.MINUTE, minutes);
     	// Asignamos datos
     	
         return JWT.create()
                 .withSubject("User Details")
                 .withClaim("username", username)
-                .withIssuedAt(new Date())
+                .withIssuedAt(date.getTime())
                 .withIssuer("Practises/Management")
-                .withExpiresAt(date)
+                .withExpiresAt(expirationDate.getTime())
                 .sign(Algorithm.HMAC256(secret));
     }
 
@@ -62,6 +62,7 @@ public class JWTUtil {
                 .withIssuer("Practises/Management")
                 .build();
         DecodedJWT jwt = verifier.verify(token);
+        
         return jwt.getClaim("username").asString();
     }
 

@@ -33,6 +33,7 @@ public class Person {
 	protected String telefone;						// Teléfono
 	protected String address;						// Dirección
 	protected String email;							// Correo
+	protected boolean enabled;
 	
 	@JsonIgnore
 	protected String password;						// Contraseña
@@ -52,33 +53,41 @@ public class Person {
 	 */
 	public Person(String dni, Date birthDate, String name, String lastName, String image, String telefone,
 			String address, String password, String email) {
-		super();
-		// Establcemos todos los datos
-		this.dni = dni;
-		this.birthDate = birthDate;
-		this.name = name;
-		this.lastName = lastName;
-		this.image = image;
-		this.telefone = telefone;
-		this.address = address;
-		this.password = password;
-		this.email = email;
+		
+			super();
+			
+		// Establecemos todos los datos
+		
+			this.dni = dni;
+			this.birthDate = birthDate;
+			this.name = name;
+			this.lastName = lastName;
+			this.image = image;
+			this.telefone = telefone;
+			this.address = address;
+			this.password = password;
+			this.email = email;
+			this.enabled = true;
 	}
 
 	/**
 	 * Constructor sin parámetros
 	 */
+	
 	public Person() {
 		super();
+		this.enabled = true;
 	}
 
 	/**
 	 * Constructor con dni
 	 * @param dni
 	 */
+	
 	public Person(String dni) {
 		super();
 		this.dni = dni;
+		this.enabled = true;
 	}
 
 	/**
@@ -90,10 +99,11 @@ public class Person {
 		super();
 		this.dni = dni;
 		this.password = password;
+		this.enabled = true;
 	}
 
 	/**
-	 * Hashcode de persona
+	 * HashCode de persona
 	 */
 	@Override
 	public int hashCode() {
@@ -284,5 +294,15 @@ public class Person {
 	public void setEmail(String email) {
 		this.email = email;
 	}
+
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
+	
+	
 	
 }

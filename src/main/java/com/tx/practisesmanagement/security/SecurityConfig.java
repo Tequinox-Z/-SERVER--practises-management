@@ -38,7 +38,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 // Público
                 
                 .antMatchers(
-                		"/auth/login", "/reset-password", "/"
+                		"/auth/login", "/send-reset-password", "/"
                 ).permitAll()
                 
                 
@@ -46,7 +46,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 
                 
                 .antMatchers(
-                		"/administrator/**", "/auth/register", "/temp-humidity", "/motions"
+                		"/administrator/**", "/auth/register", "/temp-humidity", "/motions", "/disable-user", "/enable-user"
                 ).hasRole("ADMIN")
                 
                 
