@@ -10,6 +10,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
@@ -22,7 +23,7 @@ import com.tx.practisesmanagement.model.Teacher;
 import com.tx.practisesmanagement.repository.AdministratorRepository;
 import com.tx.practisesmanagement.repository.TeacherRepository;
 
-@EnableDiscoveryClient
+@EnableEurekaClient
 @SpringBootApplication
 public class PractisesManagement22Application extends SpringBootServletInitializer {
 
