@@ -62,6 +62,34 @@ public class PersonService {
     	return person;
 	}
 	
+	public Person setNewPassword(String dni, String password) throws UsernameNotFoundException {
+    	Administrator admin = administratorService.get(dni);						// Buscamos en administradores
+
+    	if (admin == null) {
+    		Teacher teacher = teacherService.get(dni);									// Si no existe lo buscamos en profesores
+    		
+    		if (teacher == null) {
+    			Student student = studentService.get(dni);								// Si no existe buscamos en Estudiantes
+    			
+    			if (student == null) {
+    	            throw new UsernameNotFoundException("No se encontró el usuario con dni " + dni);	// Si no existe lo indicamos
+    			}
+    			else {
+    				student.setPassword(password);
+    				return studentService.save(student);
+    			}
+    		}
+    		else {
+    			teacher.setPassword(password);
+    			return teacherService.save(teacher);
+    		}
+    	}
+    	else {
+    		admin.setPassword(password);
+    		return administratorService.save(admin);
+    	}
+	}
+	
 	
 	public HashMap<HttpStatus, String> getErrorLogin(String dni, String password) {
 		

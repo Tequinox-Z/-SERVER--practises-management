@@ -27,6 +27,8 @@ public class JWTUtil {
     @Value("${jwt_expiration}")
     private Integer minutes;									// Minutos de expiración
     
+    @Value("${minutes_token_email}")
+    private Integer minutesTokenEmail;
     /**
      * Genera el token
      * @param username: Usuario
@@ -50,6 +52,30 @@ public class JWTUtil {
                 .sign(Algorithm.HMAC256(secret));
     }
 
+    /**
+     * Genera el token
+     * @param username: Usuario
+     * @return
+     * @throws IllegalArgumentException
+     * @throws JWTCreationException
+     */
+    public String generateTokenForNewPassword(String username) throws IllegalArgumentException, JWTCreationException {
+      	
+    	Calendar date = Calendar.getInstance();
+    	Calendar expirationDate = Calendar.getInstance();
+    	expirationDate.add(Calendar.MINUTE, minutesTokenEmail);
+    	// Asignamos datos
+    	
+        return JWT.create()
+                .withSubject("User Details")
+                .withClaim("username", username)
+                .withIssuedAt(date.getTime())
+                .withIssuer("Practises/Management")
+                .withExpiresAt(expirationDate.getTime())
+                .sign(Algorithm.HMAC256(secret));
+    }
+    
+    
     /**
      * Validar datos
      * @param token: Token

@@ -46,14 +46,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 
                 
                 .antMatchers(
-                		"/administrator/**", "/auth/register", "/temp-humidity", "/motions", "/disable-user", "/enable-user"
+                		"/administrator/**", "/temp-humidity", "/motions", "/disable-user", "/enable-user"
                 ).hasRole("ADMIN")
                 
                 
                 // Acceso para cualquier usuario registrado
                 
                 .antMatchers(
-                		"/auth/checktoken", "/student/**", "/enrollment/**", "/business/**", "/exist-person/**", "/person/**"
+                		"/auth/checktoken", "/student/**", "/enrollment/**", "/business/**", "/exist-person/**", "/person/**", "/configure-new-password"
                 ).hasAnyRole("ADMIN", "TEACHER", "ADMIN")
                 
                 
