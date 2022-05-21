@@ -46,7 +46,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 
                 
                 .antMatchers(
-                		"/administrator/**", "/temp-humidity", "/motions", "/disable-user", "/enable-user"
+                		"/administrator/**", "/auth/register", "/temp-humidity", "/motions", "/disable-user", "/enable-user"
                 ).hasRole("ADMIN")
                 
                 
