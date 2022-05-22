@@ -32,6 +32,17 @@ public class Administrator extends Teacher {
 		this.rol = Rol.ROLE_ADMIN;						// Asignamos el rol de admin	
 	}
 	
+	
+	public School getSchoolSetted() {
+		return schoolSetted;
+	}
+
+
+	public void setSchoolSetted(School schoolSetted) {
+		this.schoolSetted = schoolSetted;
+	}
+
+
 	/**
 	 * Constructor desde un dto de persona
 	 * @param person: Persona con los datos
@@ -50,6 +61,7 @@ public class Administrator extends Teacher {
 		this.password = person.getPassword();
 		this.telefone = person.getTelefone();
 		this.email = person.getEmail();
+		this.enabled = person.isEnabled();
 		
 		this.rol = Rol.ROLE_ADMIN;	// Asignamos el rol
 	}
@@ -66,20 +78,21 @@ public class Administrator extends Teacher {
 	 * @param telefone: Teléfono
 	 * @param email: Correo
 	 */
-	public Administrator(String dni, String address, Date birthDate, String image, String name, String lastName, String password, String telefone, String email) {
+	public Administrator(String dni, String address, Date birthDate, String image, String name, String lastName, String password, String telefone, String email, boolean enabled) {
 		super();
 		
 		// Asignamos todos los datos
 		
 		this.dni = dni;
 		this.address = address;
-		this.birthDate = birthDate;
-		this.image = image;
+		this.birthDate = birthDate; 
+		this.image = image; 
 		this.name = name;
 		this.lastName = lastName;
 		this.password = password;
-		this.telefone = telefone;
+		this.telefone = telefone; 
 		this.email = email;
+		this.enabled = enabled;
 		
 		this.rol = Rol.ROLE_ADMIN;		// Asignamos el rol
 	}

@@ -35,6 +35,8 @@ public class LaborTutor extends Person {
 		this.password = person.getPassword();
 		this.telefone = person.getTelefone();
 		this.email = person.getEmail();
+		this.enabled = person.isEnabled();
+
 		this.rol = Rol.ROLE_LABOR_TUTOR;
 	}
 

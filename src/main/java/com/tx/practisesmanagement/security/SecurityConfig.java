@@ -35,14 +35,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeHttpRequests()
                 
-                // Público
+   // Público
                 
                 .antMatchers(
                 		"/auth/login", "/send-reset-password", "/"
                 ).permitAll()
                 
                 
-                // Acceso sólo para el administrador
+   // Acceso sólo para el administrador
                 
                 
                 .antMatchers(
@@ -50,14 +50,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 ).hasRole("ADMIN")
                 
                 
-                // Acceso para cualquier usuario registrado
+   // Acceso para cualquier usuario registrado
                 
                 .antMatchers(
                 		"/auth/checktoken", "/student/**", "/enrollment/**", "/business/**", "/exist-person/**", "/person/**", "/configure-new-password"
                 ).hasAnyRole("ADMIN", "TEACHER", "ADMIN")
                 
                 
-                // Acceso sólo para profesor y administrador
+   // Acceso sólo para profesor y administrador
                 
                 .antMatchers(
                 		"/teacher/**", "/school/**"

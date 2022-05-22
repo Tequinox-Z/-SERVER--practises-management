@@ -11,7 +11,7 @@ import javax.persistence.Id;
 public class SensorData {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private long id;
+	private Long id;
 	
 	private Double humidity;
 	private Double tempCelcius;
@@ -20,11 +20,34 @@ public class SensorData {
 	private Double heatIndexCelsius;
 	private Integer pin;
 	
-	
-	public long getId() {
+	public SensorData(Double humidity, Double tempCelcius, Double tempFahrenheit, Double heatIndexFahrenheit,
+			Double heatIndexCelsius, Integer pin) {
+		super();
+		this.humidity = humidity;
+		this.tempCelcius = tempCelcius;
+		this.tempFahrenheit = tempFahrenheit;
+		this.heatIndexFahrenheit = heatIndexFahrenheit;
+		this.heatIndexCelsius = heatIndexCelsius;
+		this.pin = pin;
+	}
+	public SensorData(long id, Double humidity, Double tempCelcius, Double tempFahrenheit, Double heatIndexFahrenheit,
+			Double heatIndexCelsius, Integer pin) {
+		super();
+		this.id = id;
+		this.humidity = humidity;
+		this.tempCelcius = tempCelcius;
+		this.tempFahrenheit = tempFahrenheit;
+		this.heatIndexFahrenheit = heatIndexFahrenheit;
+		this.heatIndexCelsius = heatIndexCelsius;
+		this.pin = pin;
+	}
+	public SensorData() {
+		super();
+	}
+	public Long getId() {
 		return id;
 	}
-	public void setId(long id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 	public Double getHumidity() {
@@ -54,6 +77,8 @@ public class SensorData {
 	public Double getHeatIndexCelsius() {
 		return heatIndexCelsius;
 	}
+	
+	
 	public void setHeatIndexCelsius(Double heatIndexCelsius) {
 		this.heatIndexCelsius = heatIndexCelsius;
 	}
@@ -69,6 +94,7 @@ public class SensorData {
 				+ tempFahrenheit + ", heatIndexFahrenheit=" + heatIndexFahrenheit + ", heatIndexCelsius="
 				+ heatIndexCelsius + ", pin=" + pin + "]";
 	}
+	
 	@Override
 	public int hashCode() {
 		return Objects.hash(id);
@@ -82,7 +108,7 @@ public class SensorData {
 		if (getClass() != obj.getClass())
 			return false;
 		SensorData other = (SensorData) obj;
-		return id == other.id;
+		return Objects.equals(id, other.id);
 	}
 	
 }

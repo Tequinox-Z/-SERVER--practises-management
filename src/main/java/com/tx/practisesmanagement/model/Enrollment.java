@@ -31,6 +31,7 @@ public class Enrollment {
 	private Date date;									// Fecha de matriculación
 	
 	@ManyToMany
+	@JsonIgnore
 	private List<Business> businessesSelected;			// Empresas seleccionadas
 	
 	@ManyToOne
@@ -39,12 +40,20 @@ public class Enrollment {
 	
 	@OneToOne
 	@JsonIgnore
-	private Practise practise;							// PRactica
+	private Practise practise;							// Práctica
 	
 	@ManyToOne
 	@JsonIgnore
 	private ProfessionalDegree professionalDegree;		// Ciclo matriculado
 	
+	public List<Business> getBusinessesSelected() {
+		return businessesSelected;
+	}
+
+	public void setBusinessesSelected(List<Business> businessesSelected) {
+		this.businessesSelected = businessesSelected;
+	}
+
 	/**
 	 * Constructor sin parámetros
 	 */

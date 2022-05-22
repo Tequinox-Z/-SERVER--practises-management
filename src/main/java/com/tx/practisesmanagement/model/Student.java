@@ -1,9 +1,5 @@
 package com.tx.practisesmanagement.model;
 
-
-
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -49,6 +45,7 @@ public class Student extends Person {
 		this.password = person.getPassword();
 		this.telefone = person.getTelefone();
 		this.email = person.getEmail();
+		this.enabled = person.isEnabled();
 
 		this.rol = Rol.ROLE_STUDENT;					// Asignamos el rol 
 	}
@@ -69,6 +66,8 @@ public class Student extends Person {
 		this.enrollments = enrollments;
 	}
 
+	
+	
 	/**
 	 * Hashcode de estudiante
 	 */

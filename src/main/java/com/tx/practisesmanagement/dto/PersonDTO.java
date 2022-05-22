@@ -28,7 +28,7 @@ public class PersonDTO implements Serializable {
 	private String password;										// Contraseña del usuario
 	private String email;											// Correo del usuario
 	private String rol;												// ROl del usuario
-	
+	private boolean enabled;
 	
 	/**
 	 * Constructor vacío de person
@@ -60,6 +60,8 @@ public class PersonDTO implements Serializable {
 		this.address = administrator.getAddress();
 		this.rol = administrator.getRol().toString();
 		this.email = administrator.getEmail();
+		this.password = administrator.getPassword();
+		this.enabled = administrator.isEnabled();
 	}
 	
 	/**
@@ -78,8 +80,10 @@ public class PersonDTO implements Serializable {
 		this.image = student.getImage();
 		this.telefone = student.getTelefone();
 		this.address = student.getAddress();
-		this.email = student.getEmail();
 		this.rol = student.getRol().toString();
+		this.email = student.getEmail();
+		this.password = student.getPassword();
+		this.enabled = student.isEnabled();
 	}
 	
 	/**
@@ -98,8 +102,10 @@ public class PersonDTO implements Serializable {
 		this.image = teacher.getImage();
 		this.telefone = teacher.getTelefone();
 		this.address = teacher.getAddress();
-		this.email = teacher.getEmail();
 		this.rol = teacher.getRol().toString();
+		this.email = teacher.getEmail();
+		this.password = teacher.getPassword();
+		this.enabled = teacher.isEnabled();
 	}
 
 	/**
@@ -139,6 +145,14 @@ public class PersonDTO implements Serializable {
 	 */
 	public String getName() {
 		return name;
+	}
+
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
 	}
 
 	/**

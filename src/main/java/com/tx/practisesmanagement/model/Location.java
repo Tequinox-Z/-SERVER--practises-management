@@ -19,6 +19,10 @@ public class Location {
 	public Location() {
 		super();
 	}
+	
+	public Location(Integer id) {
+		this.id = id;
+	}
 
 	public Location(Integer latitude, Integer longitude) {
 		super();

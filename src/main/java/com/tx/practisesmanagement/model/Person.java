@@ -89,7 +89,7 @@ public class Person {
 		this.dni = dni;
 		this.enabled = true;
 	}
-
+	
 	/**
 	 * Constructor con dni y contraseña
 	 * @param dni

@@ -14,6 +14,7 @@ public class UnusualMovement {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer id;
+
 	private LocalDateTime date;
 	
 	public UnusualMovement() {

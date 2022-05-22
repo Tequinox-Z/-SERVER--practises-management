@@ -36,6 +36,7 @@ public class Practise {
 	private Enrollment enrollment;						// Matrícula
 	
 	@ManyToOne
+	@JsonIgnore
 	private Teacher teacher;
 	
 	@ManyToOne
@@ -68,6 +69,14 @@ public class Practise {
 		this.finish = finish;
 		this.enrollment = enrollment;
 		this.business = business;
+	}
+
+	public Teacher getTeacher() {
+		return teacher;
+	}
+
+	public void setTeacher(Teacher teacher) {
+		this.teacher = teacher;
 	}
 
 	/**

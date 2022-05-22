@@ -27,6 +27,7 @@ public class Teacher extends Person {
 	protected List<ProfessionalDegree> professionalDegrees;		// Ciclos
 	
 	@OneToMany(mappedBy = "teacher")
+	@JsonIgnore
 	private List<Practise> practises;
 	
 	/**
@@ -53,9 +54,12 @@ public class Teacher extends Person {
 		this.password = person.getPassword();
 		this.telefone = person.getTelefone();
 		this.email = person.getEmail();
+		this.enabled = person.isEnabled();
 		
 		this.rol = Rol.ROLE_TEACHER;						// Asignamos el rol
 	}
+	
+	
 	
 	/**
 	 * Constructor con todos los datos
@@ -86,6 +90,16 @@ public class Teacher extends Person {
 		this.rol = Rol.ROLE_TEACHER;		// Asingamos el rol
 	}
 	
+	
+	
+	public List<Practise> getPractises() {
+		return practises;
+	}
+
+	public void setPractises(List<Practise> practises) {
+		this.practises = practises;
+	}
+
 	/**
 	 * Obtiene los ciclos
 	 * @return Ciclos

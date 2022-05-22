@@ -25,10 +25,13 @@ public class ProfessionalDegree {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer id;										// Id
 	private String name;									// Nombre
+	private Integer year;
+	private String image;
+	
 	
 	@JsonIgnore
-	@ManyToMany
-	private List<Business> business;						// Empresas
+	@ManyToMany(mappedBy = "degrees")
+	private List<Business> businesses;						// Empresas
 	
 	@JsonIgnore
 	@ManyToOne(fetch = FetchType.EAGER)
@@ -49,6 +52,42 @@ public class ProfessionalDegree {
 		super();
 	}
 	
+	public Integer getYear() {
+		return year;
+	}
+
+
+
+	public void setYear(Integer year) {
+		this.year = year;
+	}
+
+
+
+	public String getImage() {
+		return image;
+	}
+
+
+
+	public void setImage(String image) {
+		this.image = image;
+	}
+
+
+
+	public List<Business> getBusinesses() {
+		return businesses;
+	}
+
+
+
+	public void setBusinesses(List<Business> businesses) {
+		this.businesses = businesses;
+	}
+
+
+
 	/**
 	 * Constructor con id
 	 * @param id: Id
@@ -91,9 +130,10 @@ public class ProfessionalDegree {
 	 * @param name: Nombre
 	 * @param school: Escuela
 	 */
-	public ProfessionalDegree(Integer id, String name, School school) {
+	public ProfessionalDegree(Integer id, String name, Integer year, School school) {
 		super();
 		this.id = id;
+		this.year = year;
 		this.name = name;
 		this.school = school;
 	}

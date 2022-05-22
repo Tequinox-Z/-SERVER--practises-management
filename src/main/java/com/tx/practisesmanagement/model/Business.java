@@ -24,6 +24,7 @@ public class Business {
 	private String cif;								// Identificador de la empresa
 	private String name;							// Nombre de la empresa
 	private Integer numberOfStudents;				// Número de estudiantes	
+	private String image;
 	
 	@JsonIgnore
 	@OneToOne
@@ -34,7 +35,16 @@ public class Business {
 	private List<Practise> practises;				// Practicas que hace la empresa
 
 	@OneToMany(mappedBy = "business")
+	@JsonIgnore
 	private List<LaborTutor> tutors;
+	
+	@ManyToMany
+	@JsonIgnore
+	private List<ProfessionalDegree> degrees;
+	
+	@OneToMany
+	@JsonIgnore
+	private List<ContactWorker> contactWorkers;
 	
 	/**
 	 * Constructor sin parámetros
@@ -43,6 +53,47 @@ public class Business {
 		super();
 		this.practises = new ArrayList<Practise>();			// Inicializamos la colección
 	}
+
+	
+	public String getImage() {
+		return image;
+	}
+
+
+	public void setImage(String image) {
+		this.image = image;
+	}
+
+
+	public Location getLocation() {
+		return location;
+	}
+
+
+	public void setLocation(Location location) {
+		this.location = location;
+	}
+
+
+	public List<ProfessionalDegree> getDegrees() {
+		return degrees;
+	}
+
+
+	public void setDegrees(List<ProfessionalDegree> degrees) {
+		this.degrees = degrees;
+	}
+
+
+	public List<ContactWorker> getContactWorkers() {
+		return contactWorkers;
+	}
+
+
+	public void setContactWorkers(List<ContactWorker> contactWorkers) {
+		this.contactWorkers = contactWorkers;
+	}
+
 
 	/**
 	 * Constructor con parámetros

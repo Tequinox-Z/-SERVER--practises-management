@@ -2,6 +2,7 @@ package com.tx.practisesmanagement.model;
 
 
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -28,6 +29,8 @@ public class School {
 	private String address;									// Dirección
 	private String image;									// Imagen
 	private String password;								// Contraseña
+	private LocalDateTime openingTime;
+	private LocalDateTime closingTime;
 	
 	@JsonIgnore
 	@OneToOne
@@ -69,6 +72,43 @@ public class School {
 		this.address = address;
 	}
 	
+	public School(Integer id, String name, String address, String image, String password, LocalDateTime openingTime,
+			LocalDateTime closingTime, Location location, List<RegTemp> temperatureRecords,
+			List<UnusualMovement> unusualsMovements, List<ProfessionalDegree> professionalDegrees,
+			List<Administrator> administrators) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.address = address;
+		this.image = image;
+		this.password = password;
+		this.openingTime = openingTime;
+		this.closingTime = closingTime;
+		this.location = location;
+		this.temperatureRecords = temperatureRecords;
+		this.unusualsMovements = unusualsMovements;
+		this.professionalDegrees = professionalDegrees;
+		this.administrators = administrators;
+	}
+
+	public School(String name, String address, String image, String password, LocalDateTime openingTime,
+			LocalDateTime closingTime, Location location, List<RegTemp> temperatureRecords,
+			List<UnusualMovement> unusualsMovements, List<ProfessionalDegree> professionalDegrees,
+			List<Administrator> administrators) {
+		super();
+		this.name = name;
+		this.address = address;
+		this.image = image;
+		this.password = password;
+		this.openingTime = openingTime;
+		this.closingTime = closingTime;
+		this.location = location;
+		this.temperatureRecords = temperatureRecords;
+		this.unusualsMovements = unusualsMovements;
+		this.professionalDegrees = professionalDegrees;
+		this.administrators = administrators;
+	}
+
 	public School(String name, String address, String image, String password) {
 		super();
 		this.name = name;
@@ -133,6 +173,26 @@ public class School {
 	 */
 	public String getName() {
 		return name;
+	}
+
+	public LocalDateTime getOpeningTime() {
+		return openingTime;
+	}
+
+	public void setOpeningTime(LocalDateTime openingTime) {
+		this.openingTime = openingTime;
+	}
+
+	public LocalDateTime getClosingTime() {
+		return closingTime;
+	}
+
+	public void setClosingTime(LocalDateTime closingTime) {
+		this.closingTime = closingTime;
+	}
+
+	public void setTemperatureRecords(List<RegTemp> temperatureRecords) {
+		this.temperatureRecords = temperatureRecords;
 	}
 
 	/**
