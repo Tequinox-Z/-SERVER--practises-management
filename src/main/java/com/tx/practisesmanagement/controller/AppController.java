@@ -44,7 +44,7 @@ import com.tx.practisesmanagement.service.TeacherService;
  * Controlador de los recursos de Practises Management
  * @author Salva
  */
-@CrossOrigin(origins = {"http://localhost:4200", "http://practises-management.es"})
+@CrossOrigin(origins = "https://tequinox-z.github.io/")
 @RestController
 public class AppController {
 
