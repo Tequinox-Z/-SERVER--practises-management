@@ -8,7 +8,9 @@ import java.util.Objects;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -23,10 +25,17 @@ public class Business {
 	private String name;							// Nombre de la empresa
 	private Integer numberOfStudents;				// Número de estudiantes	
 	
+	@JsonIgnore
+	@OneToOne
+	private Location location;
+	
 	@OneToMany(mappedBy = "business")
 	@JsonIgnore
 	private List<Practise> practises;				// Practicas que hace la empresa
 
+	@OneToMany(mappedBy = "business")
+	private List<LaborTutor> tutors;
+	
 	/**
 	 * Constructor sin parámetros
 	 */
@@ -66,6 +75,15 @@ public class Business {
 		this.name = name;
 		this.numberOfStudents = numberOfStudents;
 		this.practises = new ArrayList<Practise>();					// Inicializamos la colección
+	}
+
+	
+	public List<LaborTutor> getTutors() {
+		return tutors;
+	}
+
+	public void setTutors(List<LaborTutor> tutors) {
+		this.tutors = tutors;
 	}
 
 	/**

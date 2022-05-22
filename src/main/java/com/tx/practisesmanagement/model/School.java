@@ -10,6 +10,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -27,7 +28,19 @@ public class School {
 	private String address;									// Dirección
 	private String image;									// Imagen
 	private String password;								// Contraseña
+	
+	@JsonIgnore
+	@OneToOne
+	private Location location;
 
+	@JsonIgnore
+	@OneToMany
+	private List<RegTemp> temperatureRecords;
+	
+	@JsonIgnore
+	@OneToMany
+	private List<UnusualMovement> unusualsMovements;
+	
 	@JsonIgnore
 	@OneToMany(mappedBy = "school")
 	private List<ProfessionalDegree> professionalDegrees;	// Ciclos
@@ -63,7 +76,23 @@ public class School {
 		this.password = password;
 		this.image = image;
 	}
+	
+	
+	public void addUnusualMovement(UnusualMovement newMovement) {
+		this.unusualsMovements.add(newMovement);
+	}
 
+	public List<UnusualMovement> getUnusualsMovements() {
+		return unusualsMovements;
+	}
+
+	public void setUnusualsMovements(List<UnusualMovement> unusualsMovements) {
+		this.unusualsMovements = unusualsMovements;
+	}
+	
+	public void removeAllUnusualsMovements() {
+		this.unusualsMovements.clear();
+	}
 
 	/**
 	 * Constructor con todos los parámetros
@@ -129,6 +158,14 @@ public class School {
 	public void setAddress(String address) {
 		this.address = address;
 	}
+	
+	public Location getLocation() {
+		return location;
+	}
+
+	public void setLocation(Location location) {
+		this.location = location;
+	}
 
 	/**
 	 * Obtiene los ciclos
@@ -146,6 +183,17 @@ public class School {
 		this.professionalDegrees = professionalDegrees;
 	}
 
+	public void addRecordTemp(RegTemp recordTemp) {
+		if (this.temperatureRecords.size() > 9) {						// Almacenaremos 10 registros como máximo, si tenemos más de 9 ...
+			this.temperatureRecords.remove(0);							// Borramos el primero que se añadió
+		}
+		
+		this.temperatureRecords.add(recordTemp);						// Añadimos el nuevo registro
+	}
+	
+	public List<RegTemp> getTemperatureRecords() {
+		return temperatureRecords;
+	}
 
 	/**
 	 * Obtiene la imagen

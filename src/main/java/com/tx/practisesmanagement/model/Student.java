@@ -31,7 +31,6 @@ public class Student extends Person {
 	public Student() {
 		super();
 		this.rol = Rol.ROLE_STUDENT;						// Asignamos el rol
-		this.enrollments = new ArrayList<>();				// Inicializamos la lista
 	}
 	
 	/**
@@ -50,7 +49,6 @@ public class Student extends Person {
 		this.password = person.getPassword();
 		this.telefone = person.getTelefone();
 		this.email = person.getEmail();
-		this.enrollments = new ArrayList<>();			// Inicializamos la lista
 
 		this.rol = Rol.ROLE_STUDENT;					// Asignamos el rol 
 	}

@@ -9,5 +9,6 @@ package com.tx.practisesmanagement.enumerators;
 public enum Rol {
 	ROLE_ADMIN,					// Rol de administrador
 	ROLE_STUDENT,				// Rol de estudiante
-	ROLE_TEACHER				// ROl de profesor
+	ROLE_TEACHER,				// Rol de profesor
+	ROLE_LABOR_TUTOR			// Rol de tutor laboral
 }

@@ -1,9 +1,5 @@
 package com.tx.practisesmanagement.model;
 
-
-
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -24,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  */
 @Entity
 public class ProfessionalDegree {
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer id;										// Id
@@ -39,7 +36,7 @@ public class ProfessionalDegree {
 	
 	@ManyToMany(mappedBy = "professionalDegrees")
 	@JsonIgnore
-	private List<Teacher> teachers = new ArrayList<>();		// Lista de profesores
+	private List<Teacher> teachers;							// Lista de profesores
 	
 	@OneToMany(mappedBy = "professionalDegree")
 	@JsonIgnore

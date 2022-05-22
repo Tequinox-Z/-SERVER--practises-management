@@ -190,6 +190,8 @@ public class Person {
 	public String getImage() {
 		return image;
 	}
+	
+	
 
 	/**
 	 * Establece la imagen 

@@ -2,12 +2,15 @@ package com.tx.practisesmanagement.controller;
 
 
 
+import java.util.Collections;
+
 import javax.mail.MessagingException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tx.practisesmanagement.component.SmtpMailSender;
+import com.tx.practisesmanagement.dto.EmailDTO;
 import com.tx.practisesmanagement.dto.PersonDTO;
 import com.tx.practisesmanagement.dto.ResetPasswordDTO;
 import com.tx.practisesmanagement.error.RestError;
@@ -52,6 +56,7 @@ public class AditionalsFunctionsController {
 		@Autowired private PersonService personService;
 		
 		
+		@Autowired private AuthenticationManager authManager;
 		@Autowired private SmtpMailSender smtpMailSender;
 		@Autowired private JWTUtil jwtUtil;
 		@Autowired private PasswordEncoder passwordEncoder;
@@ -170,7 +175,7 @@ public class AditionalsFunctionsController {
 			);
 		}
 
-		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+		return ResponseEntity.status(HttpStatus.CREATED).body(new EmailDTO(person.getEmail()));
 	}
 	
 	
@@ -193,7 +198,12 @@ public class AditionalsFunctionsController {
 		
 		try {
 			personService.setNewPassword(dni, passwordEncoder.encode(personData.getPassword()));
-			return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+			
+            UsernamePasswordAuthenticationToken authInputToken = new UsernamePasswordAuthenticationToken(dni, personData.getPassword());		// Creamos un nuevo usuario de autenticación
+
+            authManager.authenticate(authInputToken);			
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(Collections.singletonMap("jwt_token", jwtUtil.generateToken(dni)));			// Retornamos el resultado
 			
 		}
 		catch(Exception e) {

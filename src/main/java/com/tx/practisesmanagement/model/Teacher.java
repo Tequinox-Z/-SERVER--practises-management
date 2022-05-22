@@ -1,8 +1,5 @@
 package com.tx.practisesmanagement.model;
 
-
-
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -11,6 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tx.practisesmanagement.dto.PersonDTO;
@@ -26,15 +24,16 @@ public class Teacher extends Person {
 	
 	@ManyToMany
 	@JsonIgnore
-	protected List<ProfessionalDegree> professionalDegrees = new ArrayList<>();		// Ciclos
+	protected List<ProfessionalDegree> professionalDegrees;		// Ciclos
+	
+	@OneToMany(mappedBy = "teacher")
+	private List<Practise> practises;
 	
 	/**
 	 * Constructor sin parámetros
 	 */
 	public Teacher() {
-		super();
-		this.professionalDegrees = new ArrayList<>();			// Inicializamos la lista
-		
+		super();		
 		this.rol = Rol.ROLE_TEACHER;							// Asignamos el rol
 	}
 	
@@ -54,7 +53,6 @@ public class Teacher extends Person {
 		this.password = person.getPassword();
 		this.telefone = person.getTelefone();
 		this.email = person.getEmail();
-		this.professionalDegrees = new ArrayList<>();		// Iniciamos la lista
 		
 		this.rol = Rol.ROLE_TEACHER;						// Asignamos el rol
 	}

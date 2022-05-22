@@ -36,6 +36,13 @@ public class Practise {
 	private Enrollment enrollment;						// Matrícula
 	
 	@ManyToOne
+	private Teacher teacher;
+	
+	@ManyToOne
+	@JsonIgnore
+	private LaborTutor laborTutor;
+	
+	@ManyToOne
 	@JsonIgnore
 	private Business business;							// Empresa
 	
@@ -156,6 +163,15 @@ public class Practise {
 	 */
 	public void setBusiness(Business business) {
 		this.business = business;
+	}
+	
+
+	public LaborTutor getLaborTutor() {
+		return laborTutor;
+	}
+
+	public void setLaborTutor(LaborTutor laborTutor) {
+		this.laborTutor = laborTutor;
 	}
 
 	/**

@@ -3,20 +3,20 @@ package com.tx.practisesmanagement.model;
 
 
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
-
 /**
  * Clase de matriculación de un estudiante
  * @author Salva
@@ -29,6 +29,9 @@ public class Enrollment {
 	
 	@Temporal(TemporalType.DATE)
 	private Date date;									// Fecha de matriculación
+	
+	@ManyToMany
+	private List<Business> businessesSelected;			// Empresas seleccionadas
 	
 	@ManyToOne
 	@JsonIgnore

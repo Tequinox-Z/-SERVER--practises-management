@@ -40,8 +40,6 @@ import com.tx.practisesmanagement.service.SchoolService;
 import com.tx.practisesmanagement.service.StudentService;
 import com.tx.practisesmanagement.service.TeacherService;
 
-
-
 /**
  * Controlador de los recursos de Practises Management
  * @author Salva
@@ -70,7 +68,6 @@ public class AppController {
 		
 		@Autowired private SmtpMailSender smtpMailSender;
 
-    
 	/**
 	 * Muestra una bienvenida a Practises Management
 	 * @return Mensaje
