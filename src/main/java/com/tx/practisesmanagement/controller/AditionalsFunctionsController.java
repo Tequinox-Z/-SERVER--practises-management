@@ -43,7 +43,7 @@ import com.tx.practisesmanagement.service.TeacherService;
  * @author Salva
  */
 @RestController
-@CrossOrigin(origins = "https://tequinox-z.github.io/")
+@CrossOrigin(origins = "https://tequinox-z.github.io:443")
 public class AditionalsFunctionsController {
 	
 	// Servicios
