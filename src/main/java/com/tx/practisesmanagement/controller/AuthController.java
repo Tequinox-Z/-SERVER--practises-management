@@ -45,7 +45,7 @@ import com.tx.practisesmanagement.service.TeacherService;
  * Controlador de autenticación
  * @author Salvador Pérez Agredano
  */
-@CrossOrigin(origins = "https://tequinox-z.github.io/")
+@CrossOrigin(origins = "https://tequinox-z.github.io")
 @RestController
 public class AuthController {
 	
