@@ -45,7 +45,7 @@ import com.tx.practisesmanagement.service.TeacherService;
  * Controlador de autenticación
  * @author Salvador Pérez Agredano
  */
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = {"http://localhost:4200", "http://practises-management.es"})
 @RestController
 public class AuthController {
 	
