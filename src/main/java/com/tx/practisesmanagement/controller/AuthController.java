@@ -29,6 +29,7 @@ import com.tx.practisesmanagement.component.SmtpMailSender;
 import com.tx.practisesmanagement.dto.PersonDTO;
 import com.tx.practisesmanagement.dto.TokenDTO;
 import com.tx.practisesmanagement.dto.TokenDecompressedDTO;
+import com.tx.practisesmanagement.enumerators.Rol;
 import com.tx.practisesmanagement.error.RestError;
 import com.tx.practisesmanagement.exception.UserErrorException;
 import com.tx.practisesmanagement.model.Administrator;
@@ -94,7 +95,9 @@ public class AuthController {
 	    	else if (user.getRol() == null) {
 	    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RestError(HttpStatus.BAD_REQUEST, "No se expecificó un rol para este usuario"));		// Si no nos han indicado un rol lo indicamos
 	    	}
-	   	    	
+	   	    
+	    	user.setEnabled(true);
+	    	
 	    	user.setDni(user.getDni().toUpperCase());																												// Convertimos el DNI en mayúscula
 	    	
 	    	if (personService.existPerson(user.getDni())) {
@@ -173,6 +176,46 @@ public class AuthController {
 	    		return ResponseEntity.status(codeHttp).body(new RestError(codeHttp, errorGenerated.get(codeHttp)));			
 	        }
 	    }
+
+	    @PostMapping("auth/login-iot")
+	    public ResponseEntity loginIoT(@RequestBody PersonDTO person){
+	        try {	
+	        	if (person.getDni() == null || person.getDni().trim().length() < 8 || person.getDni().trim().length() > 9) {
+		    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+		    				new RestError(HttpStatus.BAD_REQUEST, "Indique dni")			// Si no nos han indicado un dni lo indicamos
+		    		);
+	        	}
+	        	else if (person.getPassword() == null) {
+		    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+		    				new RestError(HttpStatus.BAD_REQUEST, "Indique contraseña")		// Si no nos han pasado una contraseña lo indicamos 	
+		    		);
+	        	}
+	        	
+	        	person.setDni(person.getDni().toUpperCase());
+	        
+	        	if (personService.getPerson(person.getDni()).getRol() != Rol.ROLE_ADMIN) {
+		    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+		    				new RestError(HttpStatus.BAD_REQUEST, "El dispositivo IoT solo puede ser utilizado por administradores")		 	
+		    		);
+	        	}
+	        	
+	            UsernamePasswordAuthenticationToken authInputToken = new UsernamePasswordAuthenticationToken(person.getDni(), person.getPassword());		// Creamos un nuevo usuario de autenticación
+
+	            authManager.authenticate(authInputToken);								// Autenticamos el usuari
+	            String token = jwtUtil.generateToken(person.getDni());					// Obtenemos su token
+
+	            return ResponseEntity.status(HttpStatus.CREATED).body(Collections.singletonMap("jwt_token", token));			// Retornamos el resultado
+	        }
+	        catch (Exception e) {
+	        	
+	        	HashMap<HttpStatus, String> errorGenerated = personService.getErrorLogin(person.getDni(), person.getPassword());
+	        	
+	        	HttpStatus codeHttp = errorGenerated.entrySet().iterator().next().getKey();
+	        	
+	    		return ResponseEntity.status(codeHttp).body(new RestError(codeHttp, errorGenerated.get(codeHttp)));			
+	        }
+	    }
+	    
 	    
 	    /**
 	     * Permite validar si el token es válido

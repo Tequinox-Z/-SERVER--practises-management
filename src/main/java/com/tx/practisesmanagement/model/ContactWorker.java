@@ -33,7 +33,6 @@ public class ContactWorker {
 		this.id = id;
 	}
 	
-	
 
 	public Integer getId() {
 		return id;

@@ -1,6 +1,8 @@
 package com.tx.practisesmanagement.model;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -12,21 +14,34 @@ public class RegTemp {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer id;
+	private Double humidity;
 	private Double celcius;
 	private Double fahrenheit;
 	private Double heatIndexc;
 	private Double heatIndexf;
+	private LocalDateTime date;
 	
 	public RegTemp() {
 		super();
+		this.date = LocalDateTime.now();
 	}
 
-	public RegTemp(Double celcius, Double fahrenheit, Double heatIndexc, Double heatIndexf) {
+	public RegTemp(Double celcius, Double fahrenheit, Double heatIndexc, Double heatIndexf, Double humidity) {
 		super();
+		this.humidity = humidity;
 		this.celcius = celcius;
 		this.fahrenheit = fahrenheit;
 		this.heatIndexc = heatIndexc;
 		this.heatIndexf = heatIndexf;
+		this.date = LocalDateTime.now();
+	}
+
+	public LocalDateTime getDate() {
+		return date;
+	}
+
+	public void setDate(LocalDateTime date) {
+		this.date = date;
 	}
 
 	public Integer getId() {
@@ -51,6 +66,14 @@ public class RegTemp {
 
 	public void setFahrenheit(Double fahrenheit) {
 		this.fahrenheit = fahrenheit;
+	}
+	
+	public Double getHumidity() {
+		return humidity;
+	}
+
+	public void setHumidity(Double humidity) {
+		this.humidity = humidity;
 	}
 
 	public Double getHeatIndexc() {
@@ -89,7 +112,7 @@ public class RegTemp {
 	@Override
 	public String toString() {
 		return "RegTemp [id=" + id + ", celcius=" + celcius + ", fahrenheit=" + fahrenheit + ", heatIndexc="
-				+ heatIndexc + ", heatIndexf=" + heatIndexf + "]";
+				+ heatIndexc + ", heatIndexf=" + heatIndexf + ", humidity=" + humidity + "]";
 	}
 	
 	

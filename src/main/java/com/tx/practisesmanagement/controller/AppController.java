@@ -503,31 +503,31 @@ public class AppController {
 	 * @param dni: Identificador del profesor
 	 * @return Ciclo solicitado
 	 */
-	@GetMapping("teacher/{dni}/degrees/{idDegree}")
-	public ResponseEntity getDegrees(@PathVariable String dni, @PathVariable Integer idDegree) {
-
-		Teacher currentTeacher = teacherService.get(dni);										// Obtenemos el profesor
-
-		if (currentTeacher == null) {
-			currentTeacher = administratorService.get(dni);										// Si no existe lo buscamos en administradores
-
-			if (currentTeacher == null) {
-				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-					new RestError(HttpStatus.BAD_REQUEST, "El profesor no existe")				// Si no existe lanzamos error
-				);
-			}
-		}
-
-		if (!currentTeacher.getProfessionalDegrees().contains(new ProfessionalDegree(idDegree))) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-				new RestError(HttpStatus.NOT_FOUND, "Este ciclo no existe o no lo imparte este profesor")	// Si el ciclo solicitado no existe lo indicamos
-			);
-		}
-
-		return ResponseEntity.status(HttpStatus.OK).body(
-			currentTeacher.getProfessionalDegrees().get(currentTeacher.getProfessionalDegrees().indexOf(new ProfessionalDegree(idDegree)))	// Si existe lo obtenemos y lo retornamos
-		);
-	}
+//	@GetMapping("teacher/{dni}/degrees/{idDegree}")
+//	public ResponseEntity getDegrees(@PathVariable String dni, @PathVariable Integer idDegree) {
+//
+//		Teacher currentTeacher = teacherService.get(dni);										// Obtenemos el profesor
+//
+//		if (currentTeacher == null) {
+//			currentTeacher = administratorService.get(dni);										// Si no existe lo buscamos en administradores
+//
+//			if (currentTeacher == null) {
+//				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+//					new RestError(HttpStatus.BAD_REQUEST, "El profesor no existe")				// Si no existe lanzamos error
+//				);
+//			}
+//		}
+//
+//		if (!currentTeacher.getProfessionalDegrees().contains(new ProfessionalDegree(idDegree))) {
+//			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+//				new RestError(HttpStatus.NOT_FOUND, "Este ciclo no existe o no lo imparte este profesor")	// Si el ciclo solicitado no existe lo indicamos
+//			);
+//		}
+//
+//		return ResponseEntity.status(HttpStatus.OK).body(
+//			currentTeacher.getProfessionalDegrees().get(currentTeacher.getProfessionalDegrees().indexOf(new ProfessionalDegree(idDegree)))	// Si existe lo obtenemos y lo retornamos
+//		);
+//	}
 	
 	/**
 	 * Añade un nuevo ciclo a un profesor
@@ -536,41 +536,41 @@ public class AppController {
 	 * @return Ciclo retornado
 	 */
 	@PostMapping("teacher/{dni}/degrees")
-	public ResponseEntity setDegrees(@PathVariable String dni, @RequestBody ProfessionalDegree degree) {
-
-		Teacher currentTeacher = teacherService.get(dni);														// Obtenemos el profesor
-
-		if (currentTeacher == null) {
-			currentTeacher = administratorService.get(dni);														// Si no existe lo buscamos en administradores
-
-			if (currentTeacher == null) {
-				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-					new RestError(HttpStatus.BAD_REQUEST, "El profesor no existe")								// Si no existe lo indicamos
-				);
-			}
-		}
-		
-		if (degree.getId() == null) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-					new RestError(HttpStatus.BAD_REQUEST, "Indique el identificador del ciclo")					// Si no nos han indicado el id lo indicamos
-			);
-		}
-		else if (professionalDegreeService.get(degree.getId()) == null) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-				new RestError(HttpStatus.NOT_FOUND, "El ciclo indicado no existe")								// Si no existe el ciclo lo indicamos
-			);
-		}
-		else if (currentTeacher.getProfessionalDegrees().contains(degree)) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-				new RestError(HttpStatus.BAD_REQUEST, "El ciclo ya tiene asignado este profesor")				// Si en el ciclo la ya está este profesor lo indicamos
-			);
-		}
-
-		return ResponseEntity.status(HttpStatus.CREATED).body(
-			professionalDegreeService.addTeacherToDegree(degree.getId(), currentTeacher)						// Si todo está correcto lo añadimos y retornamos el resultado	
-		);
-	}
-	
+//	public ResponseEntity setDegrees(@PathVariable String dni, @RequestBody ProfessionalDegree degree) {
+//
+//		Teacher currentTeacher = teacherService.get(dni);														// Obtenemos el profesor
+//
+//		if (currentTeacher == null) {
+//			currentTeacher = administratorService.get(dni);														// Si no existe lo buscamos en administradores
+//
+//			if (currentTeacher == null) {
+//				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+//					new RestError(HttpStatus.BAD_REQUEST, "El profesor no existe")								// Si no existe lo indicamos
+//				);
+//			}
+//		}
+//		
+//		if (degree.getId() == null) {
+//			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+//					new RestError(HttpStatus.BAD_REQUEST, "Indique el identificador del ciclo")					// Si no nos han indicado el id lo indicamos
+//			);
+//		}
+//		else if (professionalDegreeService.get(degree.getId()) == null) {
+//			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+//				new RestError(HttpStatus.NOT_FOUND, "El ciclo indicado no existe")								// Si no existe el ciclo lo indicamos
+//			);
+//		}
+//		else if (currentTeacher.getProfessionalDegrees().contains(degree)) {
+//			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+//				new RestError(HttpStatus.BAD_REQUEST, "El ciclo ya tiene asignado este profesor")				// Si en el ciclo la ya está este profesor lo indicamos
+//			);
+//		}
+//
+//		return ResponseEntity.status(HttpStatus.CREATED).body(
+//			professionalDegreeService.addTeacherToDegree(degree.getId(), currentTeacher)						// Si todo está correcto lo añadimos y retornamos el resultado	
+//		);
+//	}
+//	
 	/**
 	 * Edita un ciclo desde un profesor
 	 * @param dni : Dni de un profesor
@@ -972,27 +972,27 @@ public class AppController {
 	 * @param idSchool: Identificador de la escuela
 	 * @param idDegree: Identificador del ciclo
 	 */
-	@DeleteMapping("school/{idSchool}/professional-degree/{idDegree}")
-	public ResponseEntity addProfessionalDegreeFromSchool(@PathVariable Integer idSchool, @PathVariable Integer idDegree) {
-
-		School school = schoolService.get(idSchool);													// Obtenemos el colegio
-		
-		if (school == null) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-					new RestError(HttpStatus.BAD_REQUEST, "El centro no existe")						// Si no existe el colegio lo indicamos
-			);
-		}
-		else if (!school.getProfessionalDegrees().contains(new ProfessionalDegree(idDegree))) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-					new RestError(HttpStatus.BAD_REQUEST, "El ciclo no existe o no pertenece a esta escuela")		// Si no existe el ciclo o no pertenece a esta escuela lo indicamos
-			);
-		}
-		
-		professionalDegreeService.removeDegree(idDegree);															// Borramos el ciclo									
-
-		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();												// Retornamos un 204
-
-	}
+//	@DeleteMapping("school/{idSchool}/professional-degree/{idDegree}")
+//	public ResponseEntity addProfessionalDegreeFromSchool(@PathVariable Integer idSchool, @PathVariable Integer idDegree) {
+//
+//		School school = schoolService.get(idSchool);													// Obtenemos el colegio
+//		
+//		if (school == null) {
+//			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+//					new RestError(HttpStatus.BAD_REQUEST, "El centro no existe")						// Si no existe el colegio lo indicamos
+//			);
+//		}
+//		else if (!school.getProfessionalDegrees().contains(new ProfessionalDegree(idDegree))) {
+//			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+//					new RestError(HttpStatus.BAD_REQUEST, "El ciclo no existe o no pertenece a esta escuela")		// Si no existe el ciclo o no pertenece a esta escuela lo indicamos
+//			);
+//		}
+//		
+//		professionalDegreeService.removeDegree(idDegree);															// Borramos el ciclo									
+//
+//		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();												// Retornamos un 204
+//
+//	}
 
 
 	/* ========================================= Estudiante ========================================= */
@@ -1319,8 +1319,10 @@ public class AppController {
 			);
 		}
 
+		business.setCif(cif);
+		
 		return ResponseEntity.status(HttpStatus.CREATED).body(
-				businessService.edit(cif, business)															// Editamos la empresa y retornamos el retultado
+				businessService.edit(business)															// Editamos la empresa y retornamos el retultado
 		);
 	}
 	

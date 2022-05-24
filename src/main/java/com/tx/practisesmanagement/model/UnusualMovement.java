@@ -8,6 +8,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
 @Entity
 public class UnusualMovement {
 	
@@ -15,6 +17,7 @@ public class UnusualMovement {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer id;
 
+	@DateTimeFormat
 	private LocalDateTime date;
 	
 	public UnusualMovement() {

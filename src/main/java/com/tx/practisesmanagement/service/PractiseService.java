@@ -51,4 +51,9 @@ public class PractiseService {
 		practiseRepository.delete(practise);						// Borramos la práctica
 		
 	}
+	
+	
+	public Practise save(Practise practise) {
+		return practiseRepository.save(practise);
+	}
 }

@@ -22,8 +22,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class ProfessionalDegree {
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Integer id;										// Id
 	private String name;									// Nombre
 	private Integer year;
 	private String image;
@@ -87,16 +85,6 @@ public class ProfessionalDegree {
 	}
 
 
-
-	/**
-	 * Constructor con id
-	 * @param id: Id
-	 */
-	public ProfessionalDegree(Integer id) {
-		super();
-		this.id = id;
-	}
-	
 	/**
 	 * Constructor con nombre
 	 * @param name: Nombre
@@ -114,10 +102,9 @@ public class ProfessionalDegree {
 	 * @param teachers: Profesores
 	 * @param enrollments: Matrículas
 	 */
-	public ProfessionalDegree(Integer id, String name, School school, List<Teacher> teachers,
+	public ProfessionalDegree(String name, School school, List<Teacher> teachers,
 			List<Enrollment> enrollments) {
 		super();
-		this.id = id;
 		this.name = name;
 		this.school = school;
 		this.teachers = teachers;
@@ -130,9 +117,8 @@ public class ProfessionalDegree {
 	 * @param name: Nombre
 	 * @param school: Escuela
 	 */
-	public ProfessionalDegree(Integer id, String name, Integer year, School school) {
+	public ProfessionalDegree(String name, Integer year, School school) {
 		super();
-		this.id = id;
 		this.year = year;
 		this.name = name;
 		this.school = school;
@@ -149,21 +135,9 @@ public class ProfessionalDegree {
 		this.school = school;
 	}
 
-	/**
-	 * Obtiene el identificador
-	 * @return Identificador
-	 */
-	public Integer getId() {
-		return id;
-	}
 
-	/**
-	 * Establece el identificador
-	 * @param id: Nuevo identificador
-	 */
-	public void setId(Integer id) {
-		this.id = id;
-	}
+
+
 
 	/**
 	 * Obtiene el nombre
@@ -229,17 +203,13 @@ public class ProfessionalDegree {
 		this.enrollments = enrollments;
 	}
 
-	/**
-	 * Hashcode del ciclo
-	 */
+	
+
 	@Override
 	public int hashCode() {
-		return Objects.hash(id);
+		return Objects.hash(name);
 	}
 
-	/**
-	 * Equals del ciclo
-	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -249,7 +219,7 @@ public class ProfessionalDegree {
 		if (getClass() != obj.getClass())
 			return false;
 		ProfessionalDegree other = (ProfessionalDegree) obj;
-		return Objects.equals(id, other.id);
+		return Objects.equals(name.toUpperCase(), other.name.toUpperCase());
 	}
 
 	/**
@@ -257,6 +227,6 @@ public class ProfessionalDegree {
 	 */
 	@Override
 	public String toString() {
-		return "ProfessionalDegree [id=" + id + ", name=" + name + ", school=" + school + "]";
+		return "ProfessionalDegree name=" + name + ", school=" + school + "]";
 	} 
 }

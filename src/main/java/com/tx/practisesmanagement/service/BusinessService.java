@@ -2,12 +2,21 @@ package com.tx.practisesmanagement.service;
 
 
 
+import java.time.LocalDate;
+import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.tx.practisesmanagement.exception.UserErrorException;
 import com.tx.practisesmanagement.model.Business;
+import com.tx.practisesmanagement.model.ContactWorker;
+import com.tx.practisesmanagement.model.Enrollment;
+import com.tx.practisesmanagement.model.LaborTutor;
+import com.tx.practisesmanagement.model.Location;
+import com.tx.practisesmanagement.model.Practise;
 import com.tx.practisesmanagement.repository.BusinessRepository;
 
 /**
@@ -17,9 +26,16 @@ import com.tx.practisesmanagement.repository.BusinessRepository;
 @Service
 public class BusinessService {
 
-	// Repositorios
-		@Autowired private BusinessRepository businessRepository;
+	// Repositorio
 	
+		@Autowired private BusinessRepository businessRepository;
+		@Autowired private LocationService locationService;
+		@Autowired private ContactWorkerService contactWorkerService;
+		@Autowired private ProfessionalDegreeService professionalDegreeService;
+		@Autowired private EnrollmentService enrollmentService;
+		@Autowired private LaborTutorService laborTutorService;
+		@Autowired private PractiseService practiseService;
+		
 	/**
 	 * Obtiene todas las empresas
 	 * @return Lista de empresas
@@ -34,11 +50,18 @@ public class BusinessService {
 	 * @param business: Empresa 
 	 * @return Empresa editada
 	 */
-	public Business edit(String cif, Business business) {
-		Business businessOld = this.get(cif);								// Obtiene la empresa
+	public Business edit(Business business) {
+		Business businessOld = this.get(business.getCif());								// Obtiene la empresa
 		
-		businessOld.setName(business.getName());							// Establece el nuevo nombre
-		businessOld.setNumberOfStudents(business.getNumberOfStudents());	// Establece el número de estudiantes
+		if (business.getName() != null) {
+			businessOld.setName(business.getName());							// Establece el nuevo nombre
+		}
+		if (business.getNumberOfStudents() != null) {
+			businessOld.setNumberOfStudents(business.getNumberOfStudents());			// Establece el nuevo nombre
+		}
+		if (business.getImage() != null) {
+			businessOld.setNumberOfStudents(business.getNumberOfStudents());
+		}
 		
 		return businessRepository.save(businessOld);						// Guardamos la empresa
 	}
@@ -68,5 +91,57 @@ public class BusinessService {
 	 */
 	public boolean exist(Business business) {
 		return businessRepository.existsById(business.getCif());
+	}
+	
+	/**
+	 * Borra una empresa
+	 */
+	public void remove(String cif) throws UserErrorException {
+		Business business = this.get(cif);
+		List<Practise> practises = business.getPractises();
+		
+		Date currentDate = new Date();
+		
+		for (Practise currentPractise : practises) {
+			if (!(currentPractise.getFinish() == null || currentPractise.getStart() == null) && currentPractise.getFinish().after(currentDate)) {
+				throw new UserErrorException("Hay becarios que aún tienen que empezar o terminar las prácticas en su empresa");
+			}
+		}
+		
+		for (Practise currentPractise : practises) {
+			currentPractise.setBusiness(null);
+			practiseService.save(currentPractise);
+		}
+		
+		Location location = business.getLocation();
+		List<ContactWorker> contactWorkers = business.getContactWorkers();
+		
+		business.getDegrees().clear();
+		business.getContactWorkers().clear();		
+		business.setLocation(null);
+		
+		this.save(business);
+				
+		locationService.removeLocation(location.getId());
+		
+		for (ContactWorker currentContactWorker: contactWorkers) {
+			contactWorkerService.remove(currentContactWorker.getId());
+		}
+		
+		for (Enrollment currentEnrollment: business.getEnrollments()) {
+			List<Business> businessSelected = currentEnrollment.getBusinessesSelected();
+			
+			businessSelected.remove(businessSelected.indexOf(business));
+			
+			enrollmentService.save(currentEnrollment);
+		}
+		
+		for (LaborTutor currentTutor : business.getTutors()) {
+			currentTutor.setBusiness(null);
+			
+			laborTutorService.save(currentTutor);
+		}
+		
+		businessRepository.delete(business);
 	}
 }
