@@ -1,14 +1,15 @@
 package com.tx.practisesmanagement.service;
 
-
-
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.tx.practisesmanagement.dto.PersonDTO;
+import com.tx.practisesmanagement.exception.UserErrorException;
 import com.tx.practisesmanagement.model.Administrator;
+import com.tx.practisesmanagement.model.Practise;
+import com.tx.practisesmanagement.model.School;
 import com.tx.practisesmanagement.repository.AdministratorRepository;
 
 
@@ -21,7 +22,9 @@ public class AdministratorService {
 
 	// Repositorio
  		@Autowired private AdministratorRepository adminRepository;
-
+ 		@Autowired private SchoolService schoolService;
+ 		@Autowired private PractiseService practiseService;
+ 		
  	/**
  	 * Almacena un administrador
  	 * @param administrator: Administrador a almacenar
@@ -54,33 +57,53 @@ public class AdministratorService {
 	 * @param personData: Datos del administrador
 	 * @return Administrador actualizado
 	 */
-	public Administrator updateAdministrator(Administrator administrator, PersonDTO personData) {
+	public Administrator updateAdministrator(String dni, PersonDTO personData) {
+		
+		Administrator admin = get(dni);
 		
 		// Actualizamos los datos
 		
-		administrator.setAddress(personData.getAddress());
-		administrator.setBirthDate(personData.getBirthDate());
-		administrator.setImage(personData.getImage());
-		administrator.setLastName(personData.getLastName());
-		administrator.setName(personData.getName());
-		administrator.setPassword(personData.getPassword());
-		administrator.setTelefone(personData.getTelefone());
-		administrator.setEmail(personData.getEmail());
+		if (personData.getBirthDate() != null) {
+			admin.setBirthDate(personData.getBirthDate());
+		}
+		if (personData.getName() != null) {
+			admin.setName(personData.getName());
+		}
+		if (personData.getLastName() != null) {
+			admin.setLastName(personData.getLastName());
+		}
+		if (personData.getImage() != null) {
+			admin.setImage(personData.getImage());
+		}
+		if (personData.getTelefone() != null) {
+			admin.setTelefone(personData.getTelefone());
+		}
+		if (personData.getAddress() != null) {
+			admin.setAddress(personData.getAddress());
+		}
+		if (personData.getEmail() != null) {
+			admin.setEmail(personData.getEmail());
+		}
 		
 		// Almacenamos los cambios
 		
-		return adminRepository.save(administrator);
+		return adminRepository.save(admin);
 	}
 	
-	
-	
-	public Administrator deleteAdministrator(String dni) {
-		Administrator administrator = this.removeSchoolFromAdministrator(dni);
-		administrator = this.removeDegreesFromAdministrator(dni);
+	public void deleteAdministrator(String dni) throws UserErrorException {
 		
-		adminRepository.delete(administrator);
+		Administrator administrator = get(dni);
 		
-		return administrator; 
+		if (administrator == null) {
+			throw new UserErrorException("El usuario no existe");
+		}
+		else {
+			removeAdministratorFromPractise(dni);
+			removeSchoolFromAdministrator(dni);
+			removeDegreesFromAdministrator(dni);
+			
+			adminRepository.delete(administrator);
+		}	
 	}
 	
 	/**
@@ -90,9 +113,21 @@ public class AdministratorService {
 	 */
 	public Administrator removeDegreesFromAdministrator(String dni) {
 		Administrator administrator = this.get(dni);			// Obtenemos el administrador
+		
 		administrator.getProfessionalDegrees().clear();			// Borramos los ciclos
 		
 		return adminRepository.save(administrator);				// Guardamos
+	}
+	
+	public Administrator removeAdministratorFromPractise(String dni) {
+		
+		Administrator administrator = get(dni);
+		
+		for (Practise currentPractise: administrator.getPractises()) {
+			practiseService.setTeacher(currentPractise.getId(), null);
+		}
+		
+		return administrator;
 	}
 	
 	
@@ -102,10 +137,24 @@ public class AdministratorService {
 	 * @return Administrador
 	 */
 	public Administrator removeSchoolFromAdministrator(String dni) {
-		Administrator administrator = this.get(dni);			// Obtenemos el administrador
-		administrator.setSchool(null);							// Ponemos la escuela a null
+		Administrator administrator = this.get(dni);						// Obtenemos el administrador
+		School school = administrator.getSchoolSetted();
 		
-		return adminRepository.save(administrator);				// Guardamos
+		boolean deleteSchool = false;
+		
+		if (school.getAdministrators().size() == 1) {
+			deleteSchool = true;
+		}
+		
+		administrator.setSchoolSetted(null);								// Ponemos la escuela a null
+		
+		administrator = adminRepository.save(administrator);				// Guardamos
+		
+		if (deleteSchool) {
+			schoolService.removeSchool(school.getId());
+		}
+		
+		return administrator;
 	}
 	
 	public String getCountFromSchool(Integer id) {

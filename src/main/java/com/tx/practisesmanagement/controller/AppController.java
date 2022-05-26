@@ -161,17 +161,10 @@ public class AppController {
 	@GetMapping("administrator")
 	public ResponseEntity getAdministrators() {
 		List<Administrator> administrators = administratorService.getAll();						// Obtenemos los administradores
-
-		if (administrators.isEmpty()) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-					new RestError(HttpStatus.NOT_FOUND, "Sin administradores")					// Si no hay ningún administrador lo indicamos
-			);
-		}
-		else {
-			return ResponseEntity.status(HttpStatus.OK).body(
-					administrators																// Si hay administradores retornamos los que hay
-			);
-		}
+		
+		return ResponseEntity.status(HttpStatus.OK).body(
+				administrators																	// Retornamos el resultado
+		);
 	}
 
 	/**
@@ -255,7 +248,7 @@ public class AppController {
 		}
 		
 		return ResponseEntity.status(HttpStatus.OK).body(
-				administratorService.updateAdministrator(currentAdministrator, administrator)							// Actualizamos el administrador y devolvemos el resultado
+				administratorService.updateAdministrator(currentAdministrator.getDni(), administrator)							// Actualizamos el administrador y devolvemos el resultado
 		);
 	}
 	
@@ -803,7 +796,7 @@ public class AppController {
 			);
 		}
 
-		List<ProfessionalDegree> professionalDegree = schoolService.getProfessionalDegrees(idSchool);			// Obtenemos los ciclos
+		List<ProfessionalDegree> professionalDegree = schoolService.getAllProfessionalDegrees(idSchool);			// Obtenemos los ciclos
 
 		if (professionalDegree.isEmpty()) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(

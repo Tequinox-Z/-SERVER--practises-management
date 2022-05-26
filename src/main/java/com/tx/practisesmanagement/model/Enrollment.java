@@ -10,8 +10,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -30,13 +30,12 @@ public class Enrollment {
 	@Temporal(TemporalType.DATE)
 	private Date date;									// Fecha de matriculación
 	
-	@ManyToMany
-	@JsonIgnore
-	private List<Business> businessesSelected;			// Empresas seleccionadas
-	
 	@ManyToOne
 	@JsonIgnore
 	private Student student;							// Estudiante 
+	
+	@OneToMany(mappedBy = "enrollment")
+	private List<Preference> preferences;
 	
 	@OneToOne
 	@JsonIgnore
@@ -46,12 +45,9 @@ public class Enrollment {
 	@JsonIgnore
 	private ProfessionalDegree professionalDegree;		// Ciclo matriculado
 	
-	public List<Business> getBusinessesSelected() {
-		return businessesSelected;
-	}
-
-	public void setBusinessesSelected(List<Business> businessesSelected) {
-		this.businessesSelected = businessesSelected;
+	
+	public List<Preference> getPreferences() {
+		return preferences;
 	}
 
 	/**
@@ -70,6 +66,7 @@ public class Enrollment {
 		this.date = date;
 	}
 	
+	
 	/**
 	 * Constructor con todos los parámetros
 	 * @param date: Fecha
@@ -84,6 +81,8 @@ public class Enrollment {
 		this.practise = practise;
 		this.professionalDegree = professionalDegree;
 	}
+	
+	
 	
 	/**
 	 * Establece el identificador

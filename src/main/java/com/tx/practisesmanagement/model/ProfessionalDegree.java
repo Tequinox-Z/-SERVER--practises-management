@@ -22,6 +22,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class ProfessionalDegree {
 	
 	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	private Integer id;
 	private String name;									// Nombre
 	private Integer year;
 	private String image;
@@ -32,7 +34,7 @@ public class ProfessionalDegree {
 	private List<Business> businesses;						// Empresas
 	
 	@JsonIgnore
-	@ManyToOne(fetch = FetchType.EAGER)
+	@ManyToOne
 	private School school;									// Escuela
 	
 	@ManyToMany(mappedBy = "professionalDegrees")
@@ -85,13 +87,9 @@ public class ProfessionalDegree {
 	}
 
 
-	/**
-	 * Constructor con nombre
-	 * @param name: Nombre
-	 */
-	public ProfessionalDegree(String name) {
+	public ProfessionalDegree(Integer id) {
 		super();
-		this.name = name;
+		this.id = id;
 	}
 
 	/**
@@ -111,33 +109,15 @@ public class ProfessionalDegree {
 		this.enrollments = enrollments;
 	}
 
-	/**
-	 * Constructor con identificador, nombre y escuela
-	 * @param id: Identificador
-	 * @param name: Nombre
-	 * @param school: Escuela
-	 */
-	public ProfessionalDegree(String name, Integer year, School school) {
-		super();
-		this.year = year;
-		this.name = name;
-		this.school = school;
+
+
+	public Integer getId() {
+		return id;
 	}
 
-	/**
-	 * Constructor con nombre y colegio
-	 * @param name: Nombre
-	 * @param school: Colegio
-	 */
-	public ProfessionalDegree(String name, School school) {
-		super();
-		this.name = name;
-		this.school = school;
+	public void setId(Integer id) {
+		this.id = id;
 	}
-
-
-
-
 
 	/**
 	 * Obtiene el nombre
@@ -201,13 +181,11 @@ public class ProfessionalDegree {
 	 */
 	public void setEnrollments(List<Enrollment> enrollments) {
 		this.enrollments = enrollments;
-	}
-
-	
+	}	
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(name);
+		return Objects.hash(id);
 	}
 
 	@Override
@@ -219,7 +197,7 @@ public class ProfessionalDegree {
 		if (getClass() != obj.getClass())
 			return false;
 		ProfessionalDegree other = (ProfessionalDegree) obj;
-		return Objects.equals(name.toUpperCase(), other.name.toUpperCase());
+		return Objects.equals(id, other.id);
 	}
 
 	/**

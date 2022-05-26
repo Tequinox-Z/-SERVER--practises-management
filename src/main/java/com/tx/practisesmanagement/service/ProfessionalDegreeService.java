@@ -57,7 +57,7 @@ public class ProfessionalDegreeService {
 		for (Enrollment currentEnrollment : professionalDegree.getEnrollments()) {
 			currentEnrollment.setProfessionalDegree(null);								// Por cada matrícula establece el ciclo a nulo
 			enrollmentService.save(currentEnrollment);
-			// Ejecutar el delete de matrícula
+			enrollmentService.delete(currentEnrollment);
 		}
 		
 		for (Teacher teacher: professionalDegree.getTeachers()) {
@@ -72,28 +72,10 @@ public class ProfessionalDegreeService {
 	}
 	
 	/**
-	 * Comprueba si existe el ciclo
-	 * @param professionalDegree: Ciclo
-	 * @return Boolean existe True, no existe False
-	 */
-	public boolean existProfessionalDegree(ProfessionalDegree professionalDegree) {
-		return this.professionalDegreeRepository.existsById(professionalDegree.getId());
-	}
-	
-	/**
-	 * Obtiene un ciclo por id
-	 * @param professionalDegree: Ciclo a obtener
-	 * @return Ciclo solicitado
-	 */
-	public School getSchoolByProfessionalDegree(ProfessionalDegree professionalDegree) {
-		return this.professionalDegreeRepository.findById(professionalDegree.getId()).orElse(null).getSchool();
-	}
-	
-	/**
-	 * Obtiene todos los ciclos
+	 * Obtiene todos los ciclos 
 	 * @return: Lista de ciclos
 	 */
-	public List<ProfessionalDegree> getAll() {
+	public List<ProfessionalDegree> getAllDifferent() {
 		return professionalDegreeRepository.findAll();
 	}
 	
@@ -126,5 +108,10 @@ public class ProfessionalDegreeService {
 		oldDegree.setName(degree.getName());									// Establecemos el nombre
 		
 		return this.professionalDegreeRepository.save(oldDegree);				// Guardamos el ciclo y lo retornamos
+	}
+	
+	
+	public boolean existProfessionalDegreeByNameInSchool(School school, String nameDegree) {
+		return this.professionalDegreeRepository.getBySchoolAndName(school, nameDegree) != null;
 	}
 }

@@ -2,9 +2,7 @@ package com.tx.practisesmanagement.service;
 
 
 
-import java.time.LocalDate;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +11,6 @@ import org.springframework.stereotype.Service;
 import com.tx.practisesmanagement.exception.UserErrorException;
 import com.tx.practisesmanagement.model.Business;
 import com.tx.practisesmanagement.model.ContactWorker;
-import com.tx.practisesmanagement.model.Enrollment;
 import com.tx.practisesmanagement.model.LaborTutor;
 import com.tx.practisesmanagement.model.Location;
 import com.tx.practisesmanagement.model.Practise;
@@ -32,7 +29,6 @@ public class BusinessService {
 		@Autowired private LocationService locationService;
 		@Autowired private ContactWorkerService contactWorkerService;
 		@Autowired private ProfessionalDegreeService professionalDegreeService;
-		@Autowired private EnrollmentService enrollmentService;
 		@Autowired private LaborTutorService laborTutorService;
 		@Autowired private PractiseService practiseService;
 		
@@ -126,14 +122,6 @@ public class BusinessService {
 		
 		for (ContactWorker currentContactWorker: contactWorkers) {
 			contactWorkerService.remove(currentContactWorker.getId());
-		}
-		
-		for (Enrollment currentEnrollment: business.getEnrollments()) {
-			List<Business> businessSelected = currentEnrollment.getBusinessesSelected();
-			
-			businessSelected.remove(businessSelected.indexOf(business));
-			
-			enrollmentService.save(currentEnrollment);
 		}
 		
 		for (LaborTutor currentTutor : business.getTutors()) {

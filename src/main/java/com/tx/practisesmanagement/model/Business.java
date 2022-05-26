@@ -34,9 +34,6 @@ public class Business {
 	@JsonIgnore
 	private List<Practise> practises;				// Practicas que hace la empresa
 
-	@ManyToMany(mappedBy = "businessesSelected")
-	private List<Enrollment> enrollments;
-	
 	@OneToMany(mappedBy = "business")
 	@JsonIgnore
 	private List<LaborTutor> tutors;
@@ -113,16 +110,6 @@ public class Business {
 		this.numberOfStudents = numberOfStudents;
 		this.practises = practises;
 	}
-	
-	public List<Enrollment> getEnrollments() {
-		return enrollments;
-	}
-
-
-	public void setEnrollments(List<Enrollment> enrollments) {
-		this.enrollments = enrollments;
-	}
-
 
 	/**
 	 * Constructor con cif, nombre y número de estudiantes

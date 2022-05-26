@@ -31,17 +31,6 @@ public class Administrator extends Teacher {
 		super();
 		this.rol = Rol.ROLE_ADMIN;						// Asignamos el rol de admin	
 	}
-	
-	
-	public School getSchoolSetted() {
-		return schoolSetted;
-	}
-
-
-	public void setSchoolSetted(School schoolSetted) {
-		this.schoolSetted = schoolSetted;
-	}
-
 
 	/**
 	 * Constructor desde un dto de persona
@@ -97,22 +86,16 @@ public class Administrator extends Teacher {
 		this.rol = Rol.ROLE_ADMIN;		// Asignamos el rol
 	}
 
-
-	/**
-	 * Obtiene la escuela
-	 * @return Escuela del administrador
-	 */
-	public School getSchool() {
+	public School getSchoolSetted() {
 		return schoolSetted;
 	}
 
-	/**
-	 * Establece la escuela
-	 * @param school: Escuela a asignar
-	 */
-	public void setSchool(School school) {
-		this.schoolSetted = school;
+
+	public void setSchoolSetted(School schoolSetted) {
+		this.schoolSetted = schoolSetted;
 	}
+
+	
 
 	/**
 	 * Muestra información del administrador

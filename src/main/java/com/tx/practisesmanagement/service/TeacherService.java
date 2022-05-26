@@ -72,8 +72,7 @@ public class TeacherService {
 	 */
 	public Teacher deleteTeacher(String dni) {
 		
-		Teacher teacher = this.get(dni);							// Obtenemos el profesor
-		teacher = this.removeDegreesFromTeacher(dni);				// Quitamos sus ciclos
+		Teacher teacher = removeDegreesFromTeacher(dni);				// Quitamos sus ciclos
 		
 		teacherRepository.delete(teacher);							// Borramos el profesor
 		

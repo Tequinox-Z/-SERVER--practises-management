@@ -84,14 +84,14 @@ public class StudentService {
 	public void deleteStudent(String dni) {
 		Student student = this.get(dni);									// Obtenemos el estudiante
 		
-		
 		for (Enrollment currentEnrollment : student.getEnrollments()) {
 			enrollmentService.delete(currentEnrollment);					// Por cada matrícula que tenga la eliminamos
 		}
 		
 		studentRepository.save(student);									// Guardamos el estudiante 
 		studentRepository.delete(student);									// Borramos el estudiante
-		
 	}
+	
+	
 	
 }

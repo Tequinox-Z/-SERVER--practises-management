@@ -1,10 +1,12 @@
 package com.tx.practisesmanagement.service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.tx.practisesmanagement.model.RegTemp;
 import com.tx.practisesmanagement.model.UnusualMovement;
 import com.tx.practisesmanagement.repository.UnusualMovementRepository;
 

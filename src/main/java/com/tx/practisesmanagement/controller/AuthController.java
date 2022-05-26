@@ -33,10 +33,12 @@ import com.tx.practisesmanagement.enumerators.Rol;
 import com.tx.practisesmanagement.error.RestError;
 import com.tx.practisesmanagement.exception.UserErrorException;
 import com.tx.practisesmanagement.model.Administrator;
+import com.tx.practisesmanagement.model.LaborTutor;
 import com.tx.practisesmanagement.model.Student;
 import com.tx.practisesmanagement.model.Teacher;
 import com.tx.practisesmanagement.security.JWTUtil;
 import com.tx.practisesmanagement.service.AdministratorService;
+import com.tx.practisesmanagement.service.LaborTutorService;
 import com.tx.practisesmanagement.service.PersonService;
 import com.tx.practisesmanagement.service.StudentService;
 import com.tx.practisesmanagement.service.TeacherService;
@@ -63,7 +65,7 @@ public class AuthController {
     		@Autowired private TeacherService teacherService;
     		@Autowired private PersonService personService;	    
     		@Autowired private SmtpMailSender smtpMailSender;
-    		
+    		@Autowired private LaborTutorService laborTutorService;
     		
     		@Value("${jwt_secret}")
     	    private String secret;										// Secreto	
@@ -118,6 +120,10 @@ public class AuthController {
 	        	}
 	        	case "ROLE_TEACHER": {
 	        		teacherService.save(new Teacher(user));
+	        		break;
+	        	}
+	        	case "ROLE_LABOR_TUTOR": {
+	        		laborTutorService.save(new LaborTutor(user));
 	        		break;
 	        	}
 	        	default: {

@@ -87,7 +87,7 @@ public class AditionalsFunctionsController {
 		}
 		
 		return ResponseEntity.status(HttpStatus.OK).body(
-    			schoolService.getCountAdministrators(idSchool)
+    			administratorService.getCountFromSchool(idSchool)
 		);
 	}
 	

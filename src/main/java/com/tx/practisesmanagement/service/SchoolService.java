@@ -2,16 +2,19 @@ package com.tx.practisesmanagement.service;
 
 
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.tx.practisesmanagement.exception.UserErrorException;
 import com.tx.practisesmanagement.model.Administrator;
 import com.tx.practisesmanagement.model.ProfessionalDegree;
+import com.tx.practisesmanagement.model.RegTemp;
 import com.tx.practisesmanagement.model.School;
+import com.tx.practisesmanagement.model.UnusualMovement;
 import com.tx.practisesmanagement.repository.SchoolRepository;
-
 
 /**
  * Servicio de escuela
@@ -24,8 +27,9 @@ public class SchoolService {
 		@Autowired SchoolRepository schoolRepository;
 	
 	// Servicio
-		@Autowired AdministratorService administratorService;
 		@Autowired ProfessionalDegreeService professionalDegreeService; 
+		@Autowired UnusualMovementService unusualMovementService;
+		@Autowired RegTempService regTempService;
 		
 	/**
 	 * Obtiene una escuela determinada
@@ -36,58 +40,27 @@ public class SchoolService {
 		return schoolRepository.findById(id).orElse(null);
 	}
 	
-	
-	/**
-	 * Borra un administrador
-	 * @param dniAdministrator: Dni del administrador
-	 */
-	public void removeAdministrator(String dniAdministrator) {		
-		Administrator administrator = administratorService.get(dniAdministrator);		// Obtenemos el administrador
-		
-		administrator.setSchool(null);													// Establecemos la escuela a null
-		
-		administratorService.save(administrator);										// Guardamos
-	}
-	
-	
 	/**
 	 * Obtiene el ciclo de una escuela
-	 * @param idSchool
-	 * @param idDegree
+	 * @param idSchool: Id del colegio
+	 * @param name: Nombre del ciclo
 	 * @return
 	 */
 	public ProfessionalDegree getDegree(Integer idSchool, Integer idDegree) {
 		School school = this.get(idSchool);																// Obtenemos la escuela
 		
-		Integer position = school.getProfessionalDegrees().indexOf(new ProfessionalDegree(idDegree));	// Obtenemos la posición del ciclo
-		
-		ProfessionalDegree degree;											// Esta variable almacenará el ciclo
-		
+		Integer position = school.getProfessionalDegrees().indexOf(new ProfessionalDegree(idDegree));		// Obtenemos la posición del ciclo
+				
 		if (position == -1) {
-			degree = null;													// Si no existe el ciclo establecemos el ciclo en null
+			throw new UserErrorException("El ciclo no existe");											// Si no existe el ciclo lanzamos excepción
 		}
 		else {
-			degree = school.getProfessionalDegrees().get(position);			// Si no lo obtenemos
+			return school.getProfessionalDegrees().get(position);										// Si no lo obtenemos
 		}
 		
-		return degree;														// Retornamos el ciclo
 	}
 		
-	/**
-	 * Añade un administrador a una escuela
-	 * @param schoolId: Identificador de la escuela
-	 * @param administrator: Administrador
-	 * @return: Escuela
-	 */
-	public School addAdministratorToSchool(Integer schoolId, Administrator administrator) {
-			
-		School school = this.get(schoolId);							// Obtenemos la escuela
-		administrator.setSchool(school);							// Establecemos la escuela
-		
-		administratorService.save(administrator);					// Guardamos el administrador
-			
-		return school;												// Retornamos la escuela
-	}
+
 		
 	/**
 	 * Guarda una escuela
@@ -103,9 +76,9 @@ public class SchoolService {
 	 * @param idSchool: Escuela
 	 * @return Lista de ciclos
 	 */
-	public List<ProfessionalDegree> getProfessionalDegrees(Integer idSchool) {
+	public List<ProfessionalDegree> getAllProfessionalDegrees(Integer idSchool) {
 		return this.get(idSchool).getProfessionalDegrees();
-	}	
+	}
 	
 	/**
 	 * Actualiza una escuela
@@ -116,10 +89,18 @@ public class SchoolService {
 	public School updateSchool(School school, Integer schoolId) {
 		School schoolOld = this.get(schoolId);					// Obtenemos la escuela
 		
-		schoolOld.setAddress(school.getAddress());				// Establecemos la dirección
-		schoolOld.setImage(school.getImage());					// Establecemos la imagen
-		schoolOld.setName(school.getName());					// Establecemos el nombre
-		schoolOld.setPassword(school.getPassword());			// Establecemos la contraseña
+		if (school.getAddress() != null) {			
+			schoolOld.setAddress(school.getAddress());				// Establecemos la dirección
+		}
+		if (school.getImage() != null) {
+			schoolOld.setImage(school.getImage());					// Establecemos la imagen			
+		}
+		if (school.getName() != null) {
+			schoolOld.setName(school.getName());					// Establecemos el nombre			
+		}
+		if (school.getPassword() != null) {
+			schoolOld.setPassword(school.getPassword());			// Establecemos la contraseña			
+		}
 		
 		return this.save(schoolOld);							// Guardamos y retornamos
 	}
@@ -129,21 +110,14 @@ public class SchoolService {
 	 * @param idSchool: Identificador de la escuela
 	 */
 	public void removeSchool(Integer idSchool) {
+		removeAllUnsualsMovements(idSchool);
+		removeAllRegTempByIdSchool(idSchool);
+		
 		School school = this.get(idSchool);
-		
-		// Delete next code
-		
-		for (Administrator currentAdministrator: school.getAdministrators()) {
-			this.removeAdministrator(currentAdministrator.getDni());
-		}
-		
-		// END
-		
 		
 		for (ProfessionalDegree currentDegree: school.getProfessionalDegrees()) {
 			professionalDegreeService.removeDegree(currentDegree.getId());
 		}
-		
 		
 		schoolRepository.delete(school);
 	}
@@ -156,29 +130,21 @@ public class SchoolService {
 	public List<Administrator> getAdministrators(Integer idSchool) {
 		return this.get(idSchool).getAdministrators();
 	}	
-
-	/**
-	 * Crea un ciclo
-	 * @param schoolId: Id de la escuela
-	 * @param newProfessionalDegree: Ciclo a crear
-	 * @return: Ciclo creado
-	 */
-	public ProfessionalDegree createProfessionalDegree(Integer schoolId, ProfessionalDegree newProfessionalDegree) {
-		School school = this.get(schoolId);						// Obtenemos la escuela
-		newProfessionalDegree.setSchool(school);				// Asignamos el ciclo
-		
-		return this.professionalDegreeService.saveProfessionalDegree(newProfessionalDegree);		// Guardamos				
-	}
 		
 	/**
-	 * Verifica si una escuela contiene un ciclo
+	 * Verifica si una escuela contiene un ciclo por su id
 	 * @param schoolId: Id de la escuela
 	 * @param professionalDegree: Id del ciclo
 	 * @return: Boolean
 	 */
-	public boolean containProfessionalDegree(Integer schoolId, ProfessionalDegree professionalDegree) {	
+	public boolean containProfessionalDegreeById(Integer schoolId, ProfessionalDegree professionalDegree) {	
 		School school = this.get(schoolId);											// Obtenemos la escuela
 		return school.getProfessionalDegrees().contains(professionalDegree);		// Verificamos si contiene el ciclo
+	}
+	
+	
+	public boolean containProfessionalDegreeByName(School school, String nameDegree) {
+		return professionalDegreeService.existProfessionalDegreeByNameInSchool(school, nameDegree);
 	}
 		
 	/**
@@ -198,8 +164,40 @@ public class SchoolService {
 		return schoolRepository.findAll();
 	}
 	
-	public Integer getCountAdministrators(Integer idSchool) {
-		return null;
+	public List<UnusualMovement> getMovementsById(Integer id) {
+		School school = get(id);
+		return school.getUnusualsMovements();
 	}
+	
+	public List<RegTemp> getRegTempsByDate(Integer id, LocalDateTime date) {		
+		return this.regTempService.getAllRegTempForDay(date, id);
+	}
+	
+	public void removeAllRegTempByIdSchool(Integer id) {
+		School school = get(id);
+
+		List<RegTemp> regTemps = school.getTemperatureRecords();
+		school.setTemperatureRecords(null);
+		
+		save(school);
+		
+		for (RegTemp currentRegTemp : regTemps) {
+			regTempService.remove(currentRegTemp.getId());
+		}
+	}
+	
+	public void removeAllUnsualsMovements(Integer id) {
+		School school = get(id);
+		
+		List<UnusualMovement> movements = school.getUnusualsMovements();
+		school.getUnusualsMovements().clear();
+		
+		save(school);
+		
+		for (UnusualMovement currentMovement: movements) {
+			this.unusualMovementService.removeUnusualMovement(currentMovement.getId());
+		}
+	}
+
 		
 }
