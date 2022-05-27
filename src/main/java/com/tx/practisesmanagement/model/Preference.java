@@ -9,6 +9,8 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 public class Preference {
 	
@@ -18,9 +20,11 @@ public class Preference {
 	private Integer position;
 	
 	@ManyToOne
+	@JsonIgnore
 	private Enrollment enrollment;
 	
 	@ManyToOne
+	@JsonIgnore
 	private Business business;
 	
 	public Preference() {

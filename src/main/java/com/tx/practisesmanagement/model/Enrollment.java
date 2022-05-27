@@ -35,6 +35,7 @@ public class Enrollment {
 	private Student student;							// Estudiante 
 	
 	@OneToMany(mappedBy = "enrollment")
+	@JsonIgnore
 	private List<Preference> preferences;
 	
 	@OneToOne
