@@ -7,12 +7,16 @@ import java.util.List;
 import java.util.Objects;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 
@@ -29,7 +33,13 @@ public class School {
 	private String address;									// Dirección
 	private String image;									// Imagen
 	private String password;								// Contraseña
+	
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
+	@DateTimeFormat
 	private LocalDateTime openingTime;
+	
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
+	@DateTimeFormat
 	private LocalDateTime closingTime;
 	
 	@JsonIgnore
@@ -37,15 +47,15 @@ public class School {
 	private Location location;
 
 	@JsonIgnore
-	@OneToMany
+	@OneToMany()
 	private List<RegTemp> temperatureRecords;
 	
 	@JsonIgnore
-	@OneToMany
+	@OneToMany()
 	private List<UnusualMovement> unusualsMovements;
 	
 	@JsonIgnore
-	@OneToMany(mappedBy = "school")
+	@OneToMany(mappedBy = "school", fetch = FetchType.EAGER)
 	private List<ProfessionalDegree> professionalDegrees;	// Ciclos
 
 	@JsonIgnore
@@ -243,11 +253,7 @@ public class School {
 		this.professionalDegrees = professionalDegrees;
 	}
 
-	public void addRecordTemp(RegTemp recordTemp) {
-		if (this.temperatureRecords.size() > 9) {						// Almacenaremos 10 registros como máximo, si tenemos más de 9 ...
-			this.temperatureRecords.remove(0);							// Borramos el primero que se añadió
-		}
-		
+	public void addRecordTemp(RegTemp recordTemp) {		
 		this.temperatureRecords.add(recordTemp);						// Añadimos el nuevo registro
 	}
 	

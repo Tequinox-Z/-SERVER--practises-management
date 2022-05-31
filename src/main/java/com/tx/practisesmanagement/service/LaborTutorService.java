@@ -21,11 +21,8 @@ public class LaborTutorService {
 		return laborTutorRepository.findById(dni).orElse(null);
 	}
 	
-	
-	
-	
 	public void remove(String dni) {
-//		
+
 //		if (laborTutor.getBusiness().getTutors().size() == 1) {
 		//			Esto al controlador			
 //		}

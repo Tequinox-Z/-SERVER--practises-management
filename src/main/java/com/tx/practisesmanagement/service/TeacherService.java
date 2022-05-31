@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.tx.practisesmanagement.dto.PersonDTO;
+import com.tx.practisesmanagement.model.ProfessionalDegree;
 import com.tx.practisesmanagement.model.Teacher;
 import com.tx.practisesmanagement.repository.TeacherRepository;
 
@@ -50,14 +51,27 @@ public class TeacherService {
 		
 		// Establecemos todos los datos
 		
-		teacher.setAddress(personData.getAddress());
-		teacher.setBirthDate(personData.getBirthDate());
-		teacher.setImage(personData.getImage());
-		teacher.setLastName(personData.getLastName());
-		teacher.setName(personData.getName());
-		teacher.setPassword(personData.getPassword());
-		teacher.setTelefone(personData.getTelefone());
-		teacher.setEmail(personData.getEmail());
+		if (personData.getAddress() != null) {
+			teacher.setAddress(personData.getAddress());			
+		}
+		if (personData.getBirthDate() != null) {
+			teacher.setBirthDate(personData.getBirthDate());			
+		}
+		if (personData.getImage() != null) {
+			teacher.setImage(personData.getImage());			
+		}
+		if (personData.getLastName() != null) {
+			teacher.setLastName(personData.getLastName());			
+		}
+		if (personData.getName() != null) {			
+			teacher.setName(personData.getName());
+		}
+		if (personData.getTelefone() != null) {
+			teacher.setTelefone(personData.getTelefone());			
+		}
+		if (personData.getEmail() != null) {
+			teacher.setEmail(personData.getEmail());			
+		}
 		
 		
 		// Guardamos
@@ -72,7 +86,7 @@ public class TeacherService {
 	 */
 	public Teacher deleteTeacher(String dni) {
 		
-		Teacher teacher = removeDegreesFromTeacher(dni);				// Quitamos sus ciclos
+		Teacher teacher = quitDegreesFromTeacher(dni);				// Quitamos sus ciclos
 		
 		teacherRepository.delete(teacher);							// Borramos el profesor
 		
@@ -84,11 +98,19 @@ public class TeacherService {
 	 * @param dni: DNi del profesor
 	 * @return: Profesor sin ciclos
 	 */
-	public Teacher removeDegreesFromTeacher(String dni) {
+	public Teacher quitDegreesFromTeacher(String dni) {
 		Teacher teacher = this.get(dni);							// Obtenemos el profesor
 		teacher.getProfessionalDegrees().clear();					// Borramos sus ciclos
 		
 		return teacherRepository.save(teacher);						// Guardamos el profesor
+	}
+	
+	public Teacher addDegree(ProfessionalDegree professionalDegree, Teacher teacher) {
+		Teacher currentTeacher = get(teacher.getDni());
+		
+		currentTeacher.getProfessionalDegrees().add(professionalDegree);
+		
+		return save(currentTeacher);
 	}
 	
 	public String getCountTeacherFromSchool(Integer id) {

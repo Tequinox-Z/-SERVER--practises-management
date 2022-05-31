@@ -205,6 +205,6 @@ public class ProfessionalDegree {
 	 */
 	@Override
 	public String toString() {
-		return "ProfessionalDegree name=" + name + ", school=" + school + "]";
+		return "ProfessionalDegree name=" + name;
 	} 
 }

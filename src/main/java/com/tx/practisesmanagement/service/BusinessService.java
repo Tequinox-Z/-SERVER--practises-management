@@ -2,6 +2,7 @@ package com.tx.practisesmanagement.service;
 
 
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -110,7 +111,7 @@ public class BusinessService {
 		}
 		
 		Location location = business.getLocation();
-		List<ContactWorker> contactWorkers = business.getContactWorkers();
+		List<ContactWorker> contactWorkers = new ArrayList<>(business.getContactWorkers());
 		
 		business.getDegrees().clear();
 		business.getContactWorkers().clear();		

@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 
 import com.tx.practisesmanagement.exception.UserErrorException;
 import com.tx.practisesmanagement.model.Business;
-import com.tx.practisesmanagement.model.Enrollment;
 import com.tx.practisesmanagement.model.LaborTutor;
 import com.tx.practisesmanagement.model.Practise;
 import com.tx.practisesmanagement.model.Teacher;

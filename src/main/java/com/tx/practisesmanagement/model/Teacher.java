@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Objects;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.ManyToMany;
@@ -24,9 +25,9 @@ public class Teacher extends Person {
 	
 	@ManyToMany
 	@JsonIgnore
-	protected List<ProfessionalDegree> professionalDegrees;		// Ciclos
+	private List<ProfessionalDegree> professionalDegrees;		// Ciclos
 	
-	@OneToMany(mappedBy = "teacher")
+	@OneToMany(mappedBy = "teacher", fetch = FetchType.EAGER)
 	@JsonIgnore
 	private List<Practise> practises;
 	
@@ -145,10 +146,7 @@ public class Teacher extends Person {
 	 */
 	@Override
 	public String toString() {
-		return "Teacher [professionalDegrees=" + professionalDegrees + ", toString()=" + super.toString()
-				+ ", getBirthDate()=" + getBirthDate() + ", getName()=" + getName() + ", getLastName()=" + getLastName()
-				+ ", getImage()=" + getImage() + ", getTelefone()=" + getTelefone() + ", getAddress()=" + getAddress()
-				+ ", getPassword()=" + getPassword() + ", getDni()=" + getDni() + ", getRol()=" + getRol() + "]";
+		return "Teacher";
 	}
 
 

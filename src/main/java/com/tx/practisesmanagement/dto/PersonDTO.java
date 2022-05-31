@@ -6,6 +6,8 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.tx.practisesmanagement.enumerators.Rol;
 import com.tx.practisesmanagement.model.Administrator;
 import com.tx.practisesmanagement.model.Student;
 import com.tx.practisesmanagement.model.Teacher;
@@ -19,6 +21,8 @@ public class PersonDTO implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	private String dni;												// DNI del usuario
+	
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
 	private  Date  birthDate;										// Fecha del usuario
 	private String name;											// Nombre del usuario
 	private String lastName;										// Apellidos del usuario
@@ -27,11 +31,11 @@ public class PersonDTO implements Serializable {
 	private String address;											// Dirección del usuario
 	private String password;										// Contraseña del usuario
 	private String email;											// Correo del usuario
-	private String rol;												// ROl del usuario
+	private Rol rol;												// Rol del usuario
 	private boolean enabled;
 	
 	/**
-	 * Constructor vacío de person
+	 * Constructor vacío de persona
 	 */
 	public PersonDTO() {
 		super();
@@ -58,7 +62,7 @@ public class PersonDTO implements Serializable {
 		this.image = administrator.getImage();
 		this.telefone = administrator.getTelefone();
 		this.address = administrator.getAddress();
-		this.rol = administrator.getRol().toString();
+		this.rol = administrator.getRol();
 		this.email = administrator.getEmail();
 		this.password = administrator.getPassword();
 		this.enabled = administrator.isEnabled();
@@ -80,7 +84,7 @@ public class PersonDTO implements Serializable {
 		this.image = student.getImage();
 		this.telefone = student.getTelefone();
 		this.address = student.getAddress();
-		this.rol = student.getRol().toString();
+		this.rol = student.getRol();
 		this.email = student.getEmail();
 		this.password = student.getPassword();
 		this.enabled = student.isEnabled();
@@ -102,7 +106,7 @@ public class PersonDTO implements Serializable {
 		this.image = teacher.getImage();
 		this.telefone = teacher.getTelefone();
 		this.address = teacher.getAddress();
-		this.rol = teacher.getRol().toString();
+		this.rol = teacher.getRol();
 		this.email = teacher.getEmail();
 		this.password = teacher.getPassword();
 		this.enabled = teacher.isEnabled();
@@ -259,19 +263,11 @@ public class PersonDTO implements Serializable {
 		this.email = email;
 	}
 
-	/**
-	 * Obtiene el rol del usuario
-	 * @return Rol del usuario
-	 */
-	public String getRol() {
+	public Rol getRol() {
 		return rol;
 	}
 
-	/**
-	 * Establece el rol del usuario
-	 * @param rol: Nuevo rol del usuario
-	 */
-	public void setRol(String rol) {
+	public void setRol(Rol rol) {
 		this.rol = rol;
 	}
 

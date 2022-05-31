@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Objects;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
@@ -42,7 +43,7 @@ public class Business {
 	@JsonIgnore
 	private List<ProfessionalDegree> degrees;
 	
-	@OneToMany
+	@OneToMany()
 	@JsonIgnore
 	private List<ContactWorker> contactWorkers;
 	

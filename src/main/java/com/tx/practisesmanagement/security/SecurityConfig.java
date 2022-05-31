@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -42,20 +43,37 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 ).permitAll()
                 
                 
+   // Sólo lectura
+                
+                .antMatchers(
+                		HttpMethod.GET,
+                		"/administrator/**"
+                )
+                .hasAnyRole("ADMIN", "TEACHER", "STUDENT", "LABOR_TUTOR")
+                .antMatchers(
+                		HttpMethod.GET,
+                		"/administrator"
+                )
+                .hasAnyRole("ADMIN", "TEACHER", "STUDENT", "LABOR_TUTOR")
+                
+                
    // Acceso sólo para el administrador
                 
                 
+                
                 .antMatchers(
-                		"/administrator/**", "/auth/register", "/temp-humidity", "/motions", "/disable-user", "/enable-user"
-                ).hasRole("ADMIN")
+                		"/administrator", "/administrator/**", "/auth/register", "/temp-humidity", "/motions", "/disable-user", "/enable-user"
+                ).hasAnyRole("ADMIN")
                 
                 
    // Acceso para cualquier usuario registrado
                 
                 .antMatchers(
                 		"/auth/checktoken", "/student/**", "/enrollment/**", "/business/**", "/exist-person/**", "/person/**", "/configure-new-password"
-                ).hasAnyRole("ADMIN", "TEACHER", "ADMIN")
+                ).hasAnyRole("ADMIN", "TEACHER", "STUDENT", "LABOR_TUTOR")
                 
+                
+
                 
    // Acceso sólo para profesor y administrador
                 

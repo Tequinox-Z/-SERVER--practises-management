@@ -2,9 +2,12 @@ package com.tx.practisesmanagement.controller;
 
 
 
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,23 +25,33 @@ import org.springframework.web.bind.annotation.RestController;
 import com.tx.practisesmanagement.component.SmtpMailSender;
 import com.tx.practisesmanagement.dto.MessageDTO;
 import com.tx.practisesmanagement.dto.PersonDTO;
+import com.tx.practisesmanagement.enumerators.Rol;
 import com.tx.practisesmanagement.error.RestError;
 import com.tx.practisesmanagement.model.Administrator;
 import com.tx.practisesmanagement.model.Business;
 import com.tx.practisesmanagement.model.Enrollment;
+import com.tx.practisesmanagement.model.Location;
 import com.tx.practisesmanagement.model.ProfessionalDegree;
+import com.tx.practisesmanagement.model.RegTemp;
 import com.tx.practisesmanagement.model.School;
 import com.tx.practisesmanagement.model.Student;
 import com.tx.practisesmanagement.model.Teacher;
+import com.tx.practisesmanagement.model.UnusualMovement;
 import com.tx.practisesmanagement.service.AdministratorService;
 import com.tx.practisesmanagement.service.BusinessService;
+import com.tx.practisesmanagement.service.ContactWorkerService;
 import com.tx.practisesmanagement.service.EnrollmentService;
+import com.tx.practisesmanagement.service.LaborTutorService;
+import com.tx.practisesmanagement.service.LocationService;
 import com.tx.practisesmanagement.service.PersonService;
 import com.tx.practisesmanagement.service.PractiseService;
+import com.tx.practisesmanagement.service.PreferenceService;
 import com.tx.practisesmanagement.service.ProfessionalDegreeService;
+import com.tx.practisesmanagement.service.RegTempService;
 import com.tx.practisesmanagement.service.SchoolService;
 import com.tx.practisesmanagement.service.StudentService;
 import com.tx.practisesmanagement.service.TeacherService;
+import com.tx.practisesmanagement.service.UnusualMovementService;
 
 /**
  * Controlador de los recursos de Practises Management
@@ -59,6 +72,13 @@ public class AppController {
 		@Autowired private EnrollmentService enrollmentService;						// Servicio de matrículas
 		@Autowired private PractiseService practiseService;							// Servicio de prácticas
 		@Autowired private BusinessService businessService;							// Servicio de empresas
+		@Autowired private ContactWorkerService contactWorkerService;
+		@Autowired private LaborTutorService labprTutorService;
+		@Autowired private LocationService locationService;
+		@Autowired private PreferenceService preferenceService;
+		@Autowired private RegTempService regTempService;
+		@Autowired private UnusualMovementService unusualMovementService;
+		
 		
 	// Encriptador de contraseña
 		
@@ -85,7 +105,7 @@ public class AppController {
     public ResponseEntity getPerson() {
         String dni = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();		// Obtenemos su dni
 
-        Teacher teacher = teacherService.get(dni);															// lo buscamos en profesor
+        Teacher teacher = teacherService.get(dni);															// Lo buscamos en profesor
 
         if (teacher != null) {
     		return ResponseEntity.status(HttpStatus.OK).body(
@@ -93,7 +113,7 @@ public class AppController {
     		);
         }
 
-        Administrator admin = administratorService.get(dni);												// Lo buscamos en administrador
+        Administrator admin = administratorService.get(dni);												// Si no existe, lo buscamos en administrador
 
         if (admin != null) {
     		return ResponseEntity.status(HttpStatus.OK).body(
@@ -101,7 +121,7 @@ public class AppController {
     		);
         }
 
-        Student student = studentService.get(dni);															// Lo buscamos en estudiantes
+        Student student = studentService.get(dni);															// Si no existe lo buscamos en estudiantes
 
         if (student != null) {
     		return ResponseEntity.status(HttpStatus.OK).body(
@@ -110,7 +130,7 @@ public class AppController {
         }
 
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-			new RestError(HttpStatus.NOT_FOUND, "Persona no encontrada")									// El usuario no existe, lanzamos error
+			new RestError(HttpStatus.NOT_FOUND, "Persona no encontrada")									// Si el usuario no existe, lanzamos error
 		);
     }
 	
@@ -121,32 +141,34 @@ public class AppController {
 	@GetMapping("exist-person/{dni}")
     public ResponseEntity getPerson(@PathVariable String dni) {
 
-        Teacher teacher = teacherService.get(dni);														// Lo buscamos en profesores
+		dni = dni.toUpperCase();
+		
+        Teacher teacher = teacherService.get(dni);																// Lo buscamos en profesores
 
         if (teacher != null) {
-    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-            		new RestError(HttpStatus.BAD_REQUEST, "La persona ya existe")						// Si existe lo indicamos
+    		return ResponseEntity.status(HttpStatus.OK).body(
+            		new RestError(HttpStatus.OK, "La persona existe")											// Si existe lo indicamos
     		);
         }
 
-        Administrator admin = administratorService.get(dni);											// Lo buscamos en profesores
+        Administrator admin = administratorService.get(dni);													// Lo buscamos en profesores
 
         if (admin != null) {
-    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-            		new RestError(HttpStatus.BAD_REQUEST, "La persona ya existe")						// Si existe lo indicamos
+    		return ResponseEntity.status(HttpStatus.OK).body(
+            		new RestError(HttpStatus.OK, "La persona existe")											// Si existe lo indicamos
     		);
         }
 
-        Student student = studentService.get(dni);														// Lo buscamos en estudiantes
+        Student student = studentService.get(dni);																// Lo buscamos en estudiantes
 
         if (student != null) {
-    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-        		new RestError(HttpStatus.BAD_REQUEST, "La persona ya existe")							// Si existe lo indicamos
+    		return ResponseEntity.status(HttpStatus.OK).body(
+        		new RestError(HttpStatus.OK, "La persona existe")												// Si existe lo indicamos
     		);
         }
 
-		return ResponseEntity.status(HttpStatus.OK).body(
-			new RestError(HttpStatus.OK, "Persona no registrada")										// La persona no existe por lo que indicamos que está disponible
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+			new RestError(HttpStatus.BAD_REQUEST, "Persona no registrada")										// La persona no existe por lo que indicamos que está disponible
 		);
     }
 
@@ -173,6 +195,9 @@ public class AppController {
 	 */
 	@GetMapping("administrator/{dni}")
 	public ResponseEntity getAdministrator(@PathVariable String dni) {
+		
+		dni = dni.toUpperCase();
+		
 		Administrator administrator = administratorService.get(dni);							// Obtenemos el administrador
 
 		if (administrator == null) {
@@ -187,45 +212,6 @@ public class AppController {
 		}
 	}
 
-	/**
-	 * Crea un nuevo administrador
-	 * @param administrator: Administrador a crear
-	 * @return Administrador creado
-	 */
-	@PostMapping("administrator")
-	public ResponseEntity createAdministrator(@RequestBody PersonDTO administrator) {
-		if (administrator.getDni() == null) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-					new RestError(HttpStatus.BAD_REQUEST, "Indique el dni del administrador")							// Verificamos que nos hayan pasado el dni
-			);
-		}
-		else if (administrator.getName() == null || administrator.getLastName() == null) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-					new RestError(HttpStatus.BAD_REQUEST, "Indique el nombre del administrador y sus apellidos")		// Verificamos que nos hayan pasado el nombre y apellidos
-			);
-		}
-		else if (administrator.getEmail() == null) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-					new RestError(HttpStatus.BAD_REQUEST, "Indique un correo")											// Verificamos que nos hayan pasado un correo 
-			);
-		}
-		else if (administrator.getPassword() == null) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-					new RestError(HttpStatus.BAD_REQUEST, "Indique la contraseña del administrador")					// Verificamos que nos hayan pasado la contraseña 
-			);
-		}
-		else if (personService.existPerson(administrator.getDni())) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-					new RestError(HttpStatus.BAD_REQUEST, "Esta persona ya está registrada")							// Verificamos si existe la persona
-			);
-		}
-		
-		administrator.setPassword(passwordEncoder.encode(administrator.getPassword()));									// Codificamos la contraseña
-
-		return ResponseEntity.status(HttpStatus.CREATED).body(
-				administratorService.save(new Administrator(administrator))												// Retornamos el nuevo usuario
-		);
-	}
 
 	/**
 	 * Permite editar un administrador
@@ -234,6 +220,8 @@ public class AppController {
 	@PutMapping("administrator/{dni}")
 	public ResponseEntity updateAdministrator(@RequestBody PersonDTO administrator, @PathVariable String dni) {
 		
+		dni = dni.toUpperCase();
+		
 		Administrator currentAdministrator = administratorService.get(dni);												// Obtenemos el administrador
 		
 		if (currentAdministrator == null) {
@@ -241,11 +229,25 @@ public class AppController {
 				new RestError(HttpStatus.NOT_FOUND, "La persona no existe o no es un administrador")					// Si no existe lo indicamos
 			);
 		}
-		else if (administrator.getAddress() == null || administrator.getBirthDate() == null || administrator.getLastName() == null || administrator.getName() == null || administrator.getPassword() == null || administrator.getTelefone() == null) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-				new RestError(HttpStatus.BAD_REQUEST, "Indique todos los datos")										// Si no nos han pasado todos los datos lo indicamos
-			);
-		}
+
+    	else if (administrator.getBirthDate() == null || administrator.getBirthDate().after(new Date())) {
+    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RestError(HttpStatus.BAD_REQUEST, "Indique una fecha de nacimiento válida"));			// Si no nos han pasado nombre lo indicamos
+    	}	    	
+    	else if (administrator.getName() == null || administrator.getName().trim().length() == 0) {
+    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RestError(HttpStatus.BAD_REQUEST, "Indique nombre"));	// Si no nos han pasado nombre lo indicamos
+    	}	    	
+    	else if (administrator.getLastName() == null || administrator.getLastName().trim().length() == 0) {
+    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RestError(HttpStatus.BAD_REQUEST, "Indique apellidos"));	// Si no nos han pasado nombre lo indicamos
+    	}
+    	else if (administrator.getEmail() == null || !administrator.getEmail().matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RestError(HttpStatus.BAD_REQUEST, "Indique un correo válido"));						// Si no nos han pasado un correo lo indicamos
+    	}
+    	else if (administrator.getTelefone() == null || administrator.getTelefone().trim().length() == 0) {
+    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RestError(HttpStatus.BAD_REQUEST, "No se expecificó un teléfono"));						// Si no nos han pasado un correo lo indicamos
+    	}
+    	else if (administrator.getAddress() == null || administrator.getAddress().trim().length() == 0) {
+    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RestError(HttpStatus.BAD_REQUEST, "No se expecificó una dirección"));						// Si no nos han pasado un correo lo indicamos
+    	}
 		
 		return ResponseEntity.status(HttpStatus.OK).body(
 				administratorService.updateAdministrator(currentAdministrator.getDni(), administrator)							// Actualizamos el administrador y devolvemos el resultado
@@ -258,6 +260,7 @@ public class AppController {
 	 */
 	@DeleteMapping("administrator/{dni}")
 	public ResponseEntity deleteAdministrator(@PathVariable String dni) {
+		dni = dni.toUpperCase();
 		
 		if (administratorService.get(dni) == null) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
@@ -280,29 +283,44 @@ public class AppController {
 	 */
 	@GetMapping("administrator/{dni}/school")
 	public ResponseEntity getSchoolFromAdministrator(@PathVariable String dni) {
-		Administrator currentAdministrator = administratorService.get(dni);											// Obtenemos el administrador
+		
+		dni = dni.toUpperCase();
+		
+		Administrator currentAdministrator = administratorService.get(dni);													// Obtenemos el administrador
 
 		if (currentAdministrator == null) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
 				new RestError(HttpStatus.BAD_REQUEST, "La persona no existe o no cuenta con privilegios de administrador")	// Si no existe o no es administrador lo indicamos
 			);
 		}
-		else if (currentAdministrator.getSchool() == null) {
+		else if (currentAdministrator.getSchoolSetted() == null) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-				new RestError(HttpStatus.NOT_FOUND, "No administra ninguna escuela")								// Si no tiene escuela lo indicamos
+				new RestError(HttpStatus.NOT_FOUND, "Aún no administra ninguna escuela")									// Si no tiene escuela lo indicamos
 			);
 		}
 
-		return ResponseEntity.status(HttpStatus.OK).body(currentAdministrator.getSchool());							// Devolvemos la escuela
+		return ResponseEntity.status(HttpStatus.OK).body(currentAdministrator.getSchoolSetted());							// Devolvemos la escuela
 	}
+	
 	
 	@PostMapping("administrator/{dni}/school")
 	public ResponseEntity addSchoolToAdministrator(@PathVariable String dni, @RequestBody School school) {
-		Administrator currentAdministrator = administratorService.get(dni);											
+		
+		dni = dni.toUpperCase();
+		
+		Administrator currentAdministrator = administratorService.get(dni);		
+
 
 		if (currentAdministrator == null) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
 				new RestError(HttpStatus.NOT_FOUND, "La persona no existe o no cuenta con privilegios de administrador")	
+			);
+		}
+		
+		
+		if (currentAdministrator.getSchoolSetted() != null) {
+			return ResponseEntity.status(HttpStatus.CONFLICT).body(
+					new RestError(HttpStatus.CONFLICT, "Ya administra una escuela")	
 			);
 		}
 		
@@ -320,12 +338,49 @@ public class AppController {
 			);
 		}
 		
-		currentAdministrator.setSchool(schoolFromDB);
+		currentAdministrator.setSchoolSetted(schoolFromDB);
 		
 		administratorService.save(currentAdministrator);
 		
-		return ResponseEntity.status(HttpStatus.OK).build();
+		return ResponseEntity.status(HttpStatus.OK).body(schoolFromDB);
 		
+	}
+	
+	
+	
+	@DeleteMapping("administrator/{dni}/school")
+	public ResponseEntity quitSchoolToAdministrator(@PathVariable String dni) {
+		
+		dni = dni.toUpperCase();
+		
+		Administrator currentAdministrator = administratorService.get(dni);		
+
+		if (currentAdministrator == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+				new RestError(HttpStatus.NOT_FOUND, "La persona no existe o no cuenta con privilegios de administrador")	
+			);
+		}
+		
+		
+		if (currentAdministrator.getSchoolSetted() == null) {
+			return ResponseEntity.status(HttpStatus.CONFLICT).body(
+					new RestError(HttpStatus.CONFLICT, "No hay ninguna escuela asignada")	
+			);
+		}
+		
+		Integer schoolId = currentAdministrator.getSchoolSetted().getId();
+		
+		currentAdministrator.setSchoolSetted(null);
+		
+		administratorService.save(currentAdministrator);
+		
+		
+		if (schoolService.get(schoolId).getAdministrators().isEmpty()) {
+			schoolService.removeSchool(schoolId);
+		}
+		
+		
+		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 	}
 
 
@@ -341,16 +396,9 @@ public class AppController {
 	public ResponseEntity getTeachers() {
 		List<Teacher> teachers = teacherService.getAll();													// Obtenemos los profesores
 
-		if (teachers.isEmpty()) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-					new RestError(HttpStatus.NOT_FOUND, "Sin profesores")									// Si no hay ninguno lo indicamos
-			);
-		}
-		else {
-			return ResponseEntity.status(HttpStatus.OK).body(
-					teachers																				// Si hay retornamos los mismos
-			);
-		}
+		return ResponseEntity.status(HttpStatus.OK).body(
+			teachers																				// Si hay retornamos los mismos
+		);
 	}
 
 	/**
@@ -359,6 +407,7 @@ public class AppController {
 	 */
 	@GetMapping("teacher/{dni}")
 	public ResponseEntity getTeacher(@PathVariable String dni) {
+		dni = dni.toUpperCase();
 		Teacher teacher = teacherService.get(dni);															// Buscamos el profesor
 
 		if (teacher == null) {
@@ -369,71 +418,47 @@ public class AppController {
 		else {
 			return ResponseEntity.status(HttpStatus.OK).body(
 					teacher																					// Si existe lo retornamos
-				);
+			);
 		}
 	}
 
-	/**
-	 * Crea un nuevo profesor con los datos de una persona
-	 * @param teacher: Profesor a crear
-	 * @return Nuevo profesor
-	 */
-	@PostMapping("teacher")
-	public ResponseEntity createTeacher(@RequestBody PersonDTO teacher) {
-		if (teacher.getDni() == null) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-					new RestError(HttpStatus.BAD_REQUEST, "Indique el dni del profesor")						// Si no nos ha indicado el dni lanzamos error
-			);
-		}
-		else if (teacher.getName() == null || teacher.getLastName() == null) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-					new RestError(HttpStatus.BAD_REQUEST, "Indique el nombre del profesor y sus apellidos")     // Si no nos ha indicado el nombre o apellido llanzamos error
-			);
-		}
-		else if (teacher.getPassword() == null) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-					new RestError(HttpStatus.BAD_REQUEST, "Indique la contraseña del profesor")					// Si no nos ha indicado la contraseña lanzamos error
-			);
-		}
-		else if (teacher.getEmail() == null) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-					new RestError(HttpStatus.BAD_REQUEST, "Indique un correo")									// Si no nos ha indicado el correo lanzamos error
-			);
-		}
-		else if (personService.existPerson(teacher.getDni())) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-					new RestError(HttpStatus.BAD_REQUEST, "Esta persona ya está registrada")					// Si está registrada lo indicamos
-			);
-		}
-		
-		teacher.setPassword(passwordEncoder.encode(teacher.getPassword()));
-		teacherService.save(new Teacher(teacher));														// Si todo está correcto creamos el profesor
-
-		return ResponseEntity.status(HttpStatus.CREATED).build();
-	}
-	
 	/**
 	 * Permite editar un administrador
 	 * @return Administrador editado
 	 */
 	@PutMapping("teacher/{dni}")
 	public ResponseEntity updateTeacher(@RequestBody PersonDTO teacher, @PathVariable String dni) {
+
+		dni = dni.toUpperCase();
 		
-		Teacher currentTeacher = teacherService.get(dni);													// Obtenemos el profesor
+		Teacher currentTeacher = teacherService.get(dni);												// Obtenemos el profesor
 		
 		if (currentTeacher == null) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-				new RestError(HttpStatus.BAD_REQUEST, "La persona no existe o no es un profesor")			// Comprobamos si existe y si es un profesor
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+				new RestError(HttpStatus.NOT_FOUND, "La persona no existe o no es un profesor")					// Si no existe lo indicamos
 			);
 		}
-		else if (teacher.getAddress() == null || teacher.getBirthDate() == null || teacher.getLastName() == null || teacher.getName() == null || teacher.getPassword() == null || teacher.getTelefone() == null) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-				new RestError(HttpStatus.BAD_REQUEST, "Indique todos los datos")							// Si no nos han indicado todos los datos lo indicamos
-			);
-		}
-		
+    	else if (teacher.getBirthDate() == null || teacher.getBirthDate().after(new Date())) {
+    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RestError(HttpStatus.BAD_REQUEST, "Indique una fecha de nacimiento válida"));			// Si no nos han pasado nombre lo indicamos
+    	}	    	
+    	else if (teacher.getName() == null || teacher.getName().trim().length() == 0) {
+    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RestError(HttpStatus.BAD_REQUEST, "Indique nombre"));	// Si no nos han pasado nombre lo indicamos
+    	}	    	
+    	else if (teacher.getLastName() == null || teacher.getLastName().trim().length() == 0) {
+    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RestError(HttpStatus.BAD_REQUEST, "Indique apellidos"));	// Si no nos han pasado nombre lo indicamos
+    	}
+    	else if (teacher.getEmail() == null || !teacher.getEmail().matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RestError(HttpStatus.BAD_REQUEST, "Indique un correo válido"));						// Si no nos han pasado un correo lo indicamos
+    	}
+    	else if (teacher.getTelefone() == null || teacher.getTelefone().trim().length() == 0) {
+    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RestError(HttpStatus.BAD_REQUEST, "No se expecificó un teléfono válido"));						// Si no nos han pasado un correo lo indicamos
+    	}
+    	else if (teacher.getAddress() == null || teacher.getAddress().trim().length() == 0) {
+    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RestError(HttpStatus.BAD_REQUEST, "No se expecificó una dirección"));						// Si no nos han pasado un correo lo indicamos
+    	}
+
 		return ResponseEntity.status(HttpStatus.OK).body(
-				teacherService.updateTeacher(currentTeacher, teacher)										// Si todo está correcto actualizamos el profesor y lo retornamos
+			teacherService.updateTeacher(currentTeacher, teacher)										// Si todo está correcto actualizamos el profesor y lo retornamos
 		);
 	}
 
@@ -443,6 +468,7 @@ public class AppController {
 	 */
 	@DeleteMapping("teacher/{dni}")
 	public ResponseEntity deleteTeacher(@PathVariable String dni) {
+		dni = dni.toUpperCase();
 		
 		if (teacherService.get(dni) == null) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
@@ -450,13 +476,20 @@ public class AppController {
 			);
 		}
 		
-		teacherService.deleteTeacher(dni);																				// Borramos el profesor
-
+		if (teacherService.get(dni).getRol() == Rol.ROLE_ADMIN ) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+					new RestError(HttpStatus.BAD_REQUEST, "No se puede eliminar un administrador desde profesores")				
+			);
+		}
+		else {
+			teacherService.deleteTeacher(dni);																				// Borramos el profesor			
+		}
+		
 		
 		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();													// Indicamos el código de estado 204
-
 	}
 
+	
 	/* Segundo nivel */
 
 
@@ -465,143 +498,40 @@ public class AppController {
 	 * @param dni: Identificador del profesor
 	 * @return Ciclos del profesor
 	 */
-	@GetMapping("teacher/{dni}/degrees")
+	@GetMapping("teacher/{dni}/degree")
 	public ResponseEntity getDegrees(@PathVariable String dni) {
-
+		dni = dni.toUpperCase();
+		
 		Teacher currentTeacher = teacherService.get(dni);												// Obtenemos el profesor
+		
 
 		if (currentTeacher == null) {
-			currentTeacher = administratorService.get(dni);												// Si no existe el profesor lo buscamos en administradores
-
-			if (currentTeacher == null) {
-				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-					new RestError(HttpStatus.BAD_REQUEST, "El profesor no existe")						// Si no existe lanzamos error
-				);
-			}
-		}
-
-		if (currentTeacher.getProfessionalDegrees().isEmpty()) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-				new RestError(HttpStatus.NOT_FOUND, "No estás asignado a ningún ciclo")					// Si no tiene ningún ciclo lo indicamos
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+				new RestError(HttpStatus.BAD_REQUEST, "El profesor no existe")						// Si no existe lanzamos error
 			);
 		}
-
 		return ResponseEntity.status(HttpStatus.OK).body(
 			currentTeacher.getProfessionalDegrees()														// Obtenemos los ciclos y lo devolvemos
 		);
 	}
-	
-	/**
-	 * Obtiene un ciclo de un profesor concreto
-	 * @param dni: Identificador del profesor
-	 * @return Ciclo solicitado
-	 */
-//	@GetMapping("teacher/{dni}/degrees/{idDegree}")
-//	public ResponseEntity getDegrees(@PathVariable String dni, @PathVariable Integer idDegree) {
-//
-//		Teacher currentTeacher = teacherService.get(dni);										// Obtenemos el profesor
-//
-//		if (currentTeacher == null) {
-//			currentTeacher = administratorService.get(dni);										// Si no existe lo buscamos en administradores
-//
-//			if (currentTeacher == null) {
-//				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-//					new RestError(HttpStatus.BAD_REQUEST, "El profesor no existe")				// Si no existe lanzamos error
-//				);
-//			}
-//		}
-//
-//		if (!currentTeacher.getProfessionalDegrees().contains(new ProfessionalDegree(idDegree))) {
-//			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-//				new RestError(HttpStatus.NOT_FOUND, "Este ciclo no existe o no lo imparte este profesor")	// Si el ciclo solicitado no existe lo indicamos
-//			);
-//		}
-//
-//		return ResponseEntity.status(HttpStatus.OK).body(
-//			currentTeacher.getProfessionalDegrees().get(currentTeacher.getProfessionalDegrees().indexOf(new ProfessionalDegree(idDegree)))	// Si existe lo obtenemos y lo retornamos
-//		);
-//	}
-	
-	/**
-	 * Añade un nuevo ciclo a un profesor
-	 * @param dni: Dni del profesor
-	 * @param degree: Datos del ciclo
-	 * @return Ciclo retornado
-	 */
-	@PostMapping("teacher/{dni}/degrees")
-//	public ResponseEntity setDegrees(@PathVariable String dni, @RequestBody ProfessionalDegree degree) {
-//
-//		Teacher currentTeacher = teacherService.get(dni);														// Obtenemos el profesor
-//
-//		if (currentTeacher == null) {
-//			currentTeacher = administratorService.get(dni);														// Si no existe lo buscamos en administradores
-//
-//			if (currentTeacher == null) {
-//				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-//					new RestError(HttpStatus.BAD_REQUEST, "El profesor no existe")								// Si no existe lo indicamos
-//				);
-//			}
-//		}
-//		
-//		if (degree.getId() == null) {
-//			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-//					new RestError(HttpStatus.BAD_REQUEST, "Indique el identificador del ciclo")					// Si no nos han indicado el id lo indicamos
-//			);
-//		}
-//		else if (professionalDegreeService.get(degree.getId()) == null) {
-//			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-//				new RestError(HttpStatus.NOT_FOUND, "El ciclo indicado no existe")								// Si no existe el ciclo lo indicamos
-//			);
-//		}
-//		else if (currentTeacher.getProfessionalDegrees().contains(degree)) {
-//			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-//				new RestError(HttpStatus.BAD_REQUEST, "El ciclo ya tiene asignado este profesor")				// Si en el ciclo la ya está este profesor lo indicamos
-//			);
-//		}
-//
-//		return ResponseEntity.status(HttpStatus.CREATED).body(
-//			professionalDegreeService.addTeacherToDegree(degree.getId(), currentTeacher)						// Si todo está correcto lo añadimos y retornamos el resultado	
-//		);
-//	}
-//	
-	/**
-	 * Edita un ciclo desde un profesor
-	 * @param dni : Dni de un profesor
-	 * @param idDegree: Id del ciclo
-	 * @param degree: Datos del ciclo
-	 * @return Ciclo editado
-	 */
-	@PutMapping("teacher/{dni}/degrees/{idDegree}")
-	public ResponseEntity setDegrees(@PathVariable String dni, @PathVariable Integer idDegree, @RequestBody ProfessionalDegree degree) {
 
-		Teacher currentTeacher = teacherService.get(dni);				// Obtenemos el profesor
+	
+	@GetMapping("teacher/{dni}/practise")
+	public ResponseEntity getPractises(@PathVariable String dni) {
+		dni = dni.toUpperCase();
+		
+		Teacher currentTeacher = teacherService.get(dni);												// Obtenemos el profesor
+		
 
 		if (currentTeacher == null) {
-			currentTeacher = administratorService.get(dni);				// Si no existe lo buscamos en administradores
-
-			if (currentTeacher == null) {
-				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-					new RestError(HttpStatus.BAD_REQUEST, "El profesor no existe")		// SI no existe lo indicamos
-				);
-			}
-		}
-		
-		if (degree.getName() == null) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-					new RestError(HttpStatus.BAD_REQUEST, "Indique el nombre")			// Si no nos han indicado el nombre lo indicamos
+				new RestError(HttpStatus.BAD_REQUEST, "El profesor no existe")						// Si no existe lanzamos error
 			);
 		}
-		else if (professionalDegreeService.get(idDegree) == null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-				new RestError(HttpStatus.NOT_FOUND, "El ciclo indicado no existe")		// Si el ciclo no existe lo indicamos
-			);
-		}
-
 		return ResponseEntity.status(HttpStatus.OK).body(
-			professionalDegreeService.updateDegree(idDegree, degree)					// Actualizamos el ciclo y devolvemos el resultado				
+			currentTeacher.getPractises()														// Obtenemos los ciclos y lo devolvemos
 		);
 	}
-
 
 
 	/* ===============================================  Escuela  =============================================  */
@@ -616,23 +546,16 @@ public class AppController {
 	@GetMapping("school")
 	public ResponseEntity getAllSchools(@RequestParam(required = false) String name) {
 
-		List<School> schools;									// Aquí almacenaremos todas las escuelas
-
-		if (name == null) {
-			schools = schoolService.getAll();					// Si no nos han indicado un nombre los obtenemos todos
+		List<School> schools;
+				
+		if (name != null) {
+			schools = schoolService.getAllByName(name);
 		}
 		else {
-			schools = schoolService.getAllByName(name);			// Si nos han indicado un nombre lo buscamos
+			schools = schoolService.getAll();
 		}
-
-		if (schools.isEmpty()) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-					new RestError(HttpStatus.NOT_FOUND, "No hay centros registrados")		// Si no hay centros registrados lo indicamos
-			);
-		}
-		else {
-			return ResponseEntity.status(HttpStatus.OK).body(schools);						// Retornamos los centros si hay
-		}
+		
+		return ResponseEntity.status(HttpStatus.OK).body(schools);						// Retornamos los centros 
 	}
 
 	/**
@@ -660,102 +583,685 @@ public class AppController {
 	 */
 	@PostMapping("school")
 	public ResponseEntity addSchool(@RequestBody School school) {
+		
 		if (school.getName() == null) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-					new RestError(HttpStatus.BAD_REQUEST, "Indique un nombre para el centro")					// Si no nos indican el nombre lo avisamos
+				new RestError(HttpStatus.BAD_REQUEST, "Indique un nombre para el centro")					// Si no nos indican el nombre lo avisamos
 			);
 		}
 		else if (school.getAddress() == null) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-					new RestError(HttpStatus.BAD_REQUEST, "Indique la dirección de acceso al centro")			// Si no nos indican dirección lo indicamos
+					new RestError(HttpStatus.BAD_REQUEST, "Indique la dirección al centro")					
+			);
+		}
+		else if (school.getImage() == null) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+					new RestError(HttpStatus.BAD_REQUEST, "Indique imagen del centro")					// Si no nos indican el nombre lo avisamos
 			);
 		}
 		else if (school.getPassword() == null) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-					new RestError(HttpStatus.BAD_REQUEST, "Indique contraseña de acceso a la administración al centro")			// Si no nos indican contraseña lo indicamos
+					new RestError(HttpStatus.BAD_REQUEST, "Indique una contraseña")					// Si no nos indican el nombre lo avisamos
 			);
 		}
-
+		else if (school.getOpeningTime() == null) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+					new RestError(HttpStatus.BAD_REQUEST, "Indique hora de apertura")					// Si no nos indican el nombre lo avisamos
+			);
+		}
+		else if (school.getClosingTime() == null) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+					new RestError(HttpStatus.BAD_REQUEST, "Indique hora de cierre")					// Si no nos indican el nombre lo avisamos
+			);
+		}
+		else if (school.getOpeningTime().isAfter(school.getClosingTime())) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+					new RestError(HttpStatus.BAD_REQUEST, "Horario no válido")					// Si no nos indican el nombre lo avisamos
+			);
+		}
+		
+		school.setId(null);
+		
 		return ResponseEntity.status(HttpStatus.CREATED).body(
-				schoolService.save(school)																						// Guardamos y retornamos el resultado
+				schoolService.save(school)
 		);
 	}
+	
+	
+	@PutMapping("school/{id}")
+	public ResponseEntity editSchool(@RequestBody School school, @PathVariable Integer id) {
+		
+		School currentSchool = schoolService.get(id);
+		
+		if (currentSchool == null) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+					new RestError(HttpStatus.BAD_REQUEST, "El centro no existe")					// Si no nos indican el nombre lo avisamos
+			);
+		}
+		else if (school.getName() == null) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+				new RestError(HttpStatus.BAD_REQUEST, "Indique un nombre para el centro")					// Si no nos indican el nombre lo avisamos
+			);
+		}
+		else if (school.getAddress() == null) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+					new RestError(HttpStatus.BAD_REQUEST, "Indique la dirección al centro")					
+			);
+		}
+		else if (school.getImage() == null) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+					new RestError(HttpStatus.BAD_REQUEST, "Indique imagen del centro")					// Si no nos indican el nombre lo avisamos
+			);
+		}
+		else if (school.getPassword() == null) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+					new RestError(HttpStatus.BAD_REQUEST, "Indique una contraseña")					// Si no nos indican el nombre lo avisamos
+			);
+		}
+		else if (school.getOpeningTime() == null) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+					new RestError(HttpStatus.BAD_REQUEST, "Indique hora de apertura")					// Si no nos indican el nombre lo avisamos
+			);
+		}
+		else if (school.getClosingTime() == null) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+					new RestError(HttpStatus.BAD_REQUEST, "Indique hora de cierre")					// Si no nos indican el nombre lo avisamos
+			);
+		}
+		else if (school.getOpeningTime().isAfter(school.getClosingTime())) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+					new RestError(HttpStatus.BAD_REQUEST, "Horario no válido")					// Si no nos indican el nombre lo avisamos
+			);
+		}
+		
+		
+		return ResponseEntity.status(HttpStatus.OK).body(
+				schoolService.updateSchool(school, currentSchool.getId())
+		);
+	}
+	
+	
+	/**
+	 * Borra una determinada escuela
+	 * @param idSchool: Identificador de la escuela
+	 */
+	@DeleteMapping("school/{idSchool}")
+	public ResponseEntity deleteSchool(@PathVariable Integer idSchool) {
 
+		School currentSchool = schoolService.get(idSchool);
+		
+		if (currentSchool == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "Escuela no encontrada")							// Si no existe lo indicamos
+			);
+		}
+		
+		administratorService.quitAdministratorsFromSchool(currentSchool);
+		
+		schoolService.removeSchool(idSchool);																// Borramos la escuela
+		
+		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();										// Devolvemos un 204
+	}
+	
 	/* Segundo nivel */
 	
-	/**
-	 * Establece un administrador en una escuela
-	 * @param dni: Identificador del administrador
-	 * @param school: Objeto escuela que contiene el identificador de la escuela a añadir
-	 * @return Escuela asignada
-	 */
-	@PostMapping("school/{idSchool}/administrator")
-	public ResponseEntity addAdministrator(@PathVariable Integer idSchool, @RequestBody PersonDTO administrator) {
+	
+	// ================================================ Registros de temperatura ================================================
+	
+	@GetMapping("school/{idSchool}/reg-temp")
+	public ResponseEntity getRegTempsByDate(@PathVariable Integer idSchool, @RequestParam(required = false)  @DateTimeFormat(pattern = "dd-MM-yyyy") Date date) {
+		School currentSchool = schoolService.get(idSchool);
 		
-		if (schoolService.get(idSchool) == null) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-					new RestError(HttpStatus.BAD_REQUEST, "El centro no existe")								// Si el centro no existe lo indicamos
-			);
-		}
-		else if (administrator.getDni() == null) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-					new RestError(HttpStatus.BAD_REQUEST, "Indique un dni")										// Si no nos han indicado el dni lo indicamos
+		if (currentSchool == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "Centro no encontrado")							// Si no existe lo indicamos
 			);
 		}
 		
-		Administrator currentAdministrator = administratorService.get(administrator.getDni());					// Obtenemos el administrador
+		if (date != null) {
+			if (date.after(new Date())) {
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+						new RestError(HttpStatus.BAD_REQUEST, "No se soportan las previsiones aún")							
+				);
+			}
+			
+			return ResponseEntity.status(HttpStatus.OK).body(
+					schoolService.getRegTempsByDate(idSchool, date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime())
+			);
+			
+		}
+		else {
+			return ResponseEntity.status(HttpStatus.OK).body(
+					currentSchool.getTemperatureRecords()
+			);
+		}
+	}
+	
+	
+	@DeleteMapping("school/{idSchool}/reg-temp")
+	public ResponseEntity removeAllRegTemps(@PathVariable Integer idSchool) {
 		
-		if (currentAdministrator == null) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-					new RestError(HttpStatus.BAD_REQUEST, "El usuario no existe o no tiene privilegios para esta acción")	// Si no existe o no es un administrador lo indicamos
+		School currentSchool = schoolService.get(idSchool);
+		
+		if (currentSchool == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "Centro no encontrado")							// Si no existe lo indicamos
 			);
 		}
-		else if (currentAdministrator.getSchool() != null) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-					new RestError(HttpStatus.BAD_REQUEST, "El administrador ya administra una escuela")						// Si el administrador ya administra una escuela lo indicamos
+		
+		
+		schoolService.removeAllRegTempByIdSchool(idSchool);
+		
+		
+		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+	}
+	
+	
+	@PostMapping("school/{idSchool}/reg-temp")
+	public ResponseEntity getRegTemps(@PathVariable Integer idSchool, @RequestBody RegTemp newRegTemp) {
+		
+		School currentSchool = schoolService.get(idSchool);
+		
+		if (currentSchool == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "Centro no encontrado")							// Si no existe lo indicamos
 			);
 		}
-
-		return ResponseEntity.status(HttpStatus.CREATED).body(
-				schoolService.addAdministratorToSchool(idSchool, currentAdministrator)										// Añadimos el administrador y lo devolvemos
+		
+		
+		if (newRegTemp.getHumidity() == null) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+					new RestError(HttpStatus.BAD_REQUEST, "Indique humedad")							// Si no existe lo indicamos
+			);
+		}
+		else if (newRegTemp.getCelcius() == null) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+					new RestError(HttpStatus.BAD_REQUEST, "Indique la temperatura en Celcius")							// Si no existe lo indicamos
+			);
+		}
+		else if (newRegTemp.getFahrenheit() == null) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+					new RestError(HttpStatus.BAD_REQUEST, "Indique la temperatura en Fahrenheit")							// Si no existe lo indicamos
+			);
+		}
+		else if (newRegTemp.getHeatIndexc() == null) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+					new RestError(HttpStatus.BAD_REQUEST, "Indique índice de calor en Celcius")							// Si no existe lo indicamos
+			);
+		}
+		else if (newRegTemp.getHeatIndexf() == null) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+					new RestError(HttpStatus.BAD_REQUEST, "Indique índice de calor en Fahrenheit")							// Si no existe lo indicamos
+			);
+		}
+		
+		newRegTemp.setId(null);
+		
+		
+		return ResponseEntity.status(HttpStatus.OK).body(
+				schoolService.addRegTemp(currentSchool, newRegTemp)
+		);
+		
+	}
+	
+	
+	// ================================================ Movimientos inusuales ================================================
+	
+	
+	@GetMapping("school/{idSchool}/movement")
+	public ResponseEntity getUnusualMovements(@PathVariable Integer idSchool) {
+		School currentSchool = schoolService.get(idSchool);
+		
+		if (currentSchool == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "Centro no encontrado")							// Si no existe lo indicamos
+			);
+		}
+		
+		return ResponseEntity.status(HttpStatus.OK).body(
+				currentSchool.getUnusualsMovements()							// Si no existe lo indicamos
 		);
 	}
 	
-	/**
-	 * Borra un administrador de una escuela
-	 * @param idSchool: Identificador de la escuela
-	 * @param dniAdministrator
-	 * @return
-	 */
-	@DeleteMapping("school/{idSchool}/administrator/{dniAdministrator}")
-	public ResponseEntity deleteAdministrator(@PathVariable Integer idSchool, @PathVariable String dniAdministrator) {
+
+	@PostMapping("school/{idSchool}/movement")
+	public ResponseEntity getUnusualMovements(@PathVariable Integer idSchool, @RequestBody UnusualMovement unusualMovement) {
+		School currentSchool = schoolService.get(idSchool);
 		
-		School school = schoolService.get(idSchool);
-		
-		if (school == null) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-					new RestError(HttpStatus.BAD_REQUEST, "El centro no existe")								// Verificamos si el centro existe					
+		if (currentSchool == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "Centro no encontrado")							// Si no existe lo indicamos
 			);
 		}
 		
-		Administrator administrator = administratorService.get(dniAdministrator);
-		if (administrator == null) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-					new RestError(HttpStatus.BAD_REQUEST, "El administrador no existe")							// Si no existe lo indicamos 
+		unusualMovement.setId(null);
+		
+		return ResponseEntity.status(HttpStatus.CREATED).body(
+			schoolService.addUnusualMovement(currentSchool, unusualMovement)
+		);
+	}
+	
+	@DeleteMapping("school/{idSchool}/movement")
+	public ResponseEntity deleteUnusualMovements(@PathVariable Integer idSchool) {
+		School currentSchool = schoolService.get(idSchool);
+		
+		if (currentSchool == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "Centro no encontrado")							// Si no existe lo indicamos
 			);
 		}
-		if (!school.getAdministrators().contains(administrator)) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-					new RestError(HttpStatus.BAD_REQUEST, "El usuario no administra esta escuela")				// Si no existe o no administra esta escuela lo indicamos 
+		
+		schoolService.removeAllUnsualsMovements(idSchool);
+		
+		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+	}
+	
+	
+	
+	// ================================================ Localización ================================================
+
+	
+	@GetMapping("school/{idSchool}/location")
+	public ResponseEntity getLocation(@PathVariable Integer idSchool) {
+		School currentSchool = schoolService.get(idSchool);
+		
+		if (currentSchool == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "Centro no encontrado")							// Si no existe lo indicamos
 			);
 		}
 		
-		schoolService.removeAdministrator(dniAdministrator);													// Borramos el administrador de la escuela							
 		
-		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();											// Retornamos un 204
+		if (currentSchool.getLocation() == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "Localización no establecida")							// Si no existe lo indicamos
+			);
+		}
+		else {
+			return ResponseEntity.status(HttpStatus.OK).body(
+					currentSchool.getLocation()
+			);
+		}
+
+	}
+	
+	
+	@PostMapping("school/{idSchool}/location")
+	public ResponseEntity setLocation(@PathVariable Integer idSchool, @RequestBody Location location) {
+		School currentSchool = schoolService.get(idSchool);
 		
+		if (currentSchool == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "Centro no encontrado")							// Si no existe lo indicamos
+			);
+		}
+		
+		if (currentSchool.getLocation() != null) {
+			return ResponseEntity.status(HttpStatus.CONFLICT).body(
+					new RestError(HttpStatus.CONFLICT, "La localización ya está establecida")							
+			);
+		}
+		else {
+			if (location.getLatitude() == null) {
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+						new RestError(HttpStatus.BAD_REQUEST, "Indique una latitud válida")							
+				);
+			}
+			else if (location.getLongitude() == null) {
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+						new RestError(HttpStatus.BAD_REQUEST, "Indique una longitud válida")							
+				);
+			}
+			
+			location.setId(null);
+			
+			
+			return ResponseEntity.status(HttpStatus.CREATED).body(
+					schoolService.setLocation(idSchool, location)							
+			);
+			
+		}
+	}
+	
+	@PutMapping("school/{idSchool}/location")
+	public ResponseEntity editLocation(@PathVariable Integer idSchool, @RequestBody Location location) {
+		School currentSchool = schoolService.get(idSchool);
+		
+		if (currentSchool == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "Centro no encontrado")							// Si no existe lo indicamos
+			);
+		}
+		
+		if (currentSchool.getLocation() == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "Localización no establecida")							// Si no existe lo indicamos
+			);
+		}
+		else {
+			if (location.getLatitude() == null) {
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+						new RestError(HttpStatus.BAD_REQUEST, "Indique una latitud válida")							
+				);
+			}
+			else if (location.getLongitude() == null) {
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+						new RestError(HttpStatus.BAD_REQUEST, "Indique una longitud válida")							
+				);
+			}
+			
+			Location locationUpdated;
+
+			try {				
+				locationUpdated = locationService.editLocation(currentSchool.getLocation().getId(), location.getLongitude(), location.getLatitude());
+			}
+			catch(Exception e) {
+				return ResponseEntity.status(HttpStatus.CONFLICT).body(
+						new RestError(HttpStatus.CONFLICT, e.getMessage())							
+				);
+			}
+			
+			return ResponseEntity.status(HttpStatus.OK).body(
+					locationUpdated
+			);
+		}
 		
 	}
+	
+	@DeleteMapping("school/{idSchool}/location")
+	public ResponseEntity removeLocation(@PathVariable Integer idSchool, @RequestBody Location location) {
+		School currentSchool = schoolService.get(idSchool);
+		
+		if (currentSchool == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "Centro no encontrado")									// Si no existe lo indicamos
+			);
+		}
+		
+		if (currentSchool.getLocation() == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "Localización no establecida")							// Si no existe lo indicamos
+			);
+		}
+		
+		schoolService.removeLocation(idSchool);
+		
+		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+	}
+	
+	
+	
+	// ================================================ Ciclos ================================================
+
+	
+	@GetMapping("school/{idSchool}/degree")
+	public ResponseEntity getDegree(@RequestParam(required = false) Integer year,  @PathVariable Integer idSchool) {
+		School currentSchool = schoolService.get(idSchool);
+		
+		if (currentSchool == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "Centro no encontrado")									// Si no existe lo indicamos
+			);
+		}
+		
+		if (year != null) {
+			return ResponseEntity.status(HttpStatus.OK).body(
+				professionalDegreeService.getAllProfessionalDegreesByYear(idSchool, year)
+			);	
+		}
+		else {
+			return ResponseEntity.status(HttpStatus.OK).body(
+				schoolService.getAllProfessionalDegrees(idSchool)
+			);			
+		}
+		
+	}
+	
+	@PostMapping("school/{idSchool}/degree")
+	public ResponseEntity addDegree(@PathVariable Integer idSchool, @RequestBody ProfessionalDegree degree) {
+		School currentSchool = schoolService.get(idSchool);
+		
+		if (currentSchool == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "Centro no encontrado")									// Si no existe lo indicamos
+			);
+		}
+		
+		
+		if (degree.getName() == null) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+					new RestError(HttpStatus.BAD_REQUEST, "Indique un nombre")									// Si no existe lo indicamos
+			);
+		}
+		else if (degree.getYear() == null) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+					new RestError(HttpStatus.BAD_REQUEST, "Indique un año")										// Si no existe lo indicamos
+			);
+		}
+		else if (degree.getImage() == null) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+					new RestError(HttpStatus.BAD_REQUEST, "Indique la imagen del centro")						// Si no existe lo indicamos
+			);
+		}
+		
+		degree.setId(null);		
+		
+		return ResponseEntity.status(HttpStatus.CREATED).body(
+				schoolService.addDegreeToSchool(idSchool, degree)
+		);
+	}
+	
+	@DeleteMapping("school/{idSchool}/degree/{idDegree}")
+	public ResponseEntity removeDegree(@PathVariable Integer idSchool, @PathVariable Integer idDegree) {
+		School currentSchool = schoolService.get(idSchool);
+		
+		if (currentSchool == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "Centro no encontrado")									// Si no existe lo indicamos
+			);
+		}
+		
+		if (!currentSchool.getProfessionalDegrees().contains(new ProfessionalDegree(idDegree))) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "El ciclo no existe")									// Si no existe lo indicamos
+			);
+		}
+		
+		professionalDegreeService.removeDegree(idDegree);
+		
+		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+	}
+	
+	
+	
+	// ================================================ Ciclos profesionales ================================================
+	
+	
+	@GetMapping("degree/{idDegree}")
+	public ResponseEntity getDegree(@PathVariable Integer idDegree) {
+		
+		ProfessionalDegree professionalDegree = professionalDegreeService.get(idDegree);
+		
+		if (professionalDegree == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "El ciclo no existe")									// Si no existe lo indicamos
+			);
+		}
+		
+		return ResponseEntity.status(HttpStatus.OK).body(
+			professionalDegree
+		);
+	}
+	
+	
+	@GetMapping("degree")
+	public ResponseEntity getDegrees() {
+		
+		List<ProfessionalDegree> professionalDegrees = professionalDegreeService.getAll();
+		
+		return ResponseEntity.status(HttpStatus.OK).body(
+			professionalDegrees
+		);
+	}
+	
+	
+	
+	@GetMapping("degree/{idDegree}/school")
+	public ResponseEntity getSchoolFromDegree(@PathVariable Integer idDegree) {
+		
+		ProfessionalDegree professionalDegree = professionalDegreeService.get(idDegree);
+		
+		if (professionalDegree == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "El ciclo no existe")									// Si no existe lo indicamos
+			);
+		}
+		
+		if (professionalDegree.getSchool() == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "Este ciclo no está asignado a ningún centro")									// Si no existe lo indicamos
+			);
+		}
+		else {			
+			return ResponseEntity.status(HttpStatus.OK).body(
+					professionalDegree.getSchool()
+			);
+		}
+	}
+	
+	
+	@GetMapping("degree/{idDegree}/teacher")
+	public ResponseEntity getTeachersFromDegree(@PathVariable Integer idDegree) {
+		
+		ProfessionalDegree professionalDegree = professionalDegreeService.get(idDegree);
+		
+		if (professionalDegree == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "El ciclo no existe")									// Si no existe lo indicamos
+			);
+		}
+		
+		return ResponseEntity.status(HttpStatus.OK).body(
+			professionalDegree.getTeachers()
+		);
+	}
+	
+	
+	@PostMapping("degree/{idDegree}/teacher")
+	public ResponseEntity addTeachersFromDegree(@PathVariable Integer idDegree, @RequestBody Teacher teacher) {
+		ProfessionalDegree professionalDegree = professionalDegreeService.get(idDegree);
+		
+		if (professionalDegree == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "El ciclo no existe")									// Si no existe lo indicamos
+			);
+		}
+		else if (teacher.getDni() == null) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+					new RestError(HttpStatus.BAD_REQUEST, "Indique dni del profesor")		
+			);
+		}
+		
+		teacher.setDni(teacher.getDni().toUpperCase());
+		
+		Teacher teacherDB = teacherService.get(teacher.getDni());
+		
+		if (teacherDB == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "El profesor no existe")									
+			);
+		}
+		else if (professionalDegree.getTeachers().contains(teacherDB)) {
+			return ResponseEntity.status(HttpStatus.CONFLICT).body(
+					new RestError(HttpStatus.CONFLICT, "El profesor ya está asignado a este ciclo")									
+			);
+		}
+		
+		professionalDegreeService.addTeacherToDegree(professionalDegree, teacherDB);
+		
+		return ResponseEntity.status(HttpStatus.CREATED).body(
+			teacherDB
+		);
+	}
+	
+	
+	
+	
+	
+//	
+//	/**
+//	 * Establece un administrador en una escuela
+//	 * @param dni: Identificador del administrador
+//	 * @param school: Objeto escuela que contiene el identificador de la escuela a añadir
+//	 * @return Escuela asignada
+//	 */
+//	@PostMapping("school/{idSchool}/administrator")
+//	public ResponseEntity addAdministrator(@PathVariable Integer idSchool, @RequestBody PersonDTO administrator) {
+//		
+//		if (schoolService.get(idSchool) == null) {
+//			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+//					new RestError(HttpStatus.BAD_REQUEST, "El centro no existe")								// Si el centro no existe lo indicamos
+//			);
+//		}
+//		else if (administrator.getDni() == null) {
+//			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+//					new RestError(HttpStatus.BAD_REQUEST, "Indique un dni")										// Si no nos han indicado el dni lo indicamos
+//			);
+//		}
+//		
+//		Administrator currentAdministrator = administratorService.get(administrator.getDni());					// Obtenemos el administrador
+//		
+//		if (currentAdministrator == null) {
+//			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+//					new RestError(HttpStatus.BAD_REQUEST, "El usuario no existe o no tiene privilegios para esta acción")	// Si no existe o no es un administrador lo indicamos
+//			);
+//		}
+//		else if (currentAdministrator.getSchool() != null) {
+//			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+//					new RestError(HttpStatus.BAD_REQUEST, "El administrador ya administra una escuela")						// Si el administrador ya administra una escuela lo indicamos
+//			);
+//		}
+//
+//		return ResponseEntity.status(HttpStatus.CREATED).body(
+//				schoolService.addAdministratorToSchool(idSchool, currentAdministrator)										// Añadimos el administrador y lo devolvemos
+//		);
+//	}
+//	
+//	/**
+//	 * Borra un administrador de una escuela
+//	 * @param idSchool: Identificador de la escuela
+//	 * @param dniAdministrator
+//	 * @return
+//	 */
+//	@DeleteMapping("school/{idSchool}/administrator/{dniAdministrator}")
+//	public ResponseEntity deleteAdministrator(@PathVariable Integer idSchool, @PathVariable String dniAdministrator) {
+//		
+//		School school = schoolService.get(idSchool);
+//		
+//		if (school == null) {
+//			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+//					new RestError(HttpStatus.BAD_REQUEST, "El centro no existe")								// Verificamos si el centro existe					
+//			);
+//		}
+//		
+//		Administrator administrator = administratorService.get(dniAdministrator);
+//		if (administrator == null) {
+//			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+//					new RestError(HttpStatus.BAD_REQUEST, "El administrador no existe")							// Si no existe lo indicamos 
+//			);
+//		}
+//		if (!school.getAdministrators().contains(administrator)) {
+//			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+//					new RestError(HttpStatus.BAD_REQUEST, "El usuario no administra esta escuela")				// Si no existe o no administra esta escuela lo indicamos 
+//			);
+//		}
+//		
+//		schoolService.removeAdministrator(dniAdministrator);													// Borramos el administrador de la escuela							
+//		
+//		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();											// Retornamos un 204
+//		
+//		
+//	}
 	
 
 	/**
@@ -844,65 +1350,7 @@ public class AppController {
 
 	}
 	
-	/**
-	 * Este end-point permite editar una escuela
-	 * @param idSchool: Identificador de la escuela
-	 * @param schoolData: Datos de la nueva escuela
-	 * @return Escuela editada
-	 */
-	@PutMapping("school/{idSchool}")
-	public ResponseEntity editSchool(@PathVariable Integer idSchool, @RequestBody School schoolData) {
 
-		if (schoolService.get(idSchool) == null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-					new RestError(HttpStatus.NOT_FOUND, "Escuela no encontrada")							// Si no existe lo indicamos
-			);
-		}
-		else if (schoolData.getAddress() == null) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-					new RestError(HttpStatus.BAD_REQUEST, "Indique la dirección")						// Comprobamos la dirección				
-			);
-		}
-		else if (schoolData.getImage() == null) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-					new RestError(HttpStatus.BAD_REQUEST, "Indique la imagen")							// Comprobamos la imagen						
-			);
-		}
-		else if (schoolData.getName() == null) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-					new RestError(HttpStatus.BAD_REQUEST, "Indique el nombre")							// Comprobamos el nombre			
-			);
-		}
-		else if (schoolData.getPassword() == null) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-					new RestError(HttpStatus.BAD_REQUEST, "Indique la contraseña")						// Comprobamos la contraseña			
-			);
-		}
-		
-		
-		
-		return ResponseEntity.status(HttpStatus.OK).body(
-				schoolService.updateSchool(schoolData, idSchool)											// Actualizamos y retornamos
-		);
-	}
-	
-	/**
-	 * Borra una determinada escuela
-	 * @param idSchool: Identificador de la escuela
-	 */
-	@DeleteMapping("school/{idSchool}")
-	public ResponseEntity deleteSchool(@PathVariable Integer idSchool) {
-
-		if (schoolService.get(idSchool) == null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-					new RestError(HttpStatus.NOT_FOUND, "Escuela no encontrada")							// Si no existe lo indicamos
-			);
-		}
-		
-		schoolService.removeSchool(idSchool);																// Borramos la escuela
-		
-		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();										// Devolvemos un 204
-	}
 	
 	/**
 	 * Permite obtener un ciclo de una escuela determinada

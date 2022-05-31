@@ -3,6 +3,7 @@ package com.tx.practisesmanagement.service;
 
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.tx.practisesmanagement.exception.UserErrorException;
 import com.tx.practisesmanagement.model.Administrator;
+import com.tx.practisesmanagement.model.Location;
 import com.tx.practisesmanagement.model.ProfessionalDegree;
 import com.tx.practisesmanagement.model.RegTemp;
 import com.tx.practisesmanagement.model.School;
@@ -30,6 +32,7 @@ public class SchoolService {
 		@Autowired ProfessionalDegreeService professionalDegreeService; 
 		@Autowired UnusualMovementService unusualMovementService;
 		@Autowired RegTempService regTempService;
+		@Autowired LocationService locationService;
 		
 	/**
 	 * Obtiene una escuela determinada
@@ -57,7 +60,33 @@ public class SchoolService {
 		else {
 			return school.getProfessionalDegrees().get(position);										// Si no lo obtenemos
 		}
+	}
+	
+	
+	
+	
+	public UnusualMovement addUnusualMovement(School school, UnusualMovement newMovement) {
 		
+		UnusualMovement currentMovement = unusualMovementService.saveUnusualMovement(newMovement);
+		school.addUnusualMovement(currentMovement);
+		
+		save(school);
+		
+		return currentMovement;
+	}  
+	
+	
+	
+	public RegTemp addRegTemp(School school, RegTemp regTemp) {
+		
+		RegTemp currentRegTemp = regTempService.save(regTemp, school.getId());
+		
+		if (!school.getTemperatureRecords().contains(currentRegTemp)) {
+			school.addRecordTemp(currentRegTemp);			
+			save(school);			
+		}
+		
+		return currentRegTemp;
 	}
 		
 
@@ -101,6 +130,12 @@ public class SchoolService {
 		if (school.getPassword() != null) {
 			schoolOld.setPassword(school.getPassword());			// Establecemos la contraseña			
 		}
+		if (school.getOpeningTime() != null) {
+			schoolOld.setOpeningTime(school.getOpeningTime());
+		}
+		if (school.getClosingTime() != null) {
+			schoolOld.setClosingTime(school.getClosingTime());
+		}
 		
 		return this.save(schoolOld);							// Guardamos y retornamos
 	}
@@ -110,8 +145,10 @@ public class SchoolService {
 	 * @param idSchool: Identificador de la escuela
 	 */
 	public void removeSchool(Integer idSchool) {
+		
 		removeAllUnsualsMovements(idSchool);
 		removeAllRegTempByIdSchool(idSchool);
+		removeLocation(idSchool);
 		
 		School school = this.get(idSchool);
 		
@@ -120,6 +157,28 @@ public class SchoolService {
 		}
 		
 		schoolRepository.delete(school);
+	}
+	
+	public Location setLocation(Integer idSchool, Location location) {
+		School currentSchool = get(idSchool);
+	
+		Location currentLocation = locationService.saveLocation(location);
+		currentSchool.setLocation(currentLocation);
+		
+		save(currentSchool);
+		
+		return currentLocation;
+	}
+	
+	public void removeLocation(Integer idSchool) {
+		School currentSchool = get(idSchool);
+		
+		Location location = currentSchool.getLocation();
+		currentSchool.setLocation(null);
+		
+		save(currentSchool);
+		
+		locationService.removeLocation(location.getId());
 	}
 	
 	/**
@@ -153,7 +212,7 @@ public class SchoolService {
 	 * @return Lista de colegios
 	 */
 	public List<School> getAllByName(String name) {
-		return schoolRepository.findAllByName(name);
+		return schoolRepository.findAllByName(name.toUpperCase());
 	}
 		
 	/**
@@ -176,11 +235,11 @@ public class SchoolService {
 	public void removeAllRegTempByIdSchool(Integer id) {
 		School school = get(id);
 
-		List<RegTemp> regTemps = school.getTemperatureRecords();
-		school.setTemperatureRecords(null);
+		List<RegTemp> regTemps = new ArrayList<>(school.getTemperatureRecords());
+		school.getTemperatureRecords().clear();
 		
 		save(school);
-		
+				
 		for (RegTemp currentRegTemp : regTemps) {
 			regTempService.remove(currentRegTemp.getId());
 		}
@@ -189,7 +248,7 @@ public class SchoolService {
 	public void removeAllUnsualsMovements(Integer id) {
 		School school = get(id);
 		
-		List<UnusualMovement> movements = school.getUnusualsMovements();
+		List<UnusualMovement> movements = new ArrayList<>(school.getUnusualsMovements());
 		school.getUnusualsMovements().clear();
 		
 		save(school);
@@ -199,5 +258,13 @@ public class SchoolService {
 		}
 	}
 
+	
+	public ProfessionalDegree addDegreeToSchool(Integer idSchool, ProfessionalDegree professionalDegreeToAdd) {
+		School school = get(idSchool);
+		
+		professionalDegreeToAdd.setSchool(school);
+		
+		return professionalDegreeService.saveProfessionalDegree(professionalDegreeToAdd);
+	}
 		
 }

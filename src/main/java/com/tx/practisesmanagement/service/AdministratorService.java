@@ -34,6 +34,8 @@ public class AdministratorService {
 		return adminRepository.save(administrator);
 	}
 	
+	
+	
 	/**
 	 * Obtiene un determinado administrador
 	 * @param dni: DNi del administrador
@@ -99,7 +101,11 @@ public class AdministratorService {
 		}
 		else {
 			removeAdministratorFromPractise(dni);
-			removeSchoolFromAdministrator(dni);
+			
+			if (administrator.getSchoolSetted() != null) {
+				removeSchoolFromAdministrator(dni);
+			}
+
 			removeDegreesFromAdministrator(dni);
 			
 			adminRepository.delete(administrator);
@@ -161,4 +167,11 @@ public class AdministratorService {
 		return this.adminRepository.getCountFromSchool(id);
 	}
 
+	
+	public void quitAdministratorsFromSchool(School currentSchool) {
+		for (Administrator currentAdmin : currentSchool.getAdministrators()) {
+			currentAdmin.setSchoolSetted(null);
+			save(currentAdmin);
+		}
+	}
 }

@@ -3,6 +3,7 @@ package com.tx.practisesmanagement.controller;
 
 import java.util.Base64;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,14 +23,13 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.auth0.jwt.interfaces.DecodedJWT;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tx.practisesmanagement.component.SmtpMailSender;
 import com.tx.practisesmanagement.dto.PersonDTO;
 import com.tx.practisesmanagement.dto.TokenDTO;
 import com.tx.practisesmanagement.dto.TokenDecompressedDTO;
 import com.tx.practisesmanagement.enumerators.Rol;
+import com.tx.practisesmanagement.enumerators.TypeTokenToGenerate;
 import com.tx.practisesmanagement.error.RestError;
 import com.tx.practisesmanagement.exception.UserErrorException;
 import com.tx.practisesmanagement.model.Administrator;
@@ -68,31 +68,45 @@ public class AuthController {
     		@Autowired private LaborTutorService laborTutorService;
     		
     		@Value("${jwt_secret}")
-    	    private String secret;										// Secreto	
+    	    private String secret;										// Contraseña para cifrar	
     		
     		
     		@Value("${token-expirated-refresh-time}")
-    		private long tokenExpiratedRefreshTime;
+    		private long tokenExpiratedRefreshTime;						// Tiempo en el que se permite renovar el token una vez haya cumplido
     	
     	/**
-    	 * Permite registrar un usuario, ya sea un administrador, estudiante o profesor
+    	 * Permite registrar un usuario, ya sea un administrador, estudiante, profesor o tutor laboral
    		 * @param user: Usuario a registrar
     	 * @return Usuario registrado
    		 */
 	    @PostMapping("auth/register")
 	    public ResponseEntity registerAdmin(@RequestBody PersonDTO user) {
 
-	    	if (user.getDni() == null || user.getDni().trim().length() < 8 || user.getDni().trim().length() > 9) {
-	    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RestError(HttpStatus.BAD_REQUEST, "No se expecificó un dni"));						// Si no nos han pasado dni lo indicamos
-	    	} 
-	    	else if (user.getName() == null) {
+	    	if (user.getDni() == null || !user.getDni().matches("[0-9]{7,8}[A-Z a-z]")) {
+	    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+	    				new RestError(HttpStatus.BAD_REQUEST, "Dni no válido")								// Comprobamos si el dni es válido
+	    		);			
+	    	}	
+	    	else if (user.getBirthDate() == null || user.getBirthDate().after(new Date())) {
+	    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RestError(HttpStatus.BAD_REQUEST, "Indique una fecha de nacimiento válida"));			// Si no nos han pasado nombre lo indicamos
+	    	}	    	
+	    	else if (user.getName() == null || user.getName().trim().length() == 0) {
 	    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RestError(HttpStatus.BAD_REQUEST, "No se expecificó un nombre para este usuario"));	// Si no nos han pasado nombre lo indicamos
+	    	}	    	
+	    	else if (user.getLastName() == null || user.getLastName().trim().length() == 0) {
+	    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RestError(HttpStatus.BAD_REQUEST, "No se expecificó los apellidos para este usuario"));	// Si no nos han pasado nombre lo indicamos
 	    	}
-	    	else if (user.getPassword() == null) {
+	    	else if (user.getPassword() == null || user.getPassword().trim().length() == 0) {
 	    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RestError(HttpStatus.BAD_REQUEST, "No se expecificó una contraseña"));				// Si no nos han pasado una contraseña lo indicamos
 	    	}
-	    	else if (user.getEmail() == null) {
-	    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RestError(HttpStatus.BAD_REQUEST, "No se expecificó un correo"));						// Si no nos han pasado un correo lo indicamos
+	    	else if (user.getEmail() == null || !user.getEmail().matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+	    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RestError(HttpStatus.BAD_REQUEST, "No se expecificó un correo válido"));						// Si no nos han pasado un correo lo indicamos
+	    	}
+	    	else if (user.getTelefone() == null || user.getTelefone().trim().length() == 0) {
+	    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RestError(HttpStatus.BAD_REQUEST, "No se expecificó un teléfono"));						// Si no nos han pasado un correo lo indicamos
+	    	}
+	    	else if (user.getAddress() == null || user.getAddress().trim().length() == 0) {
+	    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RestError(HttpStatus.BAD_REQUEST, "No se expecificó una dirección"));						// Si no nos han pasado un correo lo indicamos
 	    	}
 	    	else if (user.getRol() == null) {
 	    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RestError(HttpStatus.BAD_REQUEST, "No se expecificó un rol para este usuario"));		// Si no nos han indicado un rol lo indicamos
@@ -100,7 +114,7 @@ public class AuthController {
 	   	    
 	    	user.setEnabled(true);
 	    	
-	    	user.setDni(user.getDni().toUpperCase());																												// Convertimos el DNI en mayúscula
+	    	user.setDni(user.getDni().trim().toUpperCase());																												// Convertimos el DNI en mayúscula
 	    	
 	    	if (personService.existPerson(user.getDni())) {
 	    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RestError(HttpStatus.BAD_REQUEST, "Usuario ya registrado"));							// Si el usuario está registrafo lo indicamos
@@ -109,20 +123,20 @@ public class AuthController {
 	        String encodedPass = passwordEncoder.encode(user.getPassword());					// Codificamos la contraseña
 	        user.setPassword(encodedPass);														// Establecemos la contraseña
 	        
-	        switch(user.getRol().toUpperCase()) {
-	        	case "ROLE_ADMIN": {
+	        switch(user.getRol()) {
+	        	case ROLE_ADMIN: {
 	        		administratorService.save(new Administrator(user));
 	    	        break;
 	        	}
-	        	case "ROLE_STUDENT": {
+	        	case ROLE_STUDENT: {
 	    	        studentService.save(new Student(user));
 	        		break;
 	        	}
-	        	case "ROLE_TEACHER": {
+	        	case ROLE_TEACHER: {
 	        		teacherService.save(new Teacher(user));
 	        		break;
 	        	}
-	        	case "ROLE_LABOR_TUTOR": {
+	        	case ROLE_LABOR_TUTOR: {
 	        		laborTutorService.save(new LaborTutor(user));
 	        		break;
 	        	}
@@ -140,11 +154,11 @@ public class AuthController {
 
 	        // Enviamos un correo de bienvenida 
 
-	        String token = jwtUtil.generateToken(user.getDni());															// Generamos el token
+	        String token = jwtUtil.generateToken(user.getDni(), TypeTokenToGenerate.TOKEN_USER);															// Generamos el token
     		return ResponseEntity.status(HttpStatus.CREATED).body(Collections.singletonMap("jwt_token", token));			// Retornamos el token 
 	    }
 	    
-
+	    
 	    /**
 	     * Permite iniciar sesión
 	     * @param person: Datos de la persona a iniciar sesión
@@ -153,9 +167,9 @@ public class AuthController {
 	    @PostMapping("auth/login")
 	    public ResponseEntity loginHandler(@RequestBody PersonDTO person){
 	        try {	
-	        	if (person.getDni() == null || person.getDni().trim().length() < 8 || person.getDni().trim().length() > 9) {
+	        	if (person.getDni() == null || !person.getDni().matches("[0-9]{7,8}[A-Z a-z]")) {
 		    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-		    				new RestError(HttpStatus.BAD_REQUEST, "Indique dni")			// Si no nos han indicado un dni lo indicamos
+		    				new RestError(HttpStatus.BAD_REQUEST, "Indique un dni válido")			// Si no nos han indicado un dni lo indicamos
 		    		);
 	        	}
 	        	else if (person.getPassword() == null) {
@@ -168,8 +182,8 @@ public class AuthController {
 	        	
 	            UsernamePasswordAuthenticationToken authInputToken = new UsernamePasswordAuthenticationToken(person.getDni(), person.getPassword());		// Creamos un nuevo usuario de autenticación
 
-	            authManager.authenticate(authInputToken);								// Autenticamos el usuari
-	            String token = jwtUtil.generateToken(person.getDni());					// Obtenemos su token
+	            authManager.authenticate(authInputToken);								// Autenticamos el usuario
+	            String token = jwtUtil.generateToken(person.getDni(), TypeTokenToGenerate.TOKEN_USER);					// Obtenemos su token
 
 	            return ResponseEntity.status(HttpStatus.CREATED).body(Collections.singletonMap("jwt_token", token));			// Retornamos el resultado
 	        }
@@ -183,12 +197,12 @@ public class AuthController {
 	        }
 	    }
 
-	    @PostMapping("auth/login-iot")
+	    @PostMapping("/auth/login-iot")
 	    public ResponseEntity loginIoT(@RequestBody PersonDTO person){
 	        try {	
-	        	if (person.getDni() == null || person.getDni().trim().length() < 8 || person.getDni().trim().length() > 9) {
+	        	if (person.getDni() == null || !person.getDni().matches("[0-9]{7,8}[A-Z a-z]")) {
 		    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-		    				new RestError(HttpStatus.BAD_REQUEST, "Indique dni")			// Si no nos han indicado un dni lo indicamos
+		    				new RestError(HttpStatus.BAD_REQUEST, "Indique un dni válido")			// Si no nos han indicado un dni lo indicamos
 		    		);
 	        	}
 	        	else if (person.getPassword() == null) {
@@ -208,7 +222,7 @@ public class AuthController {
 	            UsernamePasswordAuthenticationToken authInputToken = new UsernamePasswordAuthenticationToken(person.getDni(), person.getPassword());		// Creamos un nuevo usuario de autenticación
 
 	            authManager.authenticate(authInputToken);								// Autenticamos el usuari
-	            String token = jwtUtil.generateToken(person.getDni());					// Obtenemos su token
+	            String token = jwtUtil.generateToken(person.getDni(), TypeTokenToGenerate.TOKEN_IOT);					// Obtenemos su token
 
 	            return ResponseEntity.status(HttpStatus.CREATED).body(Collections.singletonMap("jwt_token", token));			// Retornamos el resultado
 	        }
@@ -275,7 +289,7 @@ public class AuthController {
 			} 
 
 	    	
-            String newToken = jwtUtil.generateToken(dataToken.getUsername());					// Obtenemos su token
+            String newToken = jwtUtil.generateToken(dataToken.getUsername(), TypeTokenToGenerate.TOKEN_USER);					// Obtenemos su token
 	    	
     		return ResponseEntity.status(HttpStatus.CREATED).body(
     				new RestError(HttpStatus.CREATED, newToken)			

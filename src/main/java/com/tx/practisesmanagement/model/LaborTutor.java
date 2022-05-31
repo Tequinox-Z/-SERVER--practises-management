@@ -3,6 +3,7 @@ package com.tx.practisesmanagement.model;
 import java.util.List;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
@@ -14,7 +15,7 @@ import com.tx.practisesmanagement.enumerators.Rol;
 public class LaborTutor extends Person {
 	
 	@JsonIgnore
-	@OneToMany(mappedBy = "laborTutor")
+	@OneToMany(mappedBy = "laborTutor", fetch = FetchType.EAGER)
 	private List<Practise> practises;
 	
 	@JsonIgnore

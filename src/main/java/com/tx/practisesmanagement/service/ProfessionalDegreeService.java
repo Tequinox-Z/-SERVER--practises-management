@@ -36,6 +36,11 @@ public class ProfessionalDegreeService {
 		return professionalDegreeRepository.save(professionalDegree);
 	}
 	
+	
+	public List<ProfessionalDegree> getAll() {
+		return professionalDegreeRepository.findAll();
+	}
+	
 	/**
 	 * Obtiene un determinado ciclo
 	 * @param professionalDegree: Ciclo a obtener
@@ -64,8 +69,7 @@ public class ProfessionalDegreeService {
 			teacher.getProfessionalDegrees().remove(professionalDegree);
 			teacherService.save(teacher);
 		}
-		
-		professionalDegree.setTeachers(null);
+
 		
 		professionalDegreeRepository.save(professionalDegree);							// Guarda el ciclo
 		professionalDegreeRepository.delete(professionalDegree);						// Borra el ciclo
@@ -75,9 +79,9 @@ public class ProfessionalDegreeService {
 	 * Obtiene todos los ciclos 
 	 * @return: Lista de ciclos
 	 */
-	public List<ProfessionalDegree> getAllDifferent() {
-		return professionalDegreeRepository.findAll();
-	}
+//	public List<ProfessionalDegree> getAllDifferent() {
+//		return professionalDegreeRepository.findAll();
+//	}
 	
 	/**
 	 * Añade un profesor a un ciclo
@@ -85,14 +89,10 @@ public class ProfessionalDegreeService {
 	 * @param teacher: Profesor a añadir
 	 * @return Ciclo con profesor
 	 */
-	public ProfessionalDegree addTeacherToDegree(Integer id, Teacher teacher) {
-		ProfessionalDegree professionalDegree = this.get(id);   		// Obtenemos el ciclo		
-		
-		professionalDegree.getTeachers().add(teacher);					// Añadimos el profesor al ciclp
+	public ProfessionalDegree addTeacherToDegree(ProfessionalDegree professionalDegree, Teacher teacher) {				
 		teacher.getProfessionalDegrees().add(professionalDegree);		// Añadimos el ciclo al profesor
 			
 		teacherService.save(teacher);									// Guardamos el profesor
-		professionalDegreeRepository.save(professionalDegree);			// Guardamos el ciclo
 		
 		return professionalDegree;										// Retornamos el ciclo
 	}
@@ -113,5 +113,10 @@ public class ProfessionalDegreeService {
 	
 	public boolean existProfessionalDegreeByNameInSchool(School school, String nameDegree) {
 		return this.professionalDegreeRepository.getBySchoolAndName(school, nameDegree) != null;
+	}
+	
+	
+	public List<ProfessionalDegree> getAllProfessionalDegreesByYear(Integer idSchool, Integer year) {
+		return this.professionalDegreeRepository.getAllBySchoolAndYear(idSchool, year);
 	}
 }

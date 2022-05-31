@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Objects;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -17,7 +18,7 @@ import com.tx.practisesmanagement.enumerators.Rol;
 @Entity
 public class Student extends Person {
 	
-	@OneToMany(mappedBy = "student")
+	@OneToMany(mappedBy = "student", fetch = FetchType.EAGER)
 	@JsonIgnore
 	private List<Enrollment> enrollments;						// Matrículas
 

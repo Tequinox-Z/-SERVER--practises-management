@@ -4,7 +4,7 @@ package com.tx.practisesmanagement.enumerators;
 
 /**
  * Posibles roles de los usuarios
- * @author Salva
+ * @author Salvador Pérez
  */
 public enum Rol {
 	ROLE_ADMIN,					// Rol de administrador

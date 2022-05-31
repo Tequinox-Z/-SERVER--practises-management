@@ -23,7 +23,7 @@ public interface SchoolRepository extends JpaRepository<School, Integer>{
 	 * @param name: Nombre
 	 * @return Lista de colegios
 	 */
-	@Query("SELECT s FROM School s WHERE s.name LIKE %?1%")
+	@Query("SELECT s FROM School s WHERE UPPER(s.name) LIKE %?1%")
 	List<School> findAllByName(String name);
 	
 }

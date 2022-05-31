@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.Objects;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
@@ -31,7 +32,7 @@ public class Practise {
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date finish;								// Fecha de fin
 		
-	@OneToOne(mappedBy = "practise")
+	@OneToOne(mappedBy = "practise", fetch = FetchType.EAGER)
 	@JsonIgnore
 	private Enrollment enrollment;						// Matrícula
 	

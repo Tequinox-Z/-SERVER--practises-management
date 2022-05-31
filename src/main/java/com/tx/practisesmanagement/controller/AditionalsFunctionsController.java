@@ -29,6 +29,7 @@ import com.tx.practisesmanagement.component.SmtpMailSender;
 import com.tx.practisesmanagement.dto.EmailDTO;
 import com.tx.practisesmanagement.dto.PersonDTO;
 import com.tx.practisesmanagement.dto.ResetPasswordDTO;
+import com.tx.practisesmanagement.enumerators.TypeTokenToGenerate;
 import com.tx.practisesmanagement.error.RestError;
 import com.tx.practisesmanagement.model.Location;
 import com.tx.practisesmanagement.model.Person;
@@ -91,11 +92,7 @@ public class AditionalsFunctionsController {
 		);
 	}
 	
-	@GetMapping("example")
-	public ResponseEntity get() {
-		return ResponseEntity.status(HttpStatus.OK).body(this.administratorService.getCountFromSchool(1) + " - " + teacherService.getCountTeacherFromSchool(1));
-	}
-	
+
 	
 	@GetMapping("location/schools")
 	public ResponseEntity<List<Location>> getLocationsOfSchools(@QueryParam("maxLatitude") Double maxLatitude, @QueryParam("minLatitude") Double minLatitude, @QueryParam("maxLongitude") Double maxLongitude, @QueryParam("minLongitude") Double minLongitude) {
@@ -293,8 +290,14 @@ public class AditionalsFunctionsController {
 					new RestError(HttpStatus.NOT_FOUND, "Usuario no registrado")
 			);
 		}
+		
+		if (!personService.getPerson(resetPassword.getDni()).isEnabled() ) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+					new RestError(HttpStatus.BAD_REQUEST, "Usuario desactivado")
+			);
+		}
 						
-        String newToken = jwtUtil.generateTokenForNewPassword(resetPassword.getDni());					// Obtenemos su token
+        String newToken = jwtUtil.generateToken(resetPassword.getDni(), TypeTokenToGenerate.TOKEN_RESET_PASSWORD);					// Obtenemos su token
 
         Person person = personService.getPerson(resetPassword.getDni());
 		
@@ -335,10 +338,10 @@ public class AditionalsFunctionsController {
 
             authManager.authenticate(authInputToken);			
 
-            return ResponseEntity.status(HttpStatus.CREATED).body(Collections.singletonMap("jwt_token", jwtUtil.generateToken(dni)));			// Retornamos el resultado
+            return ResponseEntity.status(HttpStatus.CREATED).body(Collections.singletonMap("jwt_token", jwtUtil.generateToken(dni, TypeTokenToGenerate.TOKEN_USER)));			// Retornamos el resultado
 			
 		}
-		catch(Exception e) {
+		catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
 	    			new RestError(HttpStatus.NOT_FOUND, "El usuario no existe")
 			);
@@ -360,5 +363,11 @@ public class AditionalsFunctionsController {
 		
 		return ResponseEntity.status(HttpStatus.OK).build();
 	}
+	
+	@GetMapping("example")
+	public ResponseEntity get() {
+		return ResponseEntity.status(HttpStatus.OK).body(this.administratorService.getCountFromSchool(1) + " - " + teacherService.getCountTeacherFromSchool(1));
+	}
+	
 	
 }
