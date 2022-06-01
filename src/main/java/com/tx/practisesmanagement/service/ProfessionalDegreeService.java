@@ -96,6 +96,17 @@ public class ProfessionalDegreeService {
 		
 		return professionalDegree;										// Retornamos el ciclo
 	}
+	/**
+	 * Quita un profesor de un ciclo
+	 * @param professionalDegree: Ciclo
+	 * @param teacher: Profesor
+	 */
+	public void quitTeacherFromDegree(ProfessionalDegree professionalDegree, Teacher teacher) {				
+		teacher.getProfessionalDegrees().remove(professionalDegree);		// Quitamos el ciclo al profesor
+			
+		teacherService.save(teacher);										// Guardamos el profesor
+		
+	}
 	
 	/**
 	 * Actualiza el ciclo

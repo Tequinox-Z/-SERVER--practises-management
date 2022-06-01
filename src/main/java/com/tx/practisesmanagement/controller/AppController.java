@@ -3,6 +3,7 @@ package com.tx.practisesmanagement.controller;
 
 
 import java.time.ZoneId;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -24,13 +25,17 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.tx.practisesmanagement.component.SmtpMailSender;
 import com.tx.practisesmanagement.dto.MessageDTO;
+import com.tx.practisesmanagement.dto.NewEnrollmentDTO;
+import com.tx.practisesmanagement.dto.NewPreferenceDTO;
 import com.tx.practisesmanagement.dto.PersonDTO;
+import com.tx.practisesmanagement.dto.UpdatePreferencesDTO;
 import com.tx.practisesmanagement.enumerators.Rol;
 import com.tx.practisesmanagement.error.RestError;
 import com.tx.practisesmanagement.model.Administrator;
 import com.tx.practisesmanagement.model.Business;
 import com.tx.practisesmanagement.model.Enrollment;
 import com.tx.practisesmanagement.model.Location;
+import com.tx.practisesmanagement.model.Preference;
 import com.tx.practisesmanagement.model.ProfessionalDegree;
 import com.tx.practisesmanagement.model.RegTemp;
 import com.tx.practisesmanagement.model.School;
@@ -1040,7 +1045,7 @@ public class AppController {
 		}
 		else if (degree.getImage() == null) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-					new RestError(HttpStatus.BAD_REQUEST, "Indique la imagen del centro")						// Si no existe lo indicamos
+					new RestError(HttpStatus.BAD_REQUEST, "Indique la imagen del ciclo")						// Si no existe lo indicamos
 			);
 		}
 		
@@ -1184,474 +1189,405 @@ public class AppController {
 		);
 	}
 	
-	
-	
-	
-	
-//	
-//	/**
-//	 * Establece un administrador en una escuela
-//	 * @param dni: Identificador del administrador
-//	 * @param school: Objeto escuela que contiene el identificador de la escuela a añadir
-//	 * @return Escuela asignada
-//	 */
-//	@PostMapping("school/{idSchool}/administrator")
-//	public ResponseEntity addAdministrator(@PathVariable Integer idSchool, @RequestBody PersonDTO administrator) {
-//		
-//		if (schoolService.get(idSchool) == null) {
-//			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-//					new RestError(HttpStatus.BAD_REQUEST, "El centro no existe")								// Si el centro no existe lo indicamos
-//			);
-//		}
-//		else if (administrator.getDni() == null) {
-//			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-//					new RestError(HttpStatus.BAD_REQUEST, "Indique un dni")										// Si no nos han indicado el dni lo indicamos
-//			);
-//		}
-//		
-//		Administrator currentAdministrator = administratorService.get(administrator.getDni());					// Obtenemos el administrador
-//		
-//		if (currentAdministrator == null) {
-//			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-//					new RestError(HttpStatus.BAD_REQUEST, "El usuario no existe o no tiene privilegios para esta acción")	// Si no existe o no es un administrador lo indicamos
-//			);
-//		}
-//		else if (currentAdministrator.getSchool() != null) {
-//			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-//					new RestError(HttpStatus.BAD_REQUEST, "El administrador ya administra una escuela")						// Si el administrador ya administra una escuela lo indicamos
-//			);
-//		}
-//
-//		return ResponseEntity.status(HttpStatus.CREATED).body(
-//				schoolService.addAdministratorToSchool(idSchool, currentAdministrator)										// Añadimos el administrador y lo devolvemos
-//		);
-//	}
-//	
-//	/**
-//	 * Borra un administrador de una escuela
-//	 * @param idSchool: Identificador de la escuela
-//	 * @param dniAdministrator
-//	 * @return
-//	 */
-//	@DeleteMapping("school/{idSchool}/administrator/{dniAdministrator}")
-//	public ResponseEntity deleteAdministrator(@PathVariable Integer idSchool, @PathVariable String dniAdministrator) {
-//		
-//		School school = schoolService.get(idSchool);
-//		
-//		if (school == null) {
-//			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-//					new RestError(HttpStatus.BAD_REQUEST, "El centro no existe")								// Verificamos si el centro existe					
-//			);
-//		}
-//		
-//		Administrator administrator = administratorService.get(dniAdministrator);
-//		if (administrator == null) {
-//			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-//					new RestError(HttpStatus.BAD_REQUEST, "El administrador no existe")							// Si no existe lo indicamos 
-//			);
-//		}
-//		if (!school.getAdministrators().contains(administrator)) {
-//			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-//					new RestError(HttpStatus.BAD_REQUEST, "El usuario no administra esta escuela")				// Si no existe o no administra esta escuela lo indicamos 
-//			);
-//		}
-//		
-//		schoolService.removeAdministrator(dniAdministrator);													// Borramos el administrador de la escuela							
-//		
-//		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();											// Retornamos un 204
-//		
-//		
-//	}
-	
-
-	/**
-	 * Permite obtener los administradores de una escuela determinada
-	 * @return Lista de administradores
-	 */
-	@GetMapping("school/{idSchool}/administrator")
-	public ResponseEntity getAdministratorsFromSchool(@PathVariable Integer idSchool) {
-
-		if (schoolService.get(idSchool) == null) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-					new RestError(HttpStatus.BAD_REQUEST, "El centro no existe")								// Si el centro no existe lo indicamos
-			);
-		}
-
-		List<Administrator> administrators = schoolService.getAdministrators(idSchool);							// Obtenemos los administradores
-
-		if (administrators.isEmpty()) {
+	@DeleteMapping("degree/{idDegree}/teacher")
+	public ResponseEntity quitTeacherFromDegree(@PathVariable Integer idDegree, @RequestBody Teacher teacher) {
+		ProfessionalDegree professionalDegree = professionalDegreeService.get(idDegree);
+		
+		if (professionalDegree == null) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-					new RestError(HttpStatus.NOT_FOUND, "El centro no dispone de administradores")				// Si no hay administradores lo indicamos
+				new RestError(HttpStatus.NOT_FOUND, "El ciclo no existe")									// Si no existe lo indicamos
 			);
 		}
-		else {
-			return ResponseEntity.status(HttpStatus.OK).body(administrators);									// Si hay administradores lo indicamos
-		}
-	}
-
-	/**
-	 * Permite obtener los ciclos profesionales de una escuela determinada
-	 * @return Lista de ciclos
-	 */
-	@GetMapping("school/{idSchool}/professional-degree")
-	public ResponseEntity getProfessionalDegreeFromSchool(@PathVariable Integer idSchool) {
-
-		if (schoolService.get(idSchool) == null) {
+		else if (teacher.getDni() == null) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-					new RestError(HttpStatus.BAD_REQUEST, "El centro no existe")								// Si el centro no existe lo indicamos
+				new RestError(HttpStatus.BAD_REQUEST, "Indique dni del profesor")		
 			);
 		}
-
-		List<ProfessionalDegree> professionalDegree = schoolService.getAllProfessionalDegrees(idSchool);			// Obtenemos los ciclos
-
-		if (professionalDegree.isEmpty()) {
+		
+		teacher.setDni(teacher.getDni().toUpperCase());
+		
+		Teacher teacherDB = teacherService.get(teacher.getDni());
+		
+		if (teacherDB == null) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-					new RestError(HttpStatus.NOT_FOUND, "El centro no dispone de ciclos profesionales")			// Si no hay ciclos lo indicamos
+					new RestError(HttpStatus.NOT_FOUND, "El profesor no existe")									
 			);
 		}
-		else {
-			return ResponseEntity.status(HttpStatus.OK).body(professionalDegree);								// Si hay ciclos lo indicamos
+		else if (!professionalDegree.getTeachers().contains(teacherDB)) {
+			return ResponseEntity.status(HttpStatus.CONFLICT).body(
+					new RestError(HttpStatus.CONFLICT, "El profesor no está asignado a este ciclo")									
+			);
 		}
+		
+		professionalDegreeService.quitTeacherFromDegree(professionalDegree, teacherDB);
+		
+		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 	}
 	
 	
+	// ================================================ Enrollment ================================================
 
-	/**
-	 * Permite editar un ciclo
-	 * @param idSchool: Id del colegio
-	 * @param idDegree: Id del ciclo
-	 * @param newDegree: Nuevos datos del ciclo
-	 * @return Ciclo editado
-	 */
-	@PutMapping("school/{idSchool}/professional-degree/{idDegree}")
-	public ResponseEntity addProfessionalDegreeFromSchool(@PathVariable Integer idSchool, @PathVariable Integer idDegree, @RequestBody ProfessionalDegree newDegree) {
-
-		School school = schoolService.get(idSchool);														// Obtenemos el colegio 
+	
+	@GetMapping("degree/{idDegree}/enrollment")
+	public ResponseEntity getEnrollmentsFromDegree(@PathVariable Integer idDegree) {
+		ProfessionalDegree professionalDegree = professionalDegreeService.get(idDegree);
 		
-		if (school == null) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-					new RestError(HttpStatus.BAD_REQUEST, "El centro no existe")							// Si no existe lo indicamos
-			);
-		}
-		else if (newDegree.getName() == null) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-					new RestError(HttpStatus.BAD_REQUEST, "Indique el nuevo nombre del ciclo")				// Si no nos han indicado el nombre lo indicamos
-			);
-		}
-		else if (!school.getProfessionalDegrees().contains(professionalDegreeService.get(idDegree))) {
+		if (professionalDegree == null) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-					new RestError(HttpStatus.NOT_FOUND, "Ciclo no encontrado")							// Si el ciclo no existe lo indicamos
-			);
-		}
-
-		return ResponseEntity.status(HttpStatus.OK).body(
-				professionalDegreeService.updateDegree(idDegree, newDegree)								// Actualizamos el ciclo y lo retornamos
-		);
-
-	}
-	
-
-	
-	/**
-	 * Permite obtener un ciclo de una escuela determinada
-	 * @param idSchool: Identificador de una escuela
-	 * @param idDegree: Identificador del ciclo
-	 * @return	Ciclo solicitado
-	 */
-	@GetMapping("school/{idSchool}/professional-degree/{idDegree}")
-	public ResponseEntity getProfessionalDegreeFromSchool(@PathVariable Integer idSchool, @PathVariable Integer idDegree) {
-
-		School school = schoolService.get(idSchool);												// Obtenemos la escuela
-		
-		if (school == null) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-					new RestError(HttpStatus.BAD_REQUEST, "El centro no existe")					// Si no existe lo indicamos
-			);
-		}
-		
-		ProfessionalDegree degree = schoolService.getDegree(idSchool, idDegree);					// Obtenemos el ciclo de la escuela indicada
-		
-		if (degree == null) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-					new RestError(HttpStatus.BAD_REQUEST, "El ciclo no existe o no pertenece a esta escuela")	// Si no existe o no pertenece a esta escuela lo indicamos 
+				new RestError(HttpStatus.NOT_FOUND, "El ciclo no existe")									// Si no existe lo indicamos
 			);
 		}
 		
 		return ResponseEntity.status(HttpStatus.OK).body(
-				degree																				// Si existe lo retornamos
-		);
-	}
-
-	/**
-	 * Permite añadir un ciclo a una escuela
-	 * @param idSchool: Identificador de la escuela
-	 * @param professionalDegree: Ciclo con los datos
-	 * @return Ciclo creado
-	 */
-	@PostMapping("school/{idSchool}/professional-degree")
-	public ResponseEntity addProfessionalDegreeFromSchool(@PathVariable Integer idSchool, @RequestBody ProfessionalDegree professionalDegree) {
-
-		if (schoolService.get(idSchool) == null) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-					new RestError(HttpStatus.BAD_REQUEST, "El centro no existe")							// Comprobamos si existe el ciclo
-			);
-		}
-		else if (professionalDegree.getName() == null) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-					new RestError(HttpStatus.BAD_REQUEST, "Indique el nombre del ciclo")					// Si no nos han indicado el nombre lo indicamos
-			);
-		}
-
-		return ResponseEntity.status(HttpStatus.CREATED).body(
-				schoolService.createProfessionalDegree(idSchool, new ProfessionalDegree(professionalDegree.getName()))		// Creamos y retornamos el ciclo
-		);
-
-	}
-
-	/**
-	 * Permite borrar una escuela
-	 * @param idSchool: Identificador de la escuela
-	 * @param idDegree: Identificador del ciclo
-	 */
-//	@DeleteMapping("school/{idSchool}/professional-degree/{idDegree}")
-//	public ResponseEntity addProfessionalDegreeFromSchool(@PathVariable Integer idSchool, @PathVariable Integer idDegree) {
-//
-//		School school = schoolService.get(idSchool);													// Obtenemos el colegio
-//		
-//		if (school == null) {
-//			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-//					new RestError(HttpStatus.BAD_REQUEST, "El centro no existe")						// Si no existe el colegio lo indicamos
-//			);
-//		}
-//		else if (!school.getProfessionalDegrees().contains(new ProfessionalDegree(idDegree))) {
-//			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-//					new RestError(HttpStatus.BAD_REQUEST, "El ciclo no existe o no pertenece a esta escuela")		// Si no existe el ciclo o no pertenece a esta escuela lo indicamos
-//			);
-//		}
-//		
-//		professionalDegreeService.removeDegree(idDegree);															// Borramos el ciclo									
-//
-//		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();												// Retornamos un 204
-//
-//	}
-
-
-	/* ========================================= Estudiante ========================================= */
-
-	/* Primer nivel */
-
-
-	/**
- 	* Obtiene todos los estudiantes
- 	* @return Lista de estudiantes
- 	*/
-	@GetMapping("student")
-	public ResponseEntity getAllStudents() {
-		List<Student> students = studentService.getAll();												// Obtenemos todos los estudiantes
-
-		if (students.isEmpty()) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-					new RestError(HttpStatus.NOT_FOUND, "No existen estudiantes")						// Si no existen estudiantes lo indicamos
-			);
-		}
-		else {
-			return ResponseEntity.status(HttpStatus.OK).body(
-					students																			// Si hay estudiantes lo retornamos
-			);
-		}
-	}
-
-	/**
-	 * Obtiene un estudiante concreto
-	 * @param dni: Dni del estudiante
-	 * @return Estudiante solicitado
-	 */
-	@GetMapping("student/{dni}")
-	public ResponseEntity getStudent(@PathVariable String dni) {
-		Student student = studentService.get(dni);													// Estudiante solicitado
-
-		if (student == null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-					new RestError(HttpStatus.NOT_FOUND, "No existe el estudiante")					// Si no existe lo indicamos				
-			);
-		}
-		else {
-			return ResponseEntity.status(HttpStatus.OK).body(
-					student																			// Retornamos el estudiante
-			);
-		}
-	}
-
-
-	/**
-	 * Crea un nuevo estudiante
-	 * @param student: Datos del estudiante 
-	 * @return Estudiante
-	 */
-	@PostMapping("student")
-	public ResponseEntity createStudent(@RequestBody PersonDTO student) {
-		if (student.getDni() == null) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-					new RestError(HttpStatus.BAD_REQUEST, "Indique el dni del estudiante")						// Si no nos han pasado ningún dni lo indicamos
-			);
-		}
-		else if (student.getName() == null || student.getLastName() == null) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-					new RestError(HttpStatus.BAD_REQUEST, "Indique el nombre del estudiante y sus apellidos")	// Si no nos han pasado un nombre o apellido lo indicamos
-			);
-		}
-		else if (student.getPassword() == null) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-					new RestError(HttpStatus.BAD_REQUEST, "Indique la contraseña del estudiante")				// Si no nos han pasado la contraseña lo indicamos
-			);
-		}
-		else if (student.getEmail() == null) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-					new RestError(HttpStatus.BAD_REQUEST, "Indique un correo")									// Si no no han pasado un correo lo indicamos
-			);
-		}
-		else if (personService.existPerson(student.getDni())) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-					new RestError(HttpStatus.BAD_REQUEST, "Esta persona ya está registrada")					// Si la persona ya está registrada lo indicamos
-			);
-		}
-
-		student.setPassword(passwordEncoder.encode(student.getPassword()));										// Ciframos la contraseña
-		
-		return ResponseEntity.status(HttpStatus.CREATED).body(
-				studentService.save(new Student(student))														// Retornamos el estudiante
-		);
+				professionalDegree.getEnrollments()
+		);		
 	}
 	
-	/**
-	 * Permite editar un estudiante 
-	 * @param student: Datos del nuevo estudiante
-	 * @param dni: Dni del estudiante
-	 * @return Estudiante editado
-	 */
-	@PutMapping("student/{dni}")
-	public ResponseEntity updateStudent(@RequestBody PersonDTO student, @PathVariable String dni) {
+	
+	@PostMapping("degree/{idDegree}/enrollment")
+	public ResponseEntity getEnrollmentsFromDegree(@PathVariable Integer idDegree, @RequestBody NewEnrollmentDTO enrollment) {
+		ProfessionalDegree professionalDegree = professionalDegreeService.get(idDegree);
 		
-		Student currentStudent = studentService.get(dni);												// Obtenemos el estudiante
+		
+		if (professionalDegree == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+				new RestError(HttpStatus.NOT_FOUND, "El ciclo no existe")									// Si no existe lo indicamos
+			);
+		}
+		
+		if (enrollment.getDate() == null) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+					new RestError(HttpStatus.BAD_REQUEST, "Indique la fecha de matriculación")									// Si no existe lo indicamos
+			);
+		}
+		
+		if (enrollment.getDniStudent() == null) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+					new RestError(HttpStatus.BAD_REQUEST, "Indique el dni del alumno")									// Si no existe lo indicamos
+			);
+		}
+		
+		enrollment.setDniStudent(enrollment.getDniStudent().toUpperCase());
+
+		
+		Student currentStudent = studentService.get(enrollment.getDniStudent());
 		
 		if (currentStudent == null) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-				new RestError(HttpStatus.NOT_FOUND, "La persona no existe o no es un estudiante")		// Si no existe lo indicamos
+					new RestError(HttpStatus.NOT_FOUND, "El alumno no existe")									// Si no existe lo indicamos
 			);
 		}
-		else if (currentStudent.getAddress() == null || currentStudent.getBirthDate() == null || currentStudent.getLastName() == null || currentStudent.getName() == null || currentStudent.getPassword() == null || currentStudent.getTelefone() == null) {
+		
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(enrollment.getDate());
+		
+		if (enrollmentService.existEnrollment(calendar.get(Calendar.YEAR), professionalDegree, currentStudent)) {
+			return ResponseEntity.status(HttpStatus.CONFLICT).body(
+					new RestError(HttpStatus.CONFLICT, "El alumno ya ha sido matriculado este año en este ciclo")									// Si no existe lo indicamos
+			);
+		}
+		
+		Enrollment newEnrollment = new Enrollment(enrollment.getDate(), currentStudent, professionalDegree);
+		
+		newEnrollment = enrollmentService.save(newEnrollment);
+		
+		newEnrollment.setProfessionalDegree(professionalDegree);
+		
+		newEnrollment = enrollmentService.save(newEnrollment);
+		
+		return ResponseEntity.status(HttpStatus.CREATED).body(
+				newEnrollment
+		);		
+	}
+	
+	
+	@DeleteMapping("degree/{idDegree}/enrollment/{enrollmentId}")
+	public ResponseEntity removeEnrollmentsFromDegree(@PathVariable Integer idDegree,@PathVariable Integer enrollmentId) {
+		ProfessionalDegree professionalDegree = professionalDegreeService.get(idDegree);
+		
+		if (professionalDegree == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "Este ciclo no existe")									// Si no existe lo indicamos
+			);
+		}
+		
+		Enrollment enrollment = enrollmentService.get(enrollmentId);
+		
+		if (enrollment == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "Esta matrícula no existe")									// Si no existe lo indicamos
+			);
+		}
+		else if (!professionalDegree.getEnrollments().contains(enrollment)) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-				new RestError(HttpStatus.BAD_REQUEST, "Indique todos los datos")						// Si no nos han pasado todos los datos lo indicamos
+					new RestError(HttpStatus.BAD_REQUEST, "Esta matrícula no pertenece a este ciclo")									// Si no existe lo indicamos
+			);
+		}
+		
+		enrollmentService.delete(enrollment);
+		
+		
+		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();		
+	}
+	
+	// ================================================ Enrollment ================================================
+
+	
+	@GetMapping("enrollment")
+	public ResponseEntity getEnrollments() {
+		List<Enrollment> enrollments = enrollmentService.getAll();
+		
+		return ResponseEntity.status(HttpStatus.OK).body(
+				enrollments
+		);		
+	}
+	
+	@GetMapping("enrollment/{enrollmentId}")
+	public ResponseEntity getEnrollment(@PathVariable Integer enrollmentId) {
+		Enrollment enrollment = enrollmentService.get(enrollmentId);
+		
+		if (enrollment == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "La matrícula no existe")									// Si no existe lo indicamos
+			);
+		}
+		return ResponseEntity.status(HttpStatus.OK).body(
+				enrollment
+		);		
+	}
+	
+	@GetMapping("enrollment/{enrollmentId}/student")
+	public ResponseEntity getStudentFromEnrollment(@PathVariable Integer enrollmentId) {
+		Enrollment enrollment = enrollmentService.get(enrollmentId);
+		
+		if (enrollment == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "La matrícula no existe")									// Si no existe lo indicamos
+			);
+		}
+		else if (enrollment.getStudent() == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "Alumno no establecido")									// Si no existe lo indicamos
+			);
+		}
+		return ResponseEntity.status(HttpStatus.OK).body(
+				enrollment.getStudent()
+		);		
+	}
+	
+	
+	
+	// ================================================ Preference ================================================ 
+	
+	@GetMapping("enrollment/{enrollmentId}/preference")
+	public ResponseEntity getPreferencesFromEnrollment(@PathVariable Integer enrollmentId) {
+		Enrollment enrollment = enrollmentService.get(enrollmentId);
+		
+		if (enrollment == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "La matrícula no existe")									// Si no existe lo indicamos
+			);
+		}
+		return ResponseEntity.status(HttpStatus.OK).body(
+				enrollment.getPreferences()
+		);
+	}
+	
+	@PostMapping("enrollment/{enrollmentId}/preference")
+	public ResponseEntity addPreferencesFromEnrollment(@PathVariable Integer enrollmentId, @RequestBody NewPreferenceDTO newPreference) {
+		Enrollment enrollment = enrollmentService.get(enrollmentId);
+		
+		if (enrollment == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "La matrícula no existe")									// Si no existe lo indicamos
+			);
+		}
+		else if (newPreference.getCif() == null || newPreference.getCif().trim().length() == 0) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+					new RestError(HttpStatus.BAD_REQUEST, "Indique un cif válido")									// Si no existe lo indicamos
+			);
+		}
+		else if (newPreference.getPosition() == null || newPreference.getPosition() < 0) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+					new RestError(HttpStatus.BAD_REQUEST, "Indique una posición válida")									// Si no existe lo indicamos
+			);
+		}
+		
+		newPreference.setCif(newPreference.getCif().toUpperCase());
+		
+		Business business = businessService.get(newPreference.getCif());
+		
+		if (business == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "La empresa no existe")									// Si no existe lo indicamos
+			);
+		}
+		else if (preferenceService.getByEnrollmentAndBusiness(enrollment, business) != null) {
+			return ResponseEntity.status(HttpStatus.CONFLICT).body(
+					new RestError(HttpStatus.CONFLICT, "La empresa ya está asignada como preferida")									// Si no existe lo indicamos
+			);
+		}
+		else if (preferenceService.existPositionInEnrollment(enrollment, newPreference.getPosition()) != null) {
+			return ResponseEntity.status(HttpStatus.CONFLICT).body(
+					new RestError(HttpStatus.CONFLICT, "Ya existe una empresa en esta posición")									// Si no existe lo indicamos
+			);
+		}
+		
+		Preference preferenceToAdd = new Preference(newPreference.getPosition(), business, enrollment);
+		
+		
+		return ResponseEntity.status(HttpStatus.CREATED).body(
+				preferenceService.save(preferenceToAdd)
+		);
+	}
+	
+
+	@PutMapping("enrollment/{enrollmentId}/preference")
+	public ResponseEntity updateAllPreferencesFromEnrollment(@PathVariable Integer enrollmentId, @RequestBody UpdatePreferencesDTO newPositions) {
+		Enrollment enrollment = enrollmentService.get(enrollmentId);
+		
+		if (enrollment == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "La matrícula no existe")									// Si no existe lo indicamos
+			);
+		}
+		else if (newPositions.getPreferences() == null) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+					new RestError(HttpStatus.BAD_REQUEST, "No se ha indicado ninguna preferencia")									// Si no existe lo indicamos
+			);
+		}
+		else if (enrollment.getPreferences().size() != newPositions.getPreferences().size()) {
+			return ResponseEntity.status(HttpStatus.CONFLICT).body(
+					new RestError(HttpStatus.CONFLICT, "El número de preferencias no coincide")								
+			);
+		}
+		else if (!preferenceService.checkIfExistAll(newPositions.getPreferences())) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+					new RestError(HttpStatus.BAD_REQUEST, "Existen identificadores nulos o no existentes")								
+			);
+		}
+		else if (!preferenceService.checkIfOrderIsCorrect(newPositions.getPreferences())) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+					new RestError(HttpStatus.BAD_REQUEST, "El orden de las preferencias no es correcto")								
+			);
+		}
+		
+		
+		return ResponseEntity.status(HttpStatus.OK).build();
+		
+		
+	}
+	
+	
+	@DeleteMapping("enrollment/{enrollmentId}/preference")
+	public ResponseEntity deleteAllPreferencesFromEnrollment(@PathVariable Integer enrollmentId) {
+		Enrollment enrollment = enrollmentService.get(enrollmentId);
+		
+		if (enrollment == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "La matrícula no existe")									// Si no existe lo indicamos
+			);
+		}
+		else if (enrollment.getPreferences().size() == 0) {
+			return ResponseEntity.status(HttpStatus.CONFLICT).body(
+					new RestError(HttpStatus.CONFLICT, "No existen preferencias")									// Si no existe lo indicamos
+			);
+		}
+		
+		preferenceService.deleteAllPreferenceFromEnrollment(enrollment);
+		
+		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+		
+	}
+	
+	
+	
+	// ================================================ Business ================================================
+
+	
+	@GetMapping("degree/{idDegree}/business")
+	public ResponseEntity getBusinessFromDegree(@PathVariable Integer idDegree) {
+		ProfessionalDegree professionalDegree = professionalDegreeService.get(idDegree);
+		
+		if (professionalDegree == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+				new RestError(HttpStatus.NOT_FOUND, "El ciclo no existe")									// Si no existe lo indicamos
 			);
 		}
 		
 		return ResponseEntity.status(HttpStatus.OK).body(
-				studentService.updateStudent(currentStudent, student)									// Actualizamos el estudiante y retornamos el estudiante resultante
-		);
-	}
-	
-	/**
-	 * Permite borrar un estudiante
-	 * @param dni: Dni del estudiante
-	 * @return Estudiante editado
-	 */
-	@DeleteMapping("student/{dni}")
-	public ResponseEntity deleteStudent(@PathVariable String dni) {
-		
-		if (studentService.get(dni) == null) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-				new RestError(HttpStatus.BAD_REQUEST, "La persona a borrar no existe o no es un estudiante")		// Si no existe el estudiante lo indicamos 
-			);
-		}
-		
-		studentService.deleteStudent(dni);																			// Borramos el estudiante
-		
-		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();												// Retornamos un 204
-	}
-
-
-
-	/* Segundo nivel */
-
-
-	/* ========================================= Matrícula ========================================= */
-
-	/* Primer nivel */
-
-	/**
-	 * Obtiene todas las matrículas
-	 * @return Lista de matrículas
-	 */
-	@GetMapping("enrollment")
-	public ResponseEntity getAllEnrollments() {
-
-		List<Enrollment> enrollments = enrollmentService.getAll();									// Obtenemos todas las matrículas
-
-		if (enrollments.isEmpty()) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-					new RestError(HttpStatus.NOT_FOUND, "No existen matriculaciones")				// Si no hay ninguna lo indicamos
-			);
-		}
-		else {
-			return ResponseEntity.status(HttpStatus.OK).body(
-					enrollments																		// Si hay las retornamos
-			);
-		}
+				professionalDegree.getBusinesses()
+		);		
 	}
 
 	
-	/**
-	 * Obtiene una determinada matrícula
-	 * @param id: Identificador de la matrícula
-	 * @return Matrícula solicitada
-	 */
-	@GetMapping("enrollment/{id}")
-	public ResponseEntity getEnrollment(@PathVariable Integer id) {
-
-		Enrollment enrollment = enrollmentService.get(id);											// Matrícula solicitada
-
-		if (enrollment == null) {
+	@PostMapping("degree/{idDegree}/business")
+	public ResponseEntity addBusinessFromDegree(@PathVariable Integer idDegree, @RequestBody Business business) {
+		ProfessionalDegree professionalDegree = professionalDegreeService.get(idDegree);
+		
+		if (professionalDegree == null) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-					new RestError(HttpStatus.NOT_FOUND, "No existe esta matrícula")					// Si no existe lo indicamos
+				new RestError(HttpStatus.NOT_FOUND, "El ciclo no existe")									// Si no existe lo indicamos
 			);
 		}
-		else {
-			return ResponseEntity.status(HttpStatus.OK).body(
-					enrollment																		// Si existe la retornamos
-			);
-		}
-	}
-
-	/**
-	 * Crea una nueva matrícula
-	 * @param enrollment: Datos de la matrícula 
-	 * @return Matrícula creada
-	 */
-	@PostMapping("enrollment")
-	public ResponseEntity createEnrollment(@RequestBody Enrollment enrollment) {
-		if (enrollment.getDate() == null) {
+		else if (business.getCif() == null || business.getCif().trim().length() == 0) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-					new RestError(HttpStatus.BAD_REQUEST, "Indique la fecha de matriculación del estudiante")		// Establecemos la fecha	
+					new RestError(HttpStatus.BAD_REQUEST, "Indique un CIF válido")									// Si no existe lo indicamos
 			);
 		}
 		
-		// Si no existe el estudiante
-		// Si no existe el ciclo
+		Business businessDB = businessService.get(business.getCif());
 		
-		// Establecer el ciclo 
-		// Establecer el estudiante 
-
+		if (businessDB == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "La empresa no existe")									// Si no existe lo indicamos
+			);
+		}
+		else if (professionalDegree.getBusinesses().contains(businessDB)) {
+			return ResponseEntity.status(HttpStatus.CONFLICT).body(
+					new RestError(HttpStatus.CONFLICT, "La empresa ya está añadida a este ciclo")									// Si no existe lo indicamos
+			);
+		}
+		
+		businessDB.getDegrees().add(professionalDegree);
+		
 		return ResponseEntity.status(HttpStatus.CREATED).body(
-				enrollmentService.save(new Enrollment(enrollment.getDate()))										// Creamos y retornamos el resultado
-		);
+				businessService.save(businessDB)
+		);		
 	}
-
-	/* Segundo nivel */
-
-
-	/* ========================================= Empresa ========================================= */
-
-	/* Primer nivel */
+	
+	
+	@DeleteMapping("degree/{idDegree}/business/{businessId}")
+	public ResponseEntity quitBusinessFromDegree(@PathVariable Integer idDegree, @PathVariable String businessId) {
+		ProfessionalDegree professionalDegree = professionalDegreeService.get(idDegree);
+		
+		if (professionalDegree == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+				new RestError(HttpStatus.NOT_FOUND, "El ciclo no existe")									// Si no existe lo indicamos
+			);
+		}
+		
+		Business businessDB = businessService.get(businessId);
+		
+		if (businessDB == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "La empresa no existe")									// Si no existe lo indicamos
+			);
+		}
+		else if (!professionalDegree.getBusinesses().contains(businessDB)) {
+			return ResponseEntity.status(HttpStatus.CONFLICT).body(
+					new RestError(HttpStatus.CONFLICT, "La empresa no está añadida a este ciclo")									// Si no existe lo indicamos
+			);
+		}
+		
+		businessDB.getDegrees().remove(professionalDegree);
+		
+		businessService.save(businessDB);
+		
+		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();		
+	}
+	
+	
 
 
 	/**
@@ -1660,19 +1596,11 @@ public class AppController {
 	 */
 	@GetMapping("business")
 	public ResponseEntity getAllBusiness() {
-
 		List<Business> allBusiness = businessService.getAll();											// Obtenemos todas las empresas
 
-		if (allBusiness .isEmpty()) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-					new RestError(HttpStatus.NOT_FOUND, "No existen empresas")							// Si no hay empresas lo indicamos
-			);
-		}
-		else {
-			return ResponseEntity.status(HttpStatus.OK).body(
-					allBusiness 																		// Si hay las retornamos
-			);
-		}
+		return ResponseEntity.status(HttpStatus.OK).body(
+				allBusiness 																		// Si hay las retornamos
+		);
 	}
 
 	/**
@@ -1696,6 +1624,11 @@ public class AppController {
 		}
 	}
 
+	
+	
+	
+	
+	
 	/**
 	 * Crea una nueva empresa
 	 * @param Business: Empresa a crear
@@ -1703,9 +1636,9 @@ public class AppController {
 	 */
 	@PostMapping("business")
 	public ResponseEntity createBusiness(@RequestBody Business business) {
-		if (business.getCif() == null) {
+		if (business.getCif() == null || business.getCif().trim().length() == 0) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-					new RestError(HttpStatus.BAD_REQUEST, "Indique el cif de la empresa")						// Si no nos indican el cif lo indicamos
+					new RestError(HttpStatus.BAD_REQUEST, "Indique un cif de empresa válido")						// Si no nos indican el cif lo indicamos
 			);
 		}
 		else if (business.getName() == null) {
@@ -1718,12 +1651,18 @@ public class AppController {
 					new RestError(HttpStatus.BAD_REQUEST, "Indique una cantidad de estudiantes válida")			// Si no nos han indicado cantidad de estudiantes o es incorrecta lo indicamos
 			);
 		}
-		
+		else if (business.getImage() == null) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+					new RestError(HttpStatus.BAD_REQUEST, "Indique imagen de la empresa")			// Si no nos han indicado cantidad de estudiantes o es incorrecta lo indicamos
+			);
+		}
 		else if (businessService.exist(business)) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
 					new RestError(HttpStatus.BAD_REQUEST, "Ya existe una empresa con este CIF")					// Si ya existe una empresa con este cif lo indicamos
 			);
 		}
+		
+		business.setCif(business.getCif().toUpperCase());
 
 		return ResponseEntity.status(HttpStatus.CREATED).body(
 				businessService.save(business)																	// Guardamos la empresa y la retornamos

@@ -14,6 +14,7 @@ import com.tx.practisesmanagement.model.Enrollment;
 import com.tx.practisesmanagement.model.Practise;
 import com.tx.practisesmanagement.model.Preference;
 import com.tx.practisesmanagement.model.ProfessionalDegree;
+import com.tx.practisesmanagement.model.Student;
 import com.tx.practisesmanagement.repository.EnrollmentRepository;
 
 
@@ -35,6 +36,20 @@ public class EnrollmentService {
 	public List<Enrollment> getAll() {
 		return enrollmentRepository.findAll();
 	}
+	
+	
+	public boolean existEnrollment(Integer enrollmentDate, ProfessionalDegree degree, Student currentStudent) {
+		boolean exist = false;
+		
+		System.out.println(enrollmentDate);
+		
+		if (enrollmentRepository.existEnrollment(enrollmentDate, degree, currentStudent) != null) {
+			exist = true;
+		}
+	
+		return exist;
+	}
+	
 	
 	/**
 	 * Obtiene una determinada matrícula
@@ -82,13 +97,15 @@ public class EnrollmentService {
 			preferenceService.removePreference(currentPreference.getId());
 		}
 		
-		Integer practiseID = enrollment.getPractise().getId();		// Obtenemos el id de la practica
-		
-		enrollment.setPractise(null);								// Establecemos la practica a nulo
-		
 		this.save(enrollment);										// Guardamos la matrícula
 		
-		practiseService.remove(practiseID);
+		if (enrollment.getPractise() != null) {
+			Integer practiseID = enrollment.getPractise().getId();		// Obtenemos el id de la practica			
+			enrollment.setPractise(null);								// Establecemos la practica a nulo
+			this.save(enrollment);										// Guardamos la matrícula
+			practiseService.remove(practiseID);
+		}
+				
 		enrollmentRepository.deleteById(enrollment.getId());
 	}
 	

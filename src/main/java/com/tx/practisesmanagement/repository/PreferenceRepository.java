@@ -24,4 +24,8 @@ public interface PreferenceRepository extends JpaRepository<Preference, Integer>
 	
 	@Query(value = "SELECT p FROM Preference p WHERE p.position > ?1")
 	public List<Preference> getPreferenceHiggerThat(Integer position);
+	
+	@Query(value = "SELECT p FROM Preference p WHERE p.enrollment = ?1 AND p.position = ?2")
+	public Preference existPositionInEnrollment(Enrollment enrollment, Integer position);
+	
 }
