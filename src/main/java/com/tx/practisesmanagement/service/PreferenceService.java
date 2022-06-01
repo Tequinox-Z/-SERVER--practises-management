@@ -1,5 +1,6 @@
 package com.tx.practisesmanagement.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,8 +42,8 @@ public class PreferenceService {
 		return this.preferenceRepository.countByEnrollment(enrollment);
 	}
 	
-	public List<Preference> getPreferenceHiggerThat(Integer position) {
-		return this.preferenceRepository.getPreferenceHiggerThat(position);
+	public List<Preference> getPreferenceHiggerThat(Integer position, Enrollment enrollment) {
+		return this.preferenceRepository.getPreferenceHiggerThat(position, enrollment);
 	}
 	
 	public List<Preference> getPreferencesByIdEnrollment(Integer id) {
@@ -104,4 +105,40 @@ public class PreferenceService {
 		return result;
 	}
 	
+	public List<Preference> updatePositions(List<Preference> preferences) {
+		
+		List<Preference> preferencesUpdated = new ArrayList<>();
+		
+		for (Preference currentPreference: preferences) {
+			Preference preferenceDB = get(currentPreference.getId());
+			
+			preferenceDB.setPosition(currentPreference.getPosition());
+			
+			preferencesUpdated.add(save(preferenceDB));
+		}
+		
+		return preferencesUpdated;
+	}
+	
+	
+	public List<Preference> getByBusiness(Business business) {
+		return this.preferenceRepository.getByBusiness(business);
+	}
+	
+	public void removeFromBusinessAndUpdatePositions(Business business) {
+		
+		for (Preference preference : this.getByBusiness(business)) {
+			List <Preference> preferencesToUpdate = this.preferenceRepository.getPreferenceHiggerThat(preference.getPosition(), preference.getEnrollment());
+			
+			for (Preference updatePositionPreference : preferencesToUpdate) {
+				updatePositionPreference.setPosition(updatePositionPreference.getPosition() - 1);
+				save(updatePositionPreference);
+			}
+			
+			removePreference(preference.getId());
+		}
+		
+		
+		
+	}
 }

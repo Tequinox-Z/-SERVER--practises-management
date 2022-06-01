@@ -168,7 +168,7 @@ public class EnrollmentService {
 			throw new UserErrorException("La preferencia no existe");
 		}
 		
-		List<Preference> preferencesToUpdate = preferenceService.getPreferenceHiggerThat(preference.getPosition());
+		List<Preference> preferencesToUpdate = preferenceService.getPreferenceHiggerThat(preference.getPosition(), preference.getEnrollment());
 		
 		preference.setBusiness(null);
 		preference.setEnrollment(null);

@@ -57,7 +57,7 @@ public class BusinessService {
 			businessOld.setNumberOfStudents(business.getNumberOfStudents());			// Establece el nuevo nombre
 		}
 		if (business.getImage() != null) {
-			businessOld.setNumberOfStudents(business.getNumberOfStudents());
+			businessOld.setImage(business.getImage());
 		}
 		
 		return businessRepository.save(businessOld);						// Guardamos la empresa
@@ -119,7 +119,9 @@ public class BusinessService {
 		
 		this.save(business);
 				
-		locationService.removeLocation(location.getId());
+		if (location != null) {			
+			locationService.removeLocation(location.getId());
+		}
 		
 		for (ContactWorker currentContactWorker: contactWorkers) {
 			contactWorkerService.remove(currentContactWorker.getId());
@@ -127,7 +129,6 @@ public class BusinessService {
 		
 		for (LaborTutor currentTutor : business.getTutors()) {
 			currentTutor.setBusiness(null);
-			
 			laborTutorService.save(currentTutor);
 		}
 		

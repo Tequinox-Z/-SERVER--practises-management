@@ -94,13 +94,6 @@ public class PractiseService {
 		practise.setBusiness(null);									// Establecemos la empresa a nulo
 		practise.setLaborTutor(null);
 		practise.setTeacher(null);
-
-//		Al controlador
-		
-//		Enrollment enrollment = practise.getEnrollment();
-//		enrollment.setPractise(null);
-		
-//		this.enrollmentService.save(enrollment);
 		
 		practiseRepository.save(practise);							// Almacenamos la práctica
 		
@@ -113,5 +106,16 @@ public class PractiseService {
 	
 	public boolean exist(Integer id) {
 		return get(id) != null;
+	}
+	
+	public Practise updatePractise(Practise practise, Practise practiseData) {
+		if (practiseData.getStart() != null) {
+			practise.setStart(practiseData.getStart());
+		}
+		if (practiseData.getFinish() != null) {
+			practise.setFinish(practiseData.getFinish());
+		}
+		
+		return save(practise);
 	}
 }
