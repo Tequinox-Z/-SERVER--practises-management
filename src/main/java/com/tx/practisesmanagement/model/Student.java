@@ -32,7 +32,7 @@ public class Student extends Person {
 	
 	/**
 	 * Constructor desde persona
-	 * @param person: Persona
+	 * @param person: Datos de la persona
 	 */
 	public Student(PersonDTO person) {
 		super();

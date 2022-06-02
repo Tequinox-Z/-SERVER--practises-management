@@ -23,10 +23,10 @@ public class ProfessionalDegree {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Integer id;
+	private Integer id;										// Identificador
 	private String name;									// Nombre
-	private Integer year;
-	private String image;
+	private Integer year;									// Año del ciclo
+	private String image;									// Imagen del ciclo
 	
 	
 	@JsonIgnore
@@ -52,41 +52,63 @@ public class ProfessionalDegree {
 		super();
 	}
 	
+	/**
+	 * Obtiene el año de la empresa
+	 * @return Año del ciclo
+	 */
 	public Integer getYear() {
 		return year;
 	}
 
 
-
+	/**
+	 * Establece un año al ciclo
+	 * @param year: Nuevo año
+	 */
 	public void setYear(Integer year) {
 		this.year = year;
 	}
 
 
-
+	/**
+	 * Obtiene la imagen del ciclo
+	 * @return Imagen asignada
+	 */
 	public String getImage() {
 		return image;
 	}
 
 
-
+	/**
+	 * Establece una nueva imagen
+	 * @param image: Nueva imagen
+	 */
 	public void setImage(String image) {
 		this.image = image;
 	}
 
 
-
+	/**
+	 * Obtiene las empresas disponibles
+	 * @return Empresas disponibles
+	 */
 	public List<Business> getBusinesses() {
 		return businesses;
 	}
 
 
-
+	/**
+	 * Establece las empresas disponibles
+	 * @param businesses Nuevas empresas disponibles
+	 */
 	public void setBusinesses(List<Business> businesses) {
 		this.businesses = businesses;
 	}
 
-
+	/**
+	 * Constructor con parámetros
+	 * @param id Identificador del ciclo
+	 */
 	public ProfessionalDegree(Integer id) {
 		super();
 		this.id = id;
@@ -109,12 +131,19 @@ public class ProfessionalDegree {
 		this.enrollments = enrollments;
 	}
 
-
-
+	
+	/**
+	 * Obtiene el identificador
+	 * @return Identificador del ciclo
+	 */
 	public Integer getId() {
 		return id;
 	}
 
+	/**
+	 * Establece un identificador
+	 * @param id: Nuevo identificador
+	 */
 	public void setId(Integer id) {
 		this.id = id;
 	}

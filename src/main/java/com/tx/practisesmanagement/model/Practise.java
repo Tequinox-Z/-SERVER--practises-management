@@ -21,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * Clase de práctica
- * @author Salva
+ * @author Salvador
  */
 @Entity
 public class Practise {
@@ -44,11 +44,11 @@ public class Practise {
 	
 	@ManyToOne
 	@JsonIgnore
-	private Teacher teacher;
+	private Teacher teacher;							// Profesor
 	
 	@ManyToOne
 	@JsonIgnore
-	private LaborTutor laborTutor;
+	private LaborTutor laborTutor;						// Tutor laboral
 	
 	@ManyToOne
 	@JsonIgnore
@@ -78,17 +78,29 @@ public class Practise {
 		this.business = business;
 	}
 	
-	
+	/**
+	 * Constructor con parámetros
+	 * @param start: Fecha de inicio
+	 * @param finish: Fecha de fin
+	 */
 	public Practise(Date start, Date finish) {
 		super();
 		this.start = start;
 		this.finish = finish;
 	}
 
+	/**
+	 * Obtiene el profesor asignado
+	 * @return Profesor asignado
+	 */
 	public Teacher getTeacher() {
 		return teacher;
 	}
 
+	/**
+	 * Establece un nuevo profesor
+	 * @param teacher Nuevo profesor
+	 */
 	public void setTeacher(Teacher teacher) {
 		this.teacher = teacher;
 	}
@@ -189,10 +201,18 @@ public class Practise {
 	}
 	
 
+	/**
+	 * Obtiene el tutor laboral asignado
+	 * @return Tutor laboral
+	 */
 	public LaborTutor getLaborTutor() {
 		return laborTutor;
 	}
 
+	/**
+	 * Establece un tutor laboral
+	 * @param laborTutor: Nuevo tutor laboral
+	 */
 	public void setLaborTutor(LaborTutor laborTutor) {
 		this.laborTutor = laborTutor;
 	}

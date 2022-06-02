@@ -16,9 +16,8 @@ import com.tx.practisesmanagement.enumerators.Rol;
 
 
 /**
- * Clase persona
- * @author Salva
- *
+ * Clase persona o usuario
+ * @author Salvador
  */
 @MappedSuperclass
 public class Person {
@@ -298,10 +297,18 @@ public class Person {
 		this.email = email;
 	}
 
+	/**
+	 * Indica si está habilitado o no
+	 * @return Boolean si está habilitado o no
+	 */
 	public boolean isEnabled() {
 		return enabled;
 	}
 
+	/**
+	 * Establece si el usuario estará habilitado o no
+	 * @param enabled ¿Habilitado?
+	 */
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
 	}

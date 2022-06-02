@@ -345,6 +345,11 @@ public class AppController {
 					new RestError(HttpStatus.NOT_FOUND, "La escuela con id " + school.getId() + " no existe")	
 			);
 		}
+		else if (school.getPassword() == null || !school.getPassword().equals(schoolFromDB.getPassword())) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+					new RestError(HttpStatus.BAD_REQUEST, "Contraseña incorrecta")	
+			);
+		}
 		
 		currentAdministrator.setSchoolSetted(schoolFromDB);
 		

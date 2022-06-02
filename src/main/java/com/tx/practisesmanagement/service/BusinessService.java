@@ -41,6 +41,10 @@ public class BusinessService {
 		return businessRepository.findAll();
 	}
 	
+	public Integer getCount() {
+		return this.businessRepository.getCount();
+	}
+	
 	/**
 	 * Edita una empresa
 	 * @param cif: Cif de la empresa

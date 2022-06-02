@@ -5,6 +5,10 @@ import org.springframework.stereotype.Repository;
 
 import com.tx.practisesmanagement.model.LaborTutor;
 
+/**
+ * Repositorio de tutor laboral
+ * @author Salvador
+ */
 @Repository
 public interface LaborTutorRepository extends JpaRepository<LaborTutor, String> {
 

@@ -29,7 +29,7 @@ public class Teacher extends Person {
 	
 	@OneToMany(mappedBy = "teacher", fetch = FetchType.EAGER)
 	@JsonIgnore
-	private List<Practise> practises;
+	private List<Practise> practises;							// Practicas
 	
 	/**
 	 * Constructor sin parámetros
@@ -41,7 +41,7 @@ public class Teacher extends Person {
 	
 	/**
 	 * Constructor desde persona
-	 * @param person
+	 * @param person Datos de la persona
 	 */
 	public Teacher(PersonDTO person) {
 		super();
@@ -92,11 +92,18 @@ public class Teacher extends Person {
 	}
 	
 	
-	
+	/**
+	 * Obtiene las prácticas
+	 * @return Lista de prácticas
+	 */
 	public List<Practise> getPractises() {
 		return practises;
 	}
 
+	/**
+	 * Establece las prácticas
+	 * @param practises Nuevas prácticas
+	 */
 	public void setPractises(List<Practise> practises) {
 		this.practises = practises;
 	}

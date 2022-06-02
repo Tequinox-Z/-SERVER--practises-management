@@ -8,7 +8,7 @@ import java.util.Objects;
 
 /**
  * DTO de reseteo de contraseña, transporta el dni del usuario para resetear la contraseña
- * @author Salva
+ * @author Salvador
  */
 public class ResetPasswordDTO implements Serializable {
 	
@@ -25,7 +25,7 @@ public class ResetPasswordDTO implements Serializable {
 
 	/**
 	 * Constructos con dni
-	 * @param email
+	 * @param dni: Dni del usuario
 	 */
 	public ResetPasswordDTO(String dni) {
 		super();

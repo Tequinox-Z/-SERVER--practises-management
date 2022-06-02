@@ -163,7 +163,7 @@ public class AdministratorService {
 		return administrator;
 	}
 	
-	public String getCountFromSchool(Integer id) {
+	public Integer getCountFromSchool(Integer id) {
 		return this.adminRepository.getCountFromSchool(id);
 	}
 

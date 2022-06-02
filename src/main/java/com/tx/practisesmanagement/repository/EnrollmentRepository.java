@@ -18,7 +18,13 @@ import com.tx.practisesmanagement.model.Student;
 @Repository
 public interface EnrollmentRepository extends JpaRepository<Enrollment, Integer>{
 
-	
+	/**
+	 * Verifica si existe o no una matrícula determinada
+	 * @param year Año
+	 * @param degree Ciclo
+	 * @param student Estudiante
+	 * @return Matrícula
+	 */
 	@Query(value = "SELECT e FROM Enrollment e WHERE extract(year FROM e.date) = ?1 AND e.professionalDegree = ?2 AND e.student = ?3")
 	public Enrollment existEnrollment(Integer year, ProfessionalDegree degree, Student student);
 }

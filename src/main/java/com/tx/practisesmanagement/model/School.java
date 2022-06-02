@@ -22,7 +22,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * Clase de escuela
- * @author Salva
+ * @author Salvador
  */
 @Entity
 public class School {
@@ -36,23 +36,23 @@ public class School {
 	
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
 	@DateTimeFormat
-	private LocalDateTime openingTime;
+	private LocalDateTime openingTime;						// Hora de apertura
 	
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
 	@DateTimeFormat
-	private LocalDateTime closingTime;
+	private LocalDateTime closingTime;						// Hora de cierre
 	
 	@JsonIgnore
 	@OneToOne
-	private Location location;
+	private Location location;								// Localización
 
 	@JsonIgnore
 	@OneToMany()
-	private List<RegTemp> temperatureRecords;
+	private List<RegTemp> temperatureRecords;				// Registros de temperatura
 	
 	@JsonIgnore
 	@OneToMany()
-	private List<UnusualMovement> unusualsMovements;
+	private List<UnusualMovement> unusualsMovements;		// Movimientos inusuales
 	
 	@JsonIgnore
 	@OneToMany(mappedBy = "school", fetch = FetchType.EAGER)
@@ -82,6 +82,21 @@ public class School {
 		this.address = address;
 	}
 	
+	/**
+	 * Constructor con parámetros
+	 * @param id Identificador
+	 * @param name Nombre
+	 * @param address Direccion
+	 * @param image Imagen
+	 * @param password Contraseña
+	 * @param openingTime Horario de apertura
+	 * @param closingTime Horario de cierre
+	 * @param location Localización
+	 * @param temperatureRecords Registros de temperatura
+	 * @param unusualsMovements Movimientos inusuales
+	 * @param professionalDegrees Ciclos
+	 * @param administrators Administradores
+	 */
 	public School(Integer id, String name, String address, String image, String password, LocalDateTime openingTime,
 			LocalDateTime closingTime, Location location, List<RegTemp> temperatureRecords,
 			List<UnusualMovement> unusualsMovements, List<ProfessionalDegree> professionalDegrees,
@@ -101,6 +116,20 @@ public class School {
 		this.administrators = administrators;
 	}
 
+	/**
+	 * Constructor con parámetros
+	 * @param name Nombre
+	 * @param address Dirección
+	 * @param image Imagen
+	 * @param password Contraseña
+	 * @param openingTime Horario de apertura
+	 * @param closingTime Horario de cierre
+	 * @param location Localización
+	 * @param temperatureRecords Registros de temperatura
+	 * @param unusualsMovements Movimientos inusuales
+	 * @param professionalDegrees Ciclos
+	 * @param administrators Administradores
+	 */
 	public School(String name, String address, String image, String password, LocalDateTime openingTime,
 			LocalDateTime closingTime, Location location, List<RegTemp> temperatureRecords,
 			List<UnusualMovement> unusualsMovements, List<ProfessionalDegree> professionalDegrees,
@@ -119,6 +148,13 @@ public class School {
 		this.administrators = administrators;
 	}
 
+	/**
+	 * Constructor con parámetros
+	 * @param name Nombre
+	 * @param address Dirección
+	 * @param image Imagen
+	 * @param password Contraseña
+	 */
 	public School(String name, String address, String image, String password) {
 		super();
 		this.name = name;
@@ -127,19 +163,33 @@ public class School {
 		this.image = image;
 	}
 	
-	
+	/**
+	 * Añade un movimiento inusual
+	 * @param newMovement Nuevo movimiento
+	 */
 	public void addUnusualMovement(UnusualMovement newMovement) {
 		this.unusualsMovements.add(newMovement);
 	}
 
+	/**
+	 * Obtiene los movimientos
+	 * @return Lista de movimientos inusuales
+	 */
 	public List<UnusualMovement> getUnusualsMovements() {
 		return unusualsMovements;
 	}
 
+	/**
+	 * Establece los movimientos inusuales
+	 * @param unusualsMovements Lista de nuevos movimientos
+	 */
 	public void setUnusualsMovements(List<UnusualMovement> unusualsMovements) {
 		this.unusualsMovements = unusualsMovements;
 	}
 	
+	/**
+	 * Borra todos los movimientos inusuales
+	 */
 	public void removeAllUnusualsMovements() {
 		this.unusualsMovements.clear();
 	}
@@ -185,22 +235,42 @@ public class School {
 		return name;
 	}
 
+	/**
+	 * Obtiene la hora de apertura
+	 * @return Hora de apertura
+	 */
 	public LocalDateTime getOpeningTime() {
 		return openingTime;
 	}
 
+	/**
+	 * Establece la hora de apertura
+	 * @param openingTime Nueva hora de apertura
+	 */
 	public void setOpeningTime(LocalDateTime openingTime) {
 		this.openingTime = openingTime;
 	}
 
+	/**
+	 * Obtiene la hora de cierre
+	 * @return Hora de cierre
+	 */
 	public LocalDateTime getClosingTime() {
 		return closingTime;
 	}
 
+	/**
+	 * Establece la hora de cierrre
+	 * @param closingTime Hora de cierre
+	 */
 	public void setClosingTime(LocalDateTime closingTime) {
 		this.closingTime = closingTime;
 	}
 
+	/**
+	 * Establece los registros de temperatura
+	 * @param temperatureRecords: Nuevos registros de temperartura
+	 */
 	public void setTemperatureRecords(List<RegTemp> temperatureRecords) {
 		this.temperatureRecords = temperatureRecords;
 	}
@@ -229,10 +299,18 @@ public class School {
 		this.address = address;
 	}
 	
+	/**
+	 * Obtiene la localización
+	 * @return Localización
+	 */
 	public Location getLocation() {
 		return location;
 	}
 
+	/**
+	 * Establece una nueva localización
+	 * @param location Nueva Localización 
+	 */
 	public void setLocation(Location location) {
 		this.location = location;
 	}
@@ -253,10 +331,18 @@ public class School {
 		this.professionalDegrees = professionalDegrees;
 	}
 
+	/**
+	 * Añade un nuveo registro de temperatura
+	 * @param recordTemp Nuevo registro
+	 */
 	public void addRecordTemp(RegTemp recordTemp) {		
 		this.temperatureRecords.add(recordTemp);						// Añadimos el nuevo registro
 	}
 	
+	/**
+	 * Obtiene los registros de temperatura
+	 * @return Lista de registros de temperatura
+	 */
 	public List<RegTemp> getTemperatureRecords() {
 		return temperatureRecords;
 	}

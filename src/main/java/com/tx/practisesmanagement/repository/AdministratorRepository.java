@@ -12,7 +12,7 @@ import com.tx.practisesmanagement.model.Administrator;
 
 /**
  * Repositorio de administradores
- * @author Salva
+ * @author Salvador
  *
  */
 @Repository
@@ -24,5 +24,5 @@ public interface AdministratorRepository extends JpaRepository<Administrator, St
 	 * @return Número de administradores de la escuela
 	 */
 	@Query("SELECT COUNT(a) FROM Administrator a WHERE a.schoolSetted.id = ?1")
-	String getCountFromSchool(Integer id);
+	public Integer getCountFromSchool(Integer id);
 }

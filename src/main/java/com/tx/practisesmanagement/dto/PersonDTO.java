@@ -41,6 +41,11 @@ public class PersonDTO implements Serializable {
 		super();
 	}
 	
+	/**
+	 * Constructor con parámetros
+	 * @param dni: Dni de la persona
+	 * @param email: Correo de la persona
+	 */
 	public PersonDTO(String dni, String email) {
 		this.dni = dni;
 		this.email = email;
@@ -151,10 +156,18 @@ public class PersonDTO implements Serializable {
 		return name;
 	}
 
+	/**
+	 * Indica si está habilitado o no
+	 * @return: Boolean indicando si está o no activo
+	 */
 	public boolean isEnabled() {
 		return enabled;
 	}
 
+	/**
+	 * Establece si un usuario está o no activo
+	 * @param enabled: ¿Activo?
+	 */
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
 	}
@@ -263,10 +276,18 @@ public class PersonDTO implements Serializable {
 		this.email = email;
 	}
 
+	/**
+	 * Obtiene el rol
+	 * @return Rol de la persona
+	 */
 	public Rol getRol() {
 		return rol;
 	}
 
+	/**
+	 * Establece el rol de la persona
+	 * @param rol: Nuevo rol
+	 */
 	public void setRol(Rol rol) {
 		this.rol = rol;
 	}

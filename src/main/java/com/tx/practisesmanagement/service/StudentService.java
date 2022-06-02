@@ -35,6 +35,10 @@ public class StudentService {
 		return studentRepository.save(student);
 	}
 	
+	public Integer getCountFromSchool(Integer idSchool) {
+		return this.studentRepository.getCountFromSchool(idSchool);
+	}
+	
 	/**
 	 * Obtiene un estudiante por dni
 	 * @param dni: Dni del estudiante

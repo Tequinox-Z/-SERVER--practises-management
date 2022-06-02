@@ -10,7 +10,7 @@ import com.tx.practisesmanagement.model.Practise;
 
 /**
  * Repositorio de prácticas
- * @author Salva
+ * @author Salvador
  */
 @Repository
 public interface PractiseRepository extends JpaRepository<Practise, Integer>{

@@ -113,7 +113,7 @@ public class TeacherService {
 		return save(currentTeacher);
 	}
 	
-	public String getCountTeacherFromSchool(Integer id) {
+	public Integer getCountTeacherFromSchool(Integer id) {
 		return this.teacherRepository.countTeachersFromSchool(id);
 	}
 	

@@ -17,7 +17,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * Clase de empresa
- * @author Salva
+ * @author Salvador
  */
 @Entity
 public class Business {
@@ -25,11 +25,11 @@ public class Business {
 	private String cif;								// Identificador de la empresa
 	private String name;							// Nombre de la empresa
 	private Integer numberOfStudents;				// Número de estudiantes	
-	private String image;
+	private String image;							// Imagen de la empresa
 	
 	@JsonIgnore
 	@OneToOne
-	private Location location;
+	private Location location;						// Localización de la empresa
 	
 	@OneToMany(mappedBy = "business")
 	@JsonIgnore
@@ -37,60 +37,85 @@ public class Business {
 
 	@OneToMany(mappedBy = "business")
 	@JsonIgnore
-	private List<LaborTutor> tutors;
+	private List<LaborTutor> tutors;				// Tutores de la empresa
 	
 	@ManyToMany
 	@JsonIgnore
-	private List<ProfessionalDegree> degrees;
+	private List<ProfessionalDegree> degrees;		// Ciclos 
 	
 	@OneToMany()
 	@JsonIgnore
-	private List<ContactWorker> contactWorkers;
+	private List<ContactWorker> contactWorkers;		// Trabajadores de contacto
 	
 	/**
 	 * Constructor sin parámetros
 	 */
 	public Business() {
 		super();
-		this.practises = new ArrayList<Practise>();			// Inicializamos la colección
+//		this.practises = new ArrayList<>();			// Inicializamos la colección
 	}
 
-	
+	/**
+	 * Obtiene la imagen de la empresa
+	 * @return Imagen de la empresa
+	 */
 	public String getImage() {
 		return image;
 	}
 
-
+	/***
+	 * Establece la imagen de la empresa
+	 * @param image: Nueva imagen
+	 */
 	public void setImage(String image) {
 		this.image = image;
 	}
 
 
+	/**
+	 * Obtiene la localización de la empresa
+	 * @return: Localización de la empresa
+	 */
 	public Location getLocation() {
 		return location;
 	}
 
-
+	/**
+	 * Establece una nueva localización a la empresa
+	 * @param location: Nueva localización
+	 */
 	public void setLocation(Location location) {
 		this.location = location;
 	}
 
-
+	/**
+	 * Obtiene los ciclos
+	 * @return: Lista de ciclos
+	 */
 	public List<ProfessionalDegree> getDegrees() {
 		return degrees;
 	}
 
-
+	/**
+	 * Establece los ciclos
+	 * @param degrees: Nuevos ciclos
+	 */
 	public void setDegrees(List<ProfessionalDegree> degrees) {
 		this.degrees = degrees;
 	}
 
-
+	/**
+	 * Obtiene los trabajadores de contacto de la empresa
+	 * @return Lista de trabajadores de contacto
+	 */
 	public List<ContactWorker> getContactWorkers() {
 		return contactWorkers;
 	}
 
-
+	/**
+	 * Establece una lista de trabajadores de contacto
+	 * @param contactWorkers: Trabajadores de contacto
+	 */
 	public void setContactWorkers(List<ContactWorker> contactWorkers) {
 		this.contactWorkers = contactWorkers;
 	}
@@ -105,7 +130,6 @@ public class Business {
 	 */
 	public Business(String cif, String name, Integer numberOfStudents, List<Practise> practises) {
 		super();
-		// ASignamos todos los datos
 		this.cif = cif;
 		this.name = name;
 		this.numberOfStudents = numberOfStudents;
@@ -130,10 +154,18 @@ public class Business {
 	}
 
 	
+	/**
+	 * Obtiene los tutores
+	 * @return: Lista de tutores laborales
+	 */
 	public List<LaborTutor> getTutors() {
 		return tutors;
 	}
 
+	/**
+	 * Establece una lista de tutores
+	 * @param tutors: Tutores laborales
+	 */
 	public void setTutors(List<LaborTutor> tutors) {
 		this.tutors = tutors;
 	}

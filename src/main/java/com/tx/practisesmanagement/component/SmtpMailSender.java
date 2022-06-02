@@ -9,8 +9,8 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
 
 /**
- * Componente encargado de los envíos de correo
- * @author Salva
+ * Componente encargado de los envíos de correos electrónicos
+ * @author Salvador
  */
 @Component
 public class SmtpMailSender {

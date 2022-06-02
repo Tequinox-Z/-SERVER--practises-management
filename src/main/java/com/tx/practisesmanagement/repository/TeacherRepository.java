@@ -16,8 +16,13 @@ import com.tx.practisesmanagement.model.Teacher;
 @Repository
 public interface TeacherRepository extends JpaRepository<Teacher, String> {
 	
+	/**
+	 * Obtiene el número de profesores en un cenro
+	 * @param id Identificador
+	 * @return Cantidad de profesores
+	 */
 	@Query("SELECT COUNT(DISTINCT tt) FROM ProfessionalDegree pf JOIN pf.teachers tt WHERE pf.school.id = ?1")                 
-	String countTeachersFromSchool(Integer id);
+	Integer countTeachersFromSchool(Integer id);
 
 }
 

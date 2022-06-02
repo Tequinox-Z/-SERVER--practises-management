@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tx.practisesmanagement.component.SmtpMailSender;
+import com.tx.practisesmanagement.dto.BriefingDTO;
 import com.tx.practisesmanagement.dto.EmailDTO;
 import com.tx.practisesmanagement.dto.PersonDTO;
 import com.tx.practisesmanagement.dto.ResetPasswordDTO;
@@ -41,6 +42,7 @@ import com.tx.practisesmanagement.model.UnusualMovement;
 import com.tx.practisesmanagement.security.JWTUtil;
 import com.tx.practisesmanagement.service.AditionalsFunctionsService;
 import com.tx.practisesmanagement.service.AdministratorService;
+import com.tx.practisesmanagement.service.BusinessService;
 import com.tx.practisesmanagement.service.LocationService;
 import com.tx.practisesmanagement.service.PersonService;
 import com.tx.practisesmanagement.service.RegTempService;
@@ -50,8 +52,8 @@ import com.tx.practisesmanagement.service.TeacherService;
 import com.tx.practisesmanagement.service.UnusualMovementService;
 
 /**
- * Controlador de funciones adicionales. Reune todas aquellas funciones que no son recursos
- * @author Salva
+ * Controlador de funciones adicionales. Reune todas aquellas funciones adicionales
+ * @author Salvador
  */
 @RestController
 @CrossOrigin(origins = "*")
@@ -64,150 +66,210 @@ public class AditionalsFunctionsController {
 		@Autowired private AditionalsFunctionsService aditinalsFuncions;	// Servicio de funciones adicionales
 		@Autowired private TeacherService teacherService;					// Servicio de profesor
 		@Autowired private SchoolService schoolService;						// Servicio de colegio
-		@Autowired private PersonService personService;
-		@Autowired private LocationService locationService;
+		@Autowired private PersonService personService;						// Sercicio de persona
+		@Autowired private LocationService locationService;					// Servicio de localización
+		@Autowired private RegTempService regTempService;					// Servicio de temperatura					
+		@Autowired private UnusualMovementService unusualMovementService;	// Servicio de movimientos inusuales
+		@Autowired private BusinessService businessService;					// Servicio de empresas
 		
-		@Autowired private AuthenticationManager authManager;
-		@Autowired private SmtpMailSender smtpMailSender;
-		@Autowired private JWTUtil jwtUtil;
-		@Autowired private PasswordEncoder passwordEncoder;
-		@Autowired private RegTempService regTempService;
+		@Autowired private AuthenticationManager authManager;				// Administrador de autenticación
+		@Autowired private SmtpMailSender smtpMailSender;					// Componente de correo
+		@Autowired private JWTUtil jwtUtil;									// JWT Util
+		@Autowired private PasswordEncoder passwordEncoder;					// Codificador de contraseña
 		
-		@Autowired private UnusualMovementService unusualMovementService;
 		@Value("${urlServer}")
-		private String frontUrl;
+		private String frontUrl;											// Url de front
 
-	
+	/**
+	 * Obtiene un recuento de administradores, estudiantes, empresas y profesores
+	 * @param idSchool
+	 */
 	@GetMapping("school/{idSchool}/briefing")
 	public ResponseEntity getBriefingFromSchool(@PathVariable Integer idSchool) {
 		
-		School school = schoolService.get(idSchool);
+		School school = schoolService.get(idSchool);										// Obtenemos la escuela
 		
 		if (school == null) {
     		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-        			new RestError(HttpStatus.NOT_FOUND, "El centro no existe")			// Si no existe el centro lo indicamos
+        			new RestError(HttpStatus.NOT_FOUND, "El centro no existe")				// Si no existe el centro lo indicamos
     		);
 		}
 		
+		BriefingDTO newBriefing = new BriefingDTO();										// Creamos un nuevo documento
+		
+		
+		/* Asignamos todos los datos */
+		
+		newBriefing.setAdministrators(administratorService.getCountFromSchool(idSchool));
+		newBriefing.setStudents(studentService.getCountFromSchool(idSchool));
+		newBriefing.setBusiness(businessService.getCount());
+		newBriefing.setTeachers(teacherService.getCountTeacherFromSchool(idSchool));
+		
 		return ResponseEntity.status(HttpStatus.OK).body(
-    			administratorService.getCountFromSchool(idSchool)
+				newBriefing 																// Retornamos el resultado
 		);
 	}
 	
 
-	
+	/**
+	 * Obtiene la ubicación de todos los centros
+	 * @param maxLatitude Latitud máxima
+	 * @param minLatitude Latitud mínima
+	 * @param maxLongitude Longitud máxima
+	 * @param minLongitude Longitud mínima
+	 */
 	@GetMapping("location/schools")
 	public ResponseEntity<List<Location>> getLocationsOfSchools(@QueryParam("maxLatitude") Double maxLatitude, @QueryParam("minLatitude") Double minLatitude, @QueryParam("maxLongitude") Double maxLongitude, @QueryParam("minLongitude") Double minLongitude) {
 		
-		List<Location> locations;
+		List<Location> locations;										// Esta variable tendrá las localizaciones
+		
+		// Si nos han indicado algún cuadrado de localizaciones...
 		
 		if (maxLongitude != null && minLongitude != null && maxLatitude != null && minLatitude != null) {
-			locations = locationService.getAllSchoolsLocationsByLocation(maxLatitude, minLatitude, maxLongitude, minLongitude);
+			locations = locationService.getAllSchoolsLocationsByLocation(maxLatitude, minLatitude, maxLongitude, minLongitude);			// Buscamos las localizaciones
 		}
 		else {
-			locations = locationService.getAllShoolsLocations();
+			locations = locationService.getAllShoolsLocations();																		// Buscamos las localizaciones
 		}
 		
 		return ResponseEntity.status(HttpStatus.OK).body(
-			locations
+			locations																				// Retornamos el resultado
 		);
 
 	}
-	
+	/**
+	 * Obtiene las localizaciones de las empresas
+	 * @param maxLatitude Latitud máxima
+	 * @param minLatitude Latitud mínima
+	 * @param maxLongitude Longitud máxima
+	 * @param minLongitude Longitud mínima
+	 * @return
+	 */
 	@GetMapping("location/business")
 	public ResponseEntity<List<Location>> getLocationsOfBusiness(@QueryParam("maxLatitude") Double maxLatitude, @QueryParam("minLatitude") Double minLatitude, @QueryParam("maxLongitude") Double maxLongitude, @QueryParam("minLongitude") Double minLongitude) {
 		
-		List<Location> locations;
+		List<Location> locations;												// Esta variable almacenará las distinas localizaciones
+		
+		
+		// Si nos han pasado un cuadrado de localizaciones...
 		
 		if (maxLongitude != null && minLongitude != null && maxLatitude != null && minLatitude != null) {
-			locations = locationService.getAllBusinessLocationsByLocation(maxLatitude, minLatitude, maxLongitude, minLongitude);
+			locations = locationService.getAllBusinessLocationsByLocation(maxLatitude, minLatitude, maxLongitude, minLongitude); 	// Buscamos las localizaciones
 		}
 		else {
-			locations = locationService.getAllBusinessLocations();
+			locations = locationService.getAllBusinessLocations();																	// Buscamos las localizaciones
 		}
 		
 		return ResponseEntity.status(HttpStatus.OK).body(
-			locations
+			locations																				// Retornamos las localizaciones
 		);
 
 	}
 	
+	/**
+	 * Permite obtener una localización mediante su id
+	 * @param id: Id de la ubicación
+	 * @return
+	 */
 	@GetMapping("location/{id}")
 	public ResponseEntity getLocationById(@PathVariable Integer id) {
-		Location queryLocation = this.locationService.getLocationById(id);
+		Location queryLocation = this.locationService.getLocationById(id);								// Obtenemos la localización
+		
+		
+		// Comprobamos si existe una localización ...
 		
 		if (queryLocation == null) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-					new RestError(HttpStatus.NOT_FOUND, "No se ha encontrado ninguna ubicación con el id: " + id)
+					new RestError(HttpStatus.NOT_FOUND, "No se ha encontrado ninguna ubicación con el id: " + id)		// Si no existe lo indicamos
 			);
 		}
 		else {
 			return ResponseEntity.status(HttpStatus.OK).body(
-					queryLocation
+					queryLocation													// Si existe lo retornamos
 			);
 		}
 	}
 	
+	/**
+	 * Permite editar una ubicación
+	 * @param id: Id de la ubicacion
+	 * @param location: Localización
+	 */
 	@PutMapping("location/{id}")
 	public ResponseEntity editLocationById(@PathVariable Integer id, @RequestBody Location location) {
 		
-		Location queryLocation = this.locationService.getLocationById(id);
+		Location queryLocation = this.locationService.getLocationById(id);						// Obtenemos la localización
+		
+		
+		// Comprobamos si existe
 		
 		if (queryLocation == null) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-					new RestError(HttpStatus.NOT_FOUND, "No se ha encontrado ninguna ubicación con el id: " + id)
+					new RestError(HttpStatus.NOT_FOUND, "No se ha encontrado ninguna ubicación con el id: " + id)		// Si no existe lo indicamos
 			);
 		}
 		
 		if (location.getLatitude() == null) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-					new RestError(HttpStatus.BAD_REQUEST, "Indique la nueva latitud")
+					new RestError(HttpStatus.BAD_REQUEST, "Indique la nueva latitud")									// Comprobamos si nos han indicado la latitud
 			);
 		}
 		else if (location.getLongitude() == null) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-					new RestError(HttpStatus.BAD_REQUEST, "Indique la nueva longitud")
+					new RestError(HttpStatus.BAD_REQUEST, "Indique la nueva longitud")									// Comprobamos si nos han indicado la longitud
 			);
 		}
 		
 		return ResponseEntity.status(HttpStatus.CREATED).body(
-			this.locationService.editLocation(id, location.getLongitude(), location.getLatitude())
+			this.locationService.editLocation(id, location.getLongitude(), location.getLatitude())						// Editamos
 		);
 	}
 	
 	
+	/**
+	 * Borra la localización
+	 * @param id: Identificador
+	 * @param location: Localización
+	 */
 	@DeleteMapping("location/{id}")
-	public ResponseEntity removeLocationById(@PathVariable Integer id, @RequestBody Location location) {
+	public ResponseEntity removeLocationById(@PathVariable Integer id) {
 		
-		Location queryLocation = this.locationService.getLocationById(id);
+		Location queryLocation = this.locationService.getLocationById(id);				// Obtenemos la localización
+		
+		
+		// Comprobamos si existe
 		
 		if (queryLocation == null) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-					new RestError(HttpStatus.NOT_FOUND, "No se ha encontrado ninguna ubicación con el id: " + id)
+					new RestError(HttpStatus.NOT_FOUND, "No se ha encontrado ninguna ubicación con el id: " + id)		// Si no existe lo indicamos
 			);
 		}
-		this.locationService.removeLocation(id);
+		this.locationService.removeLocation(id);																		// Borramos
 		
 		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 	}
 	
+	/**
+	 * Crea una localización
+	 * @param location Localización
+	 */
 	@PostMapping("location")
 	public ResponseEntity editLocationById(@RequestBody Location location) {
 		
 		if (location.getLatitude() == null) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-					new RestError(HttpStatus.BAD_REQUEST, "Indique la nueva latitud")
-			);
+					new RestError(HttpStatus.BAD_REQUEST, "Indique la nueva latitud")					// Comprobamos si nos han indicado la latitud
+			);	
 		}
 		else if (location.getLongitude() == null) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-					new RestError(HttpStatus.BAD_REQUEST, "Indique la nueva longitud")
+					new RestError(HttpStatus.BAD_REQUEST, "Indique la nueva longitud")					// Comprobamos si nos han indicado la longitud
 			);
 		}
 		
 		return ResponseEntity.status(HttpStatus.CREATED).body(
 			this.locationService.saveLocation(
-					new Location(location.getLatitude(), location.getLongitude())
+					new Location(location.getLatitude(), location.getLongitude())						// Creamos y retornamos
 			)
 		);
 	}
@@ -215,75 +277,116 @@ public class AditionalsFunctionsController {
 	
 	
 	
-	
+	/**
+	 * Registra un nuevo movimiento en un centro
+	 */
 	@PostMapping("/motion")
 	public ResponseEntity registryMotion() {
-        String dni = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String dni = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();				// Obtenemos el dni del administrador
 
-        Administrator admin = administratorService.get(dni.toUpperCase());
-        UnusualMovement unusualMovement = null;
+        Administrator admin = administratorService.get(dni.toUpperCase());											// Obtenemos el administrador
+        UnusualMovement unusualMovement = null;																		// Esta variable tendra el nuevo movimiento
+        
+        // Comprobamos si es nulo
+        
         if (admin == null) {
     		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-        			new RestError(HttpStatus.NOT_FOUND, "El administrador no existe")
+        			new RestError(HttpStatus.NOT_FOUND, "El administrador no existe")								// Indicamos que es nulo
     		);
         }
         
+        // Comprobamos si tiene escuela asignada
+        
         if (admin.getSchoolSetted() != null) {
-        	unusualMovement = new UnusualMovement();
-        	unusualMovement.setDate(LocalDateTime.now());
+        	unusualMovement = new UnusualMovement();																// Creamos el movimiento
+        	unusualMovement.setDate(LocalDateTime.now());															// Le ponemos la fecha
         	
-        	unusualMovementService.saveUnusualMovement(unusualMovement);
-        	School school = admin.getSchoolSetted();
+        	unusualMovementService.saveUnusualMovement(unusualMovement);											// Guardamos el movimiento
+        	School school = admin.getSchoolSetted();																// Obtenemos la escuela
         	
-        	school.getUnusualsMovements().add(unusualMovement);
+        	school.getUnusualsMovements().add(unusualMovement);														// Añadimos el moimiento
         	
-        	schoolService.save(school);
+        	schoolService.save(school);																				// Guardamos la escuela
+        }
+        else {
+    		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+        			new RestError(HttpStatus.NOT_FOUND, "Escuela no asignada")										// Si no, indicamos que es nulo
+    		);
         }
         
 		return ResponseEntity.status(HttpStatus.CREATED).body(
-				unusualMovement
+				unusualMovement																						// Retornamos el resultado
 		);
 	}
 	
+	/**
+	 * Añade un registro de temperatura
+	 * @param regTemp: Datos del ambiente
+	 */
 	@PostMapping("/temp-humidity")
 	public ResponseEntity addTemp(@RequestBody RegTemp regTemp) {
-	      String dni = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+	      String dni = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();					// Obtenemos el dni del administrador
 
-	        Administrator admin = administratorService.get(dni.toUpperCase());
+	        Administrator admin = administratorService.get(dni.toUpperCase());											// Obtenemos el administrador
+	        
+	        // Comprobamos si existe
 	        
 	        if (admin == null) {
 	    		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-	        			new RestError(HttpStatus.NOT_FOUND, "El administrador no existe")
+	        			new RestError(HttpStatus.NOT_FOUND, "El administrador no existe")								// Si no existe lo indicamos
 	    		);
 	        }
 	        
-	        regTemp.setDate(LocalDateTime.now());
+	        regTemp.setDate(LocalDateTime.now());																		// Ponemos la fecha y hora
+	        
+	        
+	        // Comprobamos si tiene escuela asignada
 	        
 	        if (admin.getSchoolSetted() != null) {
-	        	regTemp.setId(null);
+	        	regTemp.setId(null);																					// Ponemos el id en nulo
 	        	
-	        	School school = admin.getSchoolSetted();
+	        	School school = admin.getSchoolSetted();																// Obtenemos la escuela
 	        	
-	        	RegTemp newReg = regTempService.save(regTemp, admin.getSchoolSetted().getId());
+	        	RegTemp newReg = regTempService.save(regTemp, admin.getSchoolSetted().getId());							// Guardamos el registro de temperatura si no existe o si existe ya uno con la misma hora y fecha hace la media
+	        	
+	        	
+	        	// Comprobamos si no existe un registro de temperatura con la misma fecha  
 	        	
 	        	if (!school.getTemperatureRecords().contains(newReg)) {
-	        		school.getTemperatureRecords().add(newReg);
-	        		schoolService.save(school);
+	        		school.getTemperatureRecords().add(newReg);					// Si no existe lo añadimos al centro
+	        		schoolService.save(school);									// Guardamos
 	        	}
+	        }
+	        else {
+	    		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+	        			new RestError(HttpStatus.NOT_FOUND, "Escuela no asignada")										// Si no, indicamos que es nula la escuela
+	    		);
 	        }
 	        
 			return ResponseEntity.status(HttpStatus.CREATED).body(
-					regTemp
+					regTemp																								// Retornamos el resultado
 			);
 	}
 	
+	
+	/**
+	 * Deshabilita un usuario
+	 * @param person: Datos del usuario a deshabilitar
+	 */
 	@PostMapping("/disable-user")
 	public ResponseEntity disableUser(@RequestBody PersonDTO person) {
+		
+		
+		// Comprobamos el dni
+		
 		if (person.getDni() == null || person.getDni().trim().length() < 8 || person.getDni().trim().length() > 9) {
     		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
         			new RestError(HttpStatus.BAD_REQUEST, "Especifique un dni válido")
     		);
 		}
+		
+		// Comprobamos si existe
+		
 		else if (!personService.existPerson(person.getDni())) {
     		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
         			new RestError(HttpStatus.NOT_FOUND, "Persona no encontrada")
@@ -291,23 +394,33 @@ public class AditionalsFunctionsController {
 		}
 		else {
 			try {
-				personService.disable(person.getDni());
+				personService.disable(person.getDni());																					// Lo deshabilitamos
 			}
 			catch (Exception e) {
-				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new RestError(HttpStatus.NOT_FOUND, e.getMessage()));
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new RestError(HttpStatus.NOT_FOUND, e.getMessage())); 			// En caso de error lo indicamos
 			}
 			
-			return ResponseEntity.status(HttpStatus.CREATED).build();
+			return ResponseEntity.status(HttpStatus.OK).build();																	
 		}		
 	}
 	
+	/**
+	 * Habilita un usuario
+	 * @param person: Datos de la persona a habilitar
+	 */
 	@PostMapping("/enable-user")
 	public ResponseEntity enableUser(@RequestBody PersonDTO person) {
+		
+		// Comprobamos el dni
+		
 		if (person.getDni() == null || person.getDni().trim().length() < 8 || person.getDni().trim().length() > 9) {
     		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
         			new RestError(HttpStatus.BAD_REQUEST, "Especifique un dni válido")
     		);
 		}
+		
+		// Comprobamos si existe
+		
 		else if (!personService.existPerson(person.getDni())) {
     		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
         			new RestError(HttpStatus.NOT_FOUND, "Persona no encontrada")
@@ -315,10 +428,10 @@ public class AditionalsFunctionsController {
 		}
 		else {
 			try {
-				personService.enable(person.getDni());
+				personService.enable(person.getDni());																			// Intentamos habilitarlo
 			}
 			catch (Exception e) {
-				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new RestError(HttpStatus.NOT_FOUND, e.getMessage()));
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new RestError(HttpStatus.NOT_FOUND, e.getMessage()));	// En caso de error lo indicamos	
 			}
 			return ResponseEntity.status(HttpStatus.CREATED).build();
 		}	
@@ -327,21 +440,27 @@ public class AditionalsFunctionsController {
 	/**
 	 * Permite resetear una contraseña olvidada enviando un token válido por un tiempo determinado al correo del usuario
 	 * @param resetPassword : DTO que contiene el dni del usuario
-	 * @return NO_CONTENT
 	 */
 	@PostMapping("/send-reset-password")
 	public ResponseEntity resetPassword(@RequestBody ResetPasswordDTO resetPassword) {
+		
+		// Comprobamos el dni
+		
 		if (resetPassword.getDni() == null || resetPassword.getDni().trim().length() < 8 || resetPassword.getDni().trim().length() > 9) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
 	    			new RestError(HttpStatus.BAD_REQUEST, "Indique un dni válido")
 			);
 		}
 		
+		// Comprobamos si existe
+		
 		if (!personService.existPerson(resetPassword.getDni())) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
 					new RestError(HttpStatus.NOT_FOUND, "Usuario no registrado")
 			);
 		}
+		
+		// Comprobamos si el usuario está habilitado
 		
 		if (!personService.getPerson(resetPassword.getDni()).isEnabled() ) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
@@ -351,31 +470,43 @@ public class AditionalsFunctionsController {
 						
         String newToken = jwtUtil.generateToken(resetPassword.getDni(), TypeTokenToGenerate.TOKEN_RESET_PASSWORD);					// Obtenemos su token
 
-        Person person = personService.getPerson(resetPassword.getDni());
+        Person person = personService.getPerson(resetPassword.getDni());															// Obtenemos la persona
 		
         try {
+        	
+        	// Enviamos el mensaje de recuperación
+        	
 			smtpMailSender.send(person.getEmail(), "Reestablecer contraseña", "Hola " + person.getName() + ", pulsa sobre el siguiente enlace para configurar de nuevo tu contraseña (Enlace válido sólo durante 24 horas). \n " + frontUrl + "auth/reset-my-password/" + newToken);
 		} 
         catch (MessagingException e) {
 			return ResponseEntity.status(HttpStatus.CONFLICT).body(
-	    			new RestError(HttpStatus.CONFLICT, "Error al enviar el correo")
+	    			new RestError(HttpStatus.CONFLICT, "Error al enviar el correo")													// En caso de error lo indicamos
 			);
 		}
 
-		return ResponseEntity.status(HttpStatus.CREATED).body(new EmailDTO(person.getEmail()));
+		return ResponseEntity.status(HttpStatus.CREATED).body(new EmailDTO(person.getEmail()));										// Retornamos el resultado
 	}
 	
-	
+	/**
+	 * Permite configurar una nueva contraseña
+	 * @param personData: Datos de la persona
+	 */
 	@PostMapping("/configure-new-password")
 	public ResponseEntity setPassword(@RequestBody PersonDTO personData) {
+		
+		// Comprobamos la contraseña
+		
 		if (personData.getPassword() == null || personData.getPassword().length() < 8) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
 	    			new RestError(HttpStatus.BAD_REQUEST, "Indique una nueva contraseña válida")
 			);
 		}
 		
-		String dni = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		String dni = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();							// Obtenemos la persona
 
+		
+		// Comprobamos si existe
+		
 		if (!personService.existPerson(dni)) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
 	    			new RestError(HttpStatus.NOT_FOUND, "El usuario no existe")
@@ -384,18 +515,27 @@ public class AditionalsFunctionsController {
 		
 		
 		try {
+			
+			// Establecemos la nueva contraseña
+			
 			personService.setNewPassword(dni, passwordEncoder.encode(personData.getPassword()));
+			
+			// Generamos un token
 			
             UsernamePasswordAuthenticationToken authInputToken = new UsernamePasswordAuthenticationToken(dni, personData.getPassword());		// Creamos un nuevo usuario de autenticación
 
+            // Lo autenticamos
+            
             authManager.authenticate(authInputToken);			
 
+            // Retornamos el resultado
+            
             return ResponseEntity.status(HttpStatus.CREATED).body(Collections.singletonMap("jwt_token", jwtUtil.generateToken(dni, TypeTokenToGenerate.TOKEN_USER)));			// Retornamos el resultado
 			
 		}
 		catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-	    			new RestError(HttpStatus.NOT_FOUND, "El usuario no existe")
+	    			new RestError(HttpStatus.NOT_FOUND, "El usuario no existe")										// En caso de error lo indicamos
 			);
 		}
 

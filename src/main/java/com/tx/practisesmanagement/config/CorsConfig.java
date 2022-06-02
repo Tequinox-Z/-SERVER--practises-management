@@ -9,7 +9,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
  * Configuración del CORS
- * @author Salva
+ * @author Salvador
  */
 @Configuration
 public class CorsConfig implements WebMvcConfigurer {

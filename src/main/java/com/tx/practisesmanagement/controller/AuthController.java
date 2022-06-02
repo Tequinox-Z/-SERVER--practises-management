@@ -46,7 +46,7 @@ import com.tx.practisesmanagement.service.TeacherService;
 
 /**
  * Controlador de autenticación
- * @author Salvador Pérez Agredano
+ * @author Salvador
  */
 @CrossOrigin(origins = "*")
 @RestController
@@ -82,39 +82,68 @@ public class AuthController {
 	    @PostMapping("auth/register")
 	    public ResponseEntity registerAdmin(@RequestBody PersonDTO user) {
 
+	    	// Comprobamos el dni
+	    	
 	    	if (user.getDni() == null || !user.getDni().matches("[0-9]{7,8}[A-Z a-z]")) {
 	    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
 	    				new RestError(HttpStatus.BAD_REQUEST, "Dni no válido")								// Comprobamos si el dni es válido
 	    		);			
 	    	}	
+	    	
+	    	// Comprobamos la fecha de nacimiento 
+	    	
 	    	else if (user.getBirthDate() == null || user.getBirthDate().after(new Date())) {
 	    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RestError(HttpStatus.BAD_REQUEST, "Indique una fecha de nacimiento válida"));			// Si no nos han pasado nombre lo indicamos
-	    	}	    	
+	    	}
+	    	
+	    	// Comprobamos el nombre de usuario
+	    	
 	    	else if (user.getName() == null || user.getName().trim().length() == 0) {
 	    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RestError(HttpStatus.BAD_REQUEST, "No se expecificó un nombre para este usuario"));	// Si no nos han pasado nombre lo indicamos
 	    	}	    	
+	    	
+	    	// Comprobamos los apellidos
+	    	
 	    	else if (user.getLastName() == null || user.getLastName().trim().length() == 0) {
 	    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RestError(HttpStatus.BAD_REQUEST, "No se expecificó los apellidos para este usuario"));	// Si no nos han pasado nombre lo indicamos
 	    	}
+	    	
+	    	// Comprobamos la contraseña
+	    	
 	    	else if (user.getPassword() == null || user.getPassword().trim().length() == 0) {
 	    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RestError(HttpStatus.BAD_REQUEST, "No se expecificó una contraseña"));				// Si no nos han pasado una contraseña lo indicamos
 	    	}
+	    	
+	    	// Comprobamos el correo
+	    	
 	    	else if (user.getEmail() == null || !user.getEmail().matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
 	    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RestError(HttpStatus.BAD_REQUEST, "No se expecificó un correo válido"));						// Si no nos han pasado un correo lo indicamos
 	    	}
+	    	
+	    	// Comprobamos el teléfono
+	    	
 	    	else if (user.getTelefone() == null || user.getTelefone().trim().length() == 0) {
 	    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RestError(HttpStatus.BAD_REQUEST, "No se expecificó un teléfono"));						// Si no nos han pasado un correo lo indicamos
 	    	}
+	    	
+	    	// Comprobamos la dirección
+	    	
 	    	else if (user.getAddress() == null || user.getAddress().trim().length() == 0) {
 	    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RestError(HttpStatus.BAD_REQUEST, "No se expecificó una dirección"));						// Si no nos han pasado un correo lo indicamos
 	    	}
+	    	
+	    	// Comprobamos el rol
+	    	
 	    	else if (user.getRol() == null) {
 	    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RestError(HttpStatus.BAD_REQUEST, "No se expecificó un rol para este usuario"));		// Si no nos han indicado un rol lo indicamos
 	    	}
 	   	    
-	    	user.setEnabled(true);
+	    	user.setEnabled(true);											// Lo habilitamos
 	    	
-	    	user.setDni(user.getDni().trim().toUpperCase());																												// Convertimos el DNI en mayúscula
+	    	user.setDni(user.getDni().trim().toUpperCase());				// Convertimos el dni en mayúsculas																											// Convertimos el DNI en mayúscula
+	    	
+	    	
+	    	// Comprobamos si existe ya
 	    	
 	    	if (personService.existPerson(user.getDni())) {
 	    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RestError(HttpStatus.BAD_REQUEST, "Usuario ya registrado"));							// Si el usuario está registrafo lo indicamos
@@ -122,6 +151,9 @@ public class AuthController {
 	    	
 	        String encodedPass = passwordEncoder.encode(user.getPassword());					// Codificamos la contraseña
 	        user.setPassword(encodedPass);														// Establecemos la contraseña
+	        
+	        
+	        // Configuramos el rol
 	        
 	        switch(user.getRol()) {
 	        	case ROLE_ADMIN: {
@@ -141,11 +173,16 @@ public class AuthController {
 	        		break;
 	        	}
 	        	default: {
+	        		
+	        		// En caso de no existir lo indicamos
+	        		
 		    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RestError(HttpStatus.BAD_REQUEST, "Rol desconocido o incorrecto"));
 	        	}
 	        }
 	        
 	        try {
+	        	// Enviamos un correo de bienvenida
+	        	
 				smtpMailSender.send(user.getEmail(), "Bienvenido a Practises Management", "La cuenta de correo " + user.getEmail() + " ha sido registrada satisfactoriamente en Practises Management. Puede iniciar sesión con su dni.");
 			} 
 	        catch (Exception e) {
@@ -155,7 +192,7 @@ public class AuthController {
 	        // Enviamos un correo de bienvenida 
 
 	        String token = jwtUtil.generateToken(user.getDni(), TypeTokenToGenerate.TOKEN_USER);															// Generamos el token
-    		return ResponseEntity.status(HttpStatus.CREATED).body(Collections.singletonMap("jwt_token", token));			// Retornamos el token 
+    		return ResponseEntity.status(HttpStatus.CREATED).body(Collections.singletonMap("jwt_token", token));											// Retornamos el token 
 	    }
 	    
 	    
@@ -167,18 +204,25 @@ public class AuthController {
 	    @PostMapping("auth/login")
 	    public ResponseEntity loginHandler(@RequestBody PersonDTO person){
 	        try {	
+	        	
+	        	// Comprobamos el dni
+	        	
 	        	if (person.getDni() == null || !person.getDni().matches("[0-9]{7,8}[A-Z a-z]")) {
 		    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
 		    				new RestError(HttpStatus.BAD_REQUEST, "Indique un dni válido")			// Si no nos han indicado un dni lo indicamos
 		    		);
 	        	}
+	        	
+	        	// Comprobamos la contraseña
+	        	
 	        	else if (person.getPassword() == null) {
 		    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
 		    				new RestError(HttpStatus.BAD_REQUEST, "Indique contraseña")		// Si no nos han pasado una contraseña lo indicamos 	
 		    		);
 	        	}
 	        	
-	        	person.setDni(person.getDni().toUpperCase());
+	        	
+	        	person.setDni(person.getDni().toUpperCase());								// Convertimos en mayúsculas
 	        	
 	            UsernamePasswordAuthenticationToken authInputToken = new UsernamePasswordAuthenticationToken(person.getDni(), person.getPassword());		// Creamos un nuevo usuario de autenticación
 
@@ -189,6 +233,8 @@ public class AuthController {
 	        }
 	        catch (Exception e) {
 	        	
+	        	// En caso de error lo indicamos
+	        	
 	        	HashMap<HttpStatus, String> errorGenerated = personService.getErrorLogin(person.getDni(), person.getPassword());
 	        	
 	        	HttpStatus codeHttp = errorGenerated.entrySet().iterator().next().getKey();
@@ -197,22 +243,35 @@ public class AuthController {
 	        }
 	    }
 
+	    /**
+	     * Permite iniciar sesión al dispositivo IoT
+	     * @param person: Datos del usuario
+	     */
 	    @PostMapping("/auth/login-iot")
 	    public ResponseEntity loginIoT(@RequestBody PersonDTO person){
 	        try {	
+	        	
+	        	// Comprobamos el dni
+	        	
 	        	if (person.getDni() == null || !person.getDni().matches("[0-9]{7,8}[A-Z a-z]")) {
 		    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
 		    				new RestError(HttpStatus.BAD_REQUEST, "Indique un dni válido")			// Si no nos han indicado un dni lo indicamos
 		    		);
 	        	}
+	        	
+	        	// Comprobamos la contraseña
+	        	
 	        	else if (person.getPassword() == null) {
 		    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
 		    				new RestError(HttpStatus.BAD_REQUEST, "Indique contraseña")		// Si no nos han pasado una contraseña lo indicamos 	
 		    		);
 	        	}
 	        	
-	        	person.setDni(person.getDni().toUpperCase());
+	        	person.setDni(person.getDni().toUpperCase());								// Convertimos en mayúsculas
 	        
+	        	
+	        	// Comprobamos si el usuario es un administrador
+	        	
 	        	if (personService.getPerson(person.getDni()).getRol() != Rol.ROLE_ADMIN) {
 		    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
 		    				new RestError(HttpStatus.BAD_REQUEST, "El dispositivo IoT solo puede ser utilizado por administradores")		 	
@@ -227,6 +286,9 @@ public class AuthController {
 	            return ResponseEntity.status(HttpStatus.CREATED).body(Collections.singletonMap("jwt_token", token));			// Retornamos el resultado
 	        }
 	        catch (Exception e) {
+	        	
+	        	// En caso de error, lo indicamos
+	        	
 	        	
 	        	HashMap<HttpStatus, String> errorGenerated = personService.getErrorLogin(person.getDni(), person.getPassword());
 	        	
@@ -245,11 +307,17 @@ public class AuthController {
     		return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); 				// Si estamos autorizados devolveremos un NO_CONTENT si no spring devolverá un 401
 	    }
 	    
-	    
+	    /**
+	     * Permite refrescar el token mediante un token anterior válido
+	     * @param token: Token anterior
+	     */
 	    @PostMapping("auth/refresh-token")
 	    public ResponseEntity refreshToken(@RequestBody TokenDTO token) {
 	    	
 	    	try {
+	    		
+	    		// Verificamos el token
+	    		
 		        JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secret))
 		                .withSubject("User Details")
 		                .withIssuer("Practises/Management")
@@ -258,41 +326,62 @@ public class AuthController {
 		        verifier.verify(token.getToken());
 	    	}
 	    	catch (JWTVerificationException e) {
+	    		
+	    		// En caso de no ser válido lo indicamos
+	    		
 	    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
 	    				new RestError(HttpStatus.BAD_REQUEST, "Tiempo de renovación agotado")			
 	    		);
 	    	}
 	    	catch (Exception e) {
+	    		
+	    		// En caso de que no sea válido lo indicamos
+	    		
 	    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
 	    				new RestError(HttpStatus.BAD_REQUEST, "Token no válido")			
 	    		);
 	    	}
 	    	
+	    	// Obtenemos el paiload del token
+	    	
 	    	String paiload = token.getToken().split("\\.")[1];
 	   
+	    	// Lo decodificamos
+	    	
 	    	Base64.Decoder decoder = Base64.getUrlDecoder();
+	    	
+	    	// Obtenemos el payload desencriptado
+	    	
 	    	String pailoadDesencrypted = new String(decoder.decode(paiload));
 	    	
-	    	TokenDecompressedDTO dataToken;
+	    	TokenDecompressedDTO dataToken;					// Esta variable mantendrá el token desencriptado
 	    	
 	    	try {
+	    		// Leemos los datos del token
+	    		
 	    		dataToken = new ObjectMapper().readValue(pailoadDesencrypted, TokenDecompressedDTO.class);
 				
+	    		// Verificamos el dni del token
+	    		
 				if (dataToken.getUsername() == null || dataToken.getUsername().trim().length() < 8 || dataToken.getUsername().trim().length() > 9) {
 					throw new UserErrorException("Dni incorrecto");
 				}
 			}
 	    	catch (Exception e) {
+	    		
+	    		// En caso de error lo indicamos
+	    		
 	    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
 	    				new RestError(HttpStatus.BAD_REQUEST, e.getMessage())			
 	    		);
 			} 
 
+	    	// Generamos un nuevo token
 	    	
             String newToken = jwtUtil.generateToken(dataToken.getUsername(), TypeTokenToGenerate.TOKEN_USER);					// Obtenemos su token
 	    	
     		return ResponseEntity.status(HttpStatus.CREATED).body(
-    				new RestError(HttpStatus.CREATED, newToken)			
+    				new RestError(HttpStatus.CREATED, newToken)																	// Lo retornamos			
     		);
 	    	
 	    }

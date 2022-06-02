@@ -14,8 +14,8 @@ import com.tx.practisesmanagement.dto.PersonDTO;
 import com.tx.practisesmanagement.enumerators.Rol;
 
 /**
- * Clase administrador
- * @author Salva
+ * Clase del usuario administrador
+ * @author Salvador
  */
 @Entity
 public class Administrator extends Teacher {
@@ -86,16 +86,22 @@ public class Administrator extends Teacher {
 		this.rol = Rol.ROLE_ADMIN;		// Asignamos el rol
 	}
 
+	/**
+	 * Obtiene la escuela que administra
+	 * @return: Escuela que administra
+	 */
 	public School getSchoolSetted() {
 		return schoolSetted;
 	}
 
 
+	/**
+	 * Establece una nueva escuela a administrar
+	 * @param schoolSetted: Nueva escuela
+	 */
 	public void setSchoolSetted(School schoolSetted) {
 		this.schoolSetted = schoolSetted;
 	}
-
-	
 
 	/**
 	 * Muestra información del administrador

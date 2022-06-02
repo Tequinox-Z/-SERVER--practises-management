@@ -10,38 +10,67 @@ import javax.persistence.Id;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
+
+/**
+ * Clase de movimiento inusual
+ * @author Salvador
+ */
 @Entity
 public class UnusualMovement {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Integer id;
+	private Integer id;													// Identificador
 
 	@DateTimeFormat
-	private LocalDateTime date;
+	private LocalDateTime date;											// Fecha del registro
 	
+	/**
+	 * Constructor sin parámetros
+	 */
 	public UnusualMovement() {
 		super();
 	}
 
+	/**
+	 * Constructor con parámetros
+	 * @param id Identificador
+	 * @param date Fecha
+	 */
 	public UnusualMovement(Integer id, LocalDateTime date) {
 		super();
 		this.id = id;
 		this.date = date;
 	}
 
+	/**
+	 * Obtiene el identificador
+	 * @return Identificador
+	 */
 	public Integer getId() {
 		return id;
 	}
 
+	/**
+	 * Establece el id
+	 * @param id Identificador
+	 */
 	public void setId(Integer id) {
 		this.id = id;
 	}
 
+	/**
+	 * Obtiene la fecha
+	 * @return Fecha
+	 */ 
 	public LocalDateTime getDate() {
 		return date;
 	}
 
+	/**
+	 * Establece la fecha
+	 * @param date Fecha establecida
+	 */
 	public void setDate(LocalDateTime date) {
 		this.date = date;
 	}

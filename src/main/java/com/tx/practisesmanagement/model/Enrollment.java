@@ -38,7 +38,7 @@ public class Enrollment {
 	
 	@OneToMany(mappedBy = "enrollment")
 	@JsonIgnore
-	private List<Preference> preferences;
+	private List<Preference> preferences;				// Preferencias
 	
 	@OneToOne
 	@JsonIgnore
@@ -49,6 +49,10 @@ public class Enrollment {
 	private ProfessionalDegree professionalDegree;		// Ciclo matriculado
 	
 	
+	/**
+	 * Obtiene las preferencias del alumno
+	 * @return Lista de preferencias
+	 */
 	public List<Preference> getPreferences() {
 		return preferences;
 	}
@@ -62,7 +66,7 @@ public class Enrollment {
 	
 	/**
 	 * Constructor con fecha
-	 * @param date
+	 * @param date Fecha de matriculación
 	 */
 	public Enrollment(Date date) {
 		super();

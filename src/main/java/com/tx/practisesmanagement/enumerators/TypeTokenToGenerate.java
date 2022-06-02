@@ -2,8 +2,8 @@ package com.tx.practisesmanagement.enumerators;
 
 
 /**
- * Posibles roles de los usuarios
- * @author Salva
+ * Tipos de token que se pueden generar
+ * @author Salvador
  */
 public enum TypeTokenToGenerate {
 	TOKEN_IOT,						// Tipo para el dispositivo IoT

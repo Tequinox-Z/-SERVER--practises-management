@@ -6,30 +6,53 @@ import java.util.Objects;
 
 import com.tx.practisesmanagement.model.Preference;
 
+
+/**
+ * Mantiene las nuevas posiciones de las preferencias de un alumno
+ * @author Salvador
+ */
 public class UpdatePreferencesDTO implements Serializable {
 
 	private static final long serialVersionUID = -8948275349719673447L;
-	private List<Preference> preferences;
+	private List<Preference> preferences;												// Preferencias
 
-	
+	/**
+	 * Constructor vacío
+	 */
 	public UpdatePreferencesDTO() {
 		super();
 	}
 	
 
+	/**
+	 * Constructor con parámetros
+	 * @param preferences: Lista de preferencias
+	 */
 	public UpdatePreferencesDTO(List<Preference> preferences) {
 		super();
 		this.preferences = preferences;
 	}
 
+	/**
+	 * Obtiene las preferencias
+	 * @return: Preferencias
+	 */
 	public List<Preference> getPreferences() {
 		return preferences;
 	}
 
+	/**
+	 * Establece las preferencias
+	 * @param preferences: Nuevas preferencias
+	 */
 	public void setPreferences(List<Preference> preferences) {
 		this.preferences = preferences;
 	}
 
+	/**
+	 * Obtiene el serial
+	 * @return Serial
+	 */
 	public static long getSerialversionuid() {
 		return serialVersionUID;
 	}
