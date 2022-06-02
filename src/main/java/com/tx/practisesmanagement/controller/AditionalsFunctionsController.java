@@ -2,6 +2,7 @@ package com.tx.practisesmanagement.controller;
 
 
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
@@ -31,6 +32,7 @@ import com.tx.practisesmanagement.dto.PersonDTO;
 import com.tx.practisesmanagement.dto.ResetPasswordDTO;
 import com.tx.practisesmanagement.enumerators.TypeTokenToGenerate;
 import com.tx.practisesmanagement.error.RestError;
+import com.tx.practisesmanagement.model.Administrator;
 import com.tx.practisesmanagement.model.Location;
 import com.tx.practisesmanagement.model.Person;
 import com.tx.practisesmanagement.model.RegTemp;
@@ -214,15 +216,65 @@ public class AditionalsFunctionsController {
 	
 	
 	
-	@PostMapping("/motions")
+	@PostMapping("/motion")
 	public ResponseEntity registryMotion() {
-		return ResponseEntity.status(HttpStatus.CREATED).build();
+        String dni = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        Administrator admin = administratorService.get(dni.toUpperCase());
+        UnusualMovement unusualMovement = null;
+        if (admin == null) {
+    		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+        			new RestError(HttpStatus.NOT_FOUND, "El administrador no existe")
+    		);
+        }
+        
+        if (admin.getSchoolSetted() != null) {
+        	unusualMovement = new UnusualMovement();
+        	unusualMovement.setDate(LocalDateTime.now());
+        	
+        	unusualMovementService.saveUnusualMovement(unusualMovement);
+        	School school = admin.getSchoolSetted();
+        	
+        	school.getUnusualsMovements().add(unusualMovement);
+        	
+        	schoolService.save(school);
+        }
+        
+		return ResponseEntity.status(HttpStatus.CREATED).body(
+				unusualMovement
+		);
 	}
 	
 	@PostMapping("/temp-humidity")
 	public ResponseEntity addTemp(@RequestBody RegTemp regTemp) {
-		System.out.println(regTemp);
-		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+	      String dni = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+	        Administrator admin = administratorService.get(dni.toUpperCase());
+	        
+	        if (admin == null) {
+	    		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+	        			new RestError(HttpStatus.NOT_FOUND, "El administrador no existe")
+	    		);
+	        }
+	        
+	        regTemp.setDate(LocalDateTime.now());
+	        
+	        if (admin.getSchoolSetted() != null) {
+	        	regTemp.setId(null);
+	        	
+	        	School school = admin.getSchoolSetted();
+	        	
+	        	RegTemp newReg = regTempService.save(regTemp, admin.getSchoolSetted().getId());
+	        	
+	        	if (!school.getTemperatureRecords().contains(newReg)) {
+	        		school.getTemperatureRecords().add(newReg);
+	        		schoolService.save(school);
+	        	}
+	        }
+	        
+			return ResponseEntity.status(HttpStatus.CREATED).body(
+					regTemp
+			);
 	}
 	
 	@PostMapping("/disable-user")
@@ -349,25 +401,6 @@ public class AditionalsFunctionsController {
 
 	}
 
-	
-	@DeleteMapping("testingdel/{id}")
-	public ResponseEntity asdasd(@PathVariable Integer id) {
-		unusualMovementService.removeUnusualMovement(id);
-		return ResponseEntity.status(HttpStatus.OK).build();
-	}
-	
-	@PostMapping("testingsave")
-	public ResponseEntity asdasd(@RequestBody RegTemp regTemp) {
-		
-		System.out.println(this.regTempService.save(regTemp, 12));
-		
-		return ResponseEntity.status(HttpStatus.OK).build();
-	}
-	
-	@GetMapping("example")
-	public ResponseEntity get() {
-		return ResponseEntity.status(HttpStatus.OK).body(this.administratorService.getCountFromSchool(1) + " - " + teacherService.getCountTeacherFromSchool(1));
-	}
-	
+
 	
 }

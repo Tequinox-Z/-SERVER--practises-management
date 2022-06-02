@@ -22,7 +22,7 @@ public class PersonDTO implements Serializable {
 	
 	private String dni;												// DNI del usuario
 	
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
 	private  Date  birthDate;										// Fecha del usuario
 	private String name;											// Nombre del usuario
 	private String lastName;										// Apellidos del usuario

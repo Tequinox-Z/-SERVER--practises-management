@@ -40,9 +40,7 @@ public class EnrollmentService {
 	
 	public boolean existEnrollment(Integer enrollmentDate, ProfessionalDegree degree, Student currentStudent) {
 		boolean exist = false;
-		
-		System.out.println(enrollmentDate);
-		
+				
 		if (enrollmentRepository.existEnrollment(enrollmentDate, degree, currentStudent) != null) {
 			exist = true;
 		}
@@ -90,23 +88,30 @@ public class EnrollmentService {
 	 * @param enrollment: Matrícula a borrar
 	 */
 	public void delete(Enrollment enrollment) {
-		enrollment.setStudent(null);								// Establecemos el estudiante a nulo
-		enrollment.setProfessionalDegree(null);						// Establecemos el ciclo a nulo
+		Enrollment enrollmentUpdate = enrollment;
 		
-		for (Preference currentPreference : enrollment.getPreferences()) {
+//		enrollment.setStudent(null);								// Establecemos el estudiante a nulo
+//		enrollment.setProfessionalDegree(null);						// Establecemos el ciclo a nulo
+		
+		for (Preference currentPreference : enrollmentUpdate.getPreferences()) {
 			preferenceService.removePreference(currentPreference.getId());
 		}
+										// Guardamos la matrícula
 		
-		this.save(enrollment);										// Guardamos la matrícula
-		
-		if (enrollment.getPractise() != null) {
-			Integer practiseID = enrollment.getPractise().getId();		// Obtenemos el id de la practica			
-			enrollment.setPractise(null);								// Establecemos la practica a nulo
-			this.save(enrollment);										// Guardamos la matrícula
+		if (enrollmentUpdate.getPractise() != null) {
+			
+			enrollmentUpdate = get(enrollmentUpdate.getId());
+			
+			Integer practiseID = enrollmentUpdate.getPractise().getId();		// Obtenemos el id de la practica			
+			enrollmentUpdate.setPractise(null);								// Establecemos la practica a nulo
+			
+			enrollmentUpdate.getPreferences().clear();
+			
+			this.save(enrollmentUpdate);										// Guardamos la matrícula
 			practiseService.remove(practiseID);
 		}
 				
-		enrollmentRepository.deleteById(enrollment.getId());
+		enrollmentRepository.deleteById(enrollmentUpdate.getId());
 	}
 	
 	

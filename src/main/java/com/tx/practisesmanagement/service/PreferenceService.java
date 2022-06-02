@@ -24,11 +24,11 @@ public class PreferenceService {
 	
 	public void removePreference(Integer id) {
 		Preference currentPreference = get(id);
-		
-		currentPreference.setBusiness(null);
-		currentPreference.setEnrollment(null);
-		
-		preferenceRepository.save(currentPreference);
+//		
+//		currentPreference.setBusiness(null);
+//		currentPreference.setEnrollment(null);
+//		
+//		preferenceRepository.save(currentPreference);
 		
 		preferenceRepository.delete(currentPreference);
 	}

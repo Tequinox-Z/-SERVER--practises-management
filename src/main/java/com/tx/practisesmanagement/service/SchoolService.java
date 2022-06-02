@@ -174,11 +174,13 @@ public class SchoolService {
 		School currentSchool = get(idSchool);
 		
 		Location location = currentSchool.getLocation();
-		currentSchool.setLocation(null);
-		
-		save(currentSchool);
-		
-		locationService.removeLocation(location.getId());
+		if (location != null) {
+			currentSchool.setLocation(null);
+			
+			save(currentSchool);
+			
+			locationService.removeLocation(location.getId());
+		}
 	}
 	
 	/**

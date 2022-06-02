@@ -13,8 +13,6 @@ import com.tx.practisesmanagement.repository.RegTempRepository;
 public class RegTempService {
 
 	@Autowired RegTempRepository regTempRepository;
-	
-	
 	/**
 	 * Guarda el registro de temperatura para posteriormente ser asignado al centro
 	 * @param newRegTemp
@@ -26,7 +24,7 @@ public class RegTempService {
 		LocalDateTime currentTime = LocalDateTime.now();
 		RegTemp currentRegTemp = regTempRepository.getByDayAndHour(currentTime.getDayOfMonth(), currentTime.getMonthValue(), currentTime.getYear(), currentTime.getHour(), idSchool);
 				
-		if (currentRegTemp == null) { 
+		if (currentRegTemp == null) {
 			return this.regTempRepository.save(newRegTemp);
 		}
 		else {

@@ -7,6 +7,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.tx.practisesmanagement.model.Business;
 import com.tx.practisesmanagement.model.Enrollment;
 import com.tx.practisesmanagement.model.ProfessionalDegree;
 import com.tx.practisesmanagement.model.School;
@@ -27,6 +28,7 @@ public class ProfessionalDegreeService {
 	// Servicios
 		@Autowired TeacherService teacherService;
 		@Autowired EnrollmentService enrollmentService;
+		@Autowired BusinessService businessService;
 	/**
 	 * Guarda un ciclo
 	 * @param professionalDegree: Ciclo a guardar
@@ -58,6 +60,13 @@ public class ProfessionalDegreeService {
 		ProfessionalDegree professionalDegree = this.get(idDegree);						// Obtiene el ciclo
 		
 		professionalDegree.setSchool(null);												// Establece el colegio a nulo
+
+		for (Business currentBusiness: professionalDegree.getBusinesses()) {
+			currentBusiness.getDegrees().remove(professionalDegree);
+			businessService.save(currentBusiness);
+		}
+		
+		professionalDegreeRepository.save(professionalDegree);							// Guarda el ciclo
 		
 		for (Enrollment currentEnrollment : professionalDegree.getEnrollments()) {
 			currentEnrollment.setProfessionalDegree(null);								// Por cada matrícula establece el ciclo a nulo
@@ -69,9 +78,7 @@ public class ProfessionalDegreeService {
 			teacher.getProfessionalDegrees().remove(professionalDegree);
 			teacherService.save(teacher);
 		}
-
 		
-		professionalDegreeRepository.save(professionalDegree);							// Guarda el ciclo
 		professionalDegreeRepository.delete(professionalDegree);						// Borra el ciclo
 	}
 	

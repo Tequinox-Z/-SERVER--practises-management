@@ -25,7 +25,7 @@ public class SmtpMailSender {
 	 */
 	public void send(String to, String subject, String body) throws MessagingException {
 	        SimpleMailMessage message = new SimpleMailMessage(); 			// Creamos un mensage simple
-	        message.setFrom("practises.management.server@gmail.com"); 		// Asignamos el remitente
+	        message.setFrom("practisesmanagement@outlook.es"); 				// Asignamos el remitente
 	        message.setTo(to); 												// Asignamos el destinatario
 	        message.setSubject(subject); 									// Asignamos el sujeto
 	        message.setText(body);											// Pasamos el cuerpo

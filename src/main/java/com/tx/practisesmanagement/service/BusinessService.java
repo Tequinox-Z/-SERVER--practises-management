@@ -3,6 +3,7 @@ package com.tx.practisesmanagement.service;
 
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -29,7 +30,6 @@ public class BusinessService {
 		@Autowired private BusinessRepository businessRepository;
 		@Autowired private LocationService locationService;
 		@Autowired private ContactWorkerService contactWorkerService;
-		@Autowired private ProfessionalDegreeService professionalDegreeService;
 		@Autowired private LaborTutorService laborTutorService;
 		@Autowired private PractiseService practiseService;
 		
@@ -133,5 +133,9 @@ public class BusinessService {
 		}
 		
 		businessRepository.delete(business);
+	}
+	
+	public Integer getCountofStudentInBusinessInThisYear(Business business) {
+		return this.businessRepository.getCountOfStudentInBusinessAndYear(business, Calendar.getInstance().get(Calendar.YEAR));
 	}
 }

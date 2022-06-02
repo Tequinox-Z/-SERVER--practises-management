@@ -52,10 +52,10 @@ public class PractisesManagement22Application extends SpringBootServletInitializ
 	@Bean
 	public JavaMailSender getJavaMailSender() {
 	    JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-	    mailSender.setHost("smtp.gmail.com");
+	    mailSender.setHost("smtp.office365.com");
 	    mailSender.setPort(587);
 	    
-	    mailSender.setUsername("practises.management.server@gmail.com");
+	    mailSender.setUsername("practisesmanagement@outlook.es");
 	    mailSender.setPassword("Rtqbt8rnbgmf5");
 	    
 	    Properties props = mailSender.getJavaMailProperties();

@@ -33,6 +33,7 @@ import com.tx.practisesmanagement.enumerators.Rol;
 import com.tx.practisesmanagement.error.RestError;
 import com.tx.practisesmanagement.model.Administrator;
 import com.tx.practisesmanagement.model.Business;
+import com.tx.practisesmanagement.model.ContactWorker;
 import com.tx.practisesmanagement.model.Enrollment;
 import com.tx.practisesmanagement.model.LaborTutor;
 import com.tx.practisesmanagement.model.Location;
@@ -391,6 +392,217 @@ public class AppController {
 	}
 
 
+	/* ============================================= Tutor laboral ======================================== */
+	
+	@GetMapping("labor-tutor")
+	public ResponseEntity getTutors() {
+		List<LaborTutor> tutors = laborTutorService.getAll();						// Obtenemos los administradores
+		
+		return ResponseEntity.status(HttpStatus.OK).body(
+				tutors																	// Retornamos el resultado
+		);
+	}
+
+	/**
+	 * Permite obtener un tutor mediante su dni
+	 * @return Tutot solicitado
+	 */
+	@GetMapping("labor-tutor/{dni}")
+	public ResponseEntity getLaborTutor(@PathVariable String dni) {
+		
+		dni = dni.toUpperCase();
+		
+		LaborTutor laborTutor = laborTutorService.getById(dni);							// Obtenemos el administrador
+
+		if (laborTutor == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "El tutor no existe")			//  Si no existe lo indicamos
+			);
+		}
+		else {
+			return ResponseEntity.status(HttpStatus.OK).body(
+					laborTutor																// Retornamos el administrador
+			);
+		}
+	}
+
+
+	/**
+	 * Permite editar un tutor
+	 * @return Administrador editado
+	 */
+	@PutMapping("labor-tutor/{dni}")
+	public ResponseEntity updateTUtor(@RequestBody PersonDTO tutor, @PathVariable String dni) {
+		
+		dni = dni.toUpperCase();
+		
+		LaborTutor currentTutor = laborTutorService.getById(dni);												// Obtenemos el administrador
+		
+		if (currentTutor == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+				new RestError(HttpStatus.NOT_FOUND, "La persona no existe o no es un administrador")					// Si no existe lo indicamos
+			);
+		}
+
+    	else if (tutor.getBirthDate() == null || tutor.getBirthDate().after(new Date())) {
+    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RestError(HttpStatus.BAD_REQUEST, "Indique una fecha de nacimiento válida"));			// Si no nos han pasado nombre lo indicamos
+    	}	    	
+    	else if (tutor.getName() == null || tutor.getName().trim().length() == 0) {
+    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RestError(HttpStatus.BAD_REQUEST, "Indique nombre"));	// Si no nos han pasado nombre lo indicamos
+    	}	    	
+    	else if (tutor.getLastName() == null || tutor.getLastName().trim().length() == 0) {
+    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RestError(HttpStatus.BAD_REQUEST, "Indique apellidos"));	// Si no nos han pasado nombre lo indicamos
+    	}
+    	else if (tutor.getEmail() == null || !tutor.getEmail().matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RestError(HttpStatus.BAD_REQUEST, "Indique un correo válido"));						// Si no nos han pasado un correo lo indicamos
+    	}
+    	else if (tutor.getTelefone() == null || tutor.getTelefone().trim().length() == 0) {
+    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RestError(HttpStatus.BAD_REQUEST, "No se expecificó un teléfono"));						// Si no nos han pasado un correo lo indicamos
+    	}
+    	else if (tutor.getAddress() == null || tutor.getAddress().trim().length() == 0) {
+    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RestError(HttpStatus.BAD_REQUEST, "No se expecificó una dirección"));						// Si no nos han pasado un correo lo indicamos
+    	}
+		
+		return ResponseEntity.status(HttpStatus.OK).body(
+				laborTutorService.updateLaborTutor(currentTutor.getDni(), tutor)							// Actualizamos el administrador y devolvemos el resultado
+		);
+	}
+	
+	/**
+	 * Permite borrar un administrador
+	 * @return Administrador borrado
+	 */
+	@DeleteMapping("labor-tutor/{dni}")
+	public ResponseEntity deleteLaborTutor(@PathVariable String dni) {
+		dni = dni.toUpperCase();
+		
+		if (laborTutorService.getById(dni) == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+				new RestError(HttpStatus.NOT_FOUND, "La persona a borrar no existe o no es un tutor")		// Si no existe lo indicamos
+			);
+		}
+		
+		laborTutorService.remove(dni);																// Borramos el tutor
+		
+		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();												// Devolvemos el código de estado
+	}
+	
+	
+	/* Segundo nivel */
+	
+	
+	@GetMapping("labor-tutor/{dni}/practise")
+	public ResponseEntity getPractisesFromLaborTutor(@PathVariable String dni) {
+		
+		dni = dni.toUpperCase();
+		
+		LaborTutor laborTutor = laborTutorService.getById(dni);							// Obtenemos el administrador
+
+		if (laborTutor == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "El tutor no existe")			//  Si no existe lo indicamos
+			);
+		}
+		else {
+			return ResponseEntity.status(HttpStatus.OK).body(
+					laborTutor.getPractises()
+			);
+		}
+	}
+
+	
+	@GetMapping("labor-tutor/{dni}/business")
+	public ResponseEntity getBusinessFromLaborTutor(@PathVariable String dni) {
+		
+		dni = dni.toUpperCase();
+		
+		LaborTutor laborTutor = laborTutorService.getById(dni);							// Obtenemos el administrador
+
+		if (laborTutor == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "El tutor no existe")			//  Si no existe lo indicamos
+			);
+		}
+		else if (laborTutor.getBusiness() == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "Empresa no establecida")			//  Si no existe lo indicamos
+			);
+		}
+		else {
+			return ResponseEntity.status(HttpStatus.OK).body(
+					laborTutor.getBusiness()
+			);
+		}
+	}
+	
+	@PostMapping("labor-tutor/{dni}/business")
+	public ResponseEntity setBusinessFromLaborTutor(@PathVariable String dni, @RequestBody Business business) {
+		
+		dni = dni.toUpperCase();
+		
+		LaborTutor laborTutor = laborTutorService.getById(dni);							// Obtenemos el administrador
+
+		if (laborTutor == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "El tutor no existe")			//  Si no existe lo indicamos
+			);
+		}
+		else if (laborTutor.getBusiness() != null) {
+			return ResponseEntity.status(HttpStatus.CONFLICT).body(
+					new RestError(HttpStatus.CONFLICT, "Empresa ya establecida")			//  Si no existe lo indicamos
+			);
+		}
+		else if (business.getCif() == null || business.getCif().trim().length() == 0) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+					new RestError(HttpStatus.BAD_REQUEST, "Indique el cif de la empresa")			//  Si no existe lo indicamos
+			);
+		}
+		
+		Business businessDB = businessService.get(business.getCif());
+		
+		if (businessDB == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "La empresa no existe")			//  Si no existe lo indicamos
+			);
+		}
+		
+		laborTutor.setBusiness(businessDB);
+		laborTutorService.save(laborTutor);
+		
+		
+		return ResponseEntity.status(HttpStatus.CREATED).body(
+				businessDB
+		);
+	}
+	
+	
+	@DeleteMapping("labor-tutor/{dni}/business")
+	public ResponseEntity quitBusinessFromLaborTutor(@PathVariable String dni) {
+		
+		dni = dni.toUpperCase();
+		
+		LaborTutor laborTutor = laborTutorService.getById(dni);							// Obtenemos el administrador
+
+		if (laborTutor == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "El tutor no existe")			//  Si no existe lo indicamos
+			);
+		}
+		else if (laborTutor.getBusiness() == null) {
+			return ResponseEntity.status(HttpStatus.CONFLICT).body(
+					new RestError(HttpStatus.CONFLICT, "Empresa no establecida")			//  Si no existe lo indicamos
+			);
+		}
+		
+		laborTutor.setBusiness(null);
+		laborTutorService.save(laborTutor);
+		
+		
+		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+	}
+	
+	
+	
 	/* ============================================= Profesor =============================================  */
 
 	/* Primer nivel */
@@ -539,7 +751,95 @@ public class AppController {
 			currentTeacher.getPractises()														// Obtenemos los ciclos y lo devolvemos
 		);
 	}
+	
+	
+	/* ===============================================  Estudiante  =============================================  */
 
+	@GetMapping("student")
+	public ResponseEntity getStudents() {
+		List<Student> students = studentService.getAll();													// Obtenemos los profesores
+
+		return ResponseEntity.status(HttpStatus.OK).body(
+			students																				// Si hay retornamos los mismos
+		);
+	}
+
+	/**
+	 * Permite obtener un estudiante por dni
+	 * @return Estudiante solicitado
+	 */
+	@GetMapping("student/{dni}")
+	public ResponseEntity getStudent(@PathVariable String dni) {
+		dni = dni.toUpperCase();
+		Student student = studentService.get(dni);															// Buscamos el profesor
+
+		if (student == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "El estudiante no existe")							// Si no existe lo indicamos
+			);
+		}
+		else {
+			return ResponseEntity.status(HttpStatus.OK).body(
+					student																					// Si existe lo retornamos
+			);
+		}
+	}
+	
+	
+	@GetMapping("student/{dni}/enrollment")
+	public ResponseEntity getEnrollmentsFromStudent(@PathVariable String dni) {
+		dni = dni.toUpperCase();
+		Student student = studentService.get(dni);															// Buscamos el profesor
+
+		if (student == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "El estudiante no existe")							// Si no existe lo indicamos
+			);
+		}
+		else {
+			return ResponseEntity.status(HttpStatus.OK).body(
+					student.getEnrollments()																			// Si existe lo retornamos
+			);
+		}
+	}
+	
+	@PutMapping("student/{dni}")
+	public ResponseEntity updateStudent(@RequestBody PersonDTO student, @PathVariable String dni) {
+		
+		dni = dni.toUpperCase();
+		
+		Student currentStudent = studentService.get(dni);												// Obtenemos el administrador
+		
+		if (currentStudent == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+				new RestError(HttpStatus.NOT_FOUND, "La persona no existe o no es un administrador")					// Si no existe lo indicamos
+			);
+		}
+
+    	else if (student.getBirthDate() == null || student.getBirthDate().after(new Date())) {
+    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RestError(HttpStatus.BAD_REQUEST, "Indique una fecha de nacimiento válida"));			// Si no nos han pasado nombre lo indicamos
+    	}	    	
+    	else if (student.getName() == null || student.getName().trim().length() == 0) {
+    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RestError(HttpStatus.BAD_REQUEST, "Indique nombre"));	// Si no nos han pasado nombre lo indicamos
+    	}	    	
+    	else if (student.getLastName() == null || student.getLastName().trim().length() == 0) {
+    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RestError(HttpStatus.BAD_REQUEST, "Indique apellidos"));	// Si no nos han pasado nombre lo indicamos
+    	}
+    	else if (student.getEmail() == null || !student.getEmail().matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RestError(HttpStatus.BAD_REQUEST, "Indique un correo válido"));						// Si no nos han pasado un correo lo indicamos
+    	}
+    	else if (student.getTelefone() == null || student.getTelefone().trim().length() == 0) {
+    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RestError(HttpStatus.BAD_REQUEST, "No se expecificó un teléfono"));						// Si no nos han pasado un correo lo indicamos
+    	}
+    	else if (student.getAddress() == null || student.getAddress().trim().length() == 0) {
+    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RestError(HttpStatus.BAD_REQUEST, "No se expecificó una dirección"));						// Si no nos han pasado un correo lo indicamos
+    	}
+		
+		return ResponseEntity.status(HttpStatus.OK).body(
+				studentService.updateStudent(currentStudent, student)							// Actualizamos el administrador y devolvemos el resultado
+		);
+	}
+	
 
 	/* ===============================================  Escuela  =============================================  */
 
@@ -1923,6 +2223,7 @@ public class AppController {
 			);
 		}
 		
+		
 		return ResponseEntity.status(HttpStatus.OK).body(
 				practise.getBusiness()
 		);
@@ -1945,13 +2246,15 @@ public class AppController {
 		}
 		else if (business.getCif() == null || business.getCif().trim().length() == 0) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-					new RestError(HttpStatus.BAD_REQUEST, "Indique un dni válido")									// Si no existe lo indicamos
+					new RestError(HttpStatus.BAD_REQUEST, "Indique un cif válido")									// Si no existe lo indicamos
 			);
 		}
 
 		business.setCif(business.getCif().toUpperCase());
 		
 		Business businessDB = businessService.get(business.getCif());
+		
+		
 		
 		if (businessDB == null) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
@@ -1961,6 +2264,11 @@ public class AppController {
 		else if (practise.getEnrollment() != null && practise.getEnrollment().getProfessionalDegree() != null && !practise.getEnrollment().getProfessionalDegree().getBusinesses().contains(businessDB)) {
 			return ResponseEntity.status(HttpStatus.CONFLICT).body(
 					new RestError(HttpStatus.CONFLICT, "Esta empresa no está disponible para el ciclo que cursa")									// Si no existe lo indicamos
+			);
+		}
+		else if(businessService.getCountofStudentInBusinessInThisYear(businessDB) >= businessDB.getNumberOfStudents()) {
+			return ResponseEntity.status(HttpStatus.CONFLICT).body(
+					new RestError(HttpStatus.CONFLICT, "Esta empresa no admite más alumnos en este año")									// Si no existe lo indicamos
 			);
 		}
 		
@@ -2260,6 +2568,8 @@ public class AppController {
 		}
 	}
 	
+	// ================================================= Trabajador de contacto =================================================
+
 	
 	@GetMapping("business/{cif}/contact-worker")
 	public ResponseEntity getContactWorkersFromBusiness(@PathVariable String cif) {
@@ -2277,6 +2587,148 @@ public class AppController {
 			);
 		}
 	}
+	
+	@GetMapping("business/{cif}/contact-worker/{idContact}")
+	public ResponseEntity getContactWorkerFromBusiness(@PathVariable String cif, @PathVariable Integer idContact) {
+
+		Business business = businessService.get(cif.toUpperCase());									// Obtenemos la empresa
+
+		if (business == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "No existe esta empresa")					// Si no existe la empresa lo indicamos
+			);
+		}
+		
+		ContactWorker contact = contactWorkerService.getById(idContact);
+		
+		if (contact == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "El contacto no existe")					// Si no existe la empresa lo indicamos
+			);
+		}
+		else {
+			return ResponseEntity.status(HttpStatus.OK).body(
+					contact
+			);
+		}
+	}
+	
+	@PostMapping("business/{cif}/contact-worker")
+	public ResponseEntity addContactWorkersFromBusiness(@PathVariable String cif, @RequestBody ContactWorker contactWorker) {
+
+		Business business = businessService.get(cif.toUpperCase());									// Obtenemos la empresa
+
+		if (business == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "No existe esta empresa")					// Si no existe la empresa lo indicamos
+			);
+		}
+		else if (contactWorker.getName() == null || contactWorker.getName().trim().length() == 0) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+					new RestError(HttpStatus.BAD_REQUEST, "Indique un nombre")					// Si no existe la empresa lo indicamos
+			);
+		}		
+		else if (contactWorker.getEmail() == null || contactWorker.getEmail().trim().length() == 0 || !contactWorker.getEmail().matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+					new RestError(HttpStatus.BAD_REQUEST, "Indique un email")					// Si no existe la empresa lo indicamos
+			);
+		}
+		else if (contactWorker.getTelefone() == null || contactWorker.getTelefone().trim().length() == 0) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+					new RestError(HttpStatus.BAD_REQUEST, "Indique un teléfono")					// Si no existe la empresa lo indicamos
+			);
+		}
+		
+		contactWorker.setId(null);
+
+		ContactWorker newContact = contactWorkerService.save(contactWorker);
+		business.getContactWorkers().add(newContact);
+		
+		businessService.save(business);
+		
+		return ResponseEntity.status(HttpStatus.CREATED).body(
+				newContact
+		);
+	}
+	
+	@PutMapping("business/{cif}/contact-worker/{idContact}")
+	public ResponseEntity editContactWorkersFromBusiness(@PathVariable String cif, @PathVariable Integer idContact, @RequestBody ContactWorker contactWorker) {
+
+		Business business = businessService.get(cif.toUpperCase());									// Obtenemos la empresa
+
+		if (business == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "No existe esta empresa")					// Si no existe la empresa lo indicamos
+			);
+		}
+		else if (contactWorker.getName() == null || contactWorker.getName().trim().length() == 0) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+					new RestError(HttpStatus.BAD_REQUEST, "Indique un nombre")					// Si no existe la empresa lo indicamos
+			);
+		}		
+		else if (contactWorker.getEmail() == null || contactWorker.getEmail().trim().length() == 0 || !contactWorker.getEmail().matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+					new RestError(HttpStatus.BAD_REQUEST, "Indique un email")					// Si no existe la empresa lo indicamos
+			);
+		}
+		else if (contactWorker.getTelefone() == null || contactWorker.getTelefone().trim().length() == 0) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+					new RestError(HttpStatus.BAD_REQUEST, "Indique un teléfono")					// Si no existe la empresa lo indicamos
+			);
+		}
+		
+		ContactWorker contact = contactWorkerService.getById(idContact);
+		
+		if (contact == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "El contacto no existe")					
+			);
+		}
+		
+		contactWorker.setId(idContact);
+		
+		return ResponseEntity.status(HttpStatus.OK).body(
+				contactWorkerService.edit(contactWorker)
+		);
+	}
+	
+	
+	
+	
+	@DeleteMapping("business/{cif}/contact-worker/{idContact}")
+	public ResponseEntity addContactWorkersFromBusiness(@PathVariable String cif, @PathVariable Integer idContact) {
+
+		Business business = businessService.get(cif.toUpperCase());									// Obtenemos la empresa
+
+		if (business == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "No existe esta empresa")					// Si no existe la empresa lo indicamos
+			);
+		}
+		ContactWorker currentContact = contactWorkerService.getById(idContact);
+		
+		if (currentContact == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "No existe este contacto")					// Si no existe la empresa lo indicamos
+			);
+		}
+		else if (!business.getContactWorkers().contains(currentContact)) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+					new RestError(HttpStatus.BAD_REQUEST, "El contacto no pertenece a esta empresa")					// Si no existe la empresa lo indicamos
+			);
+		}
+
+		business.getContactWorkers().remove(business.getContactWorkers().indexOf(currentContact));
+		businessService.save(business);
+		
+		contactWorkerService.remove(idContact);
+		
+		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+	}
+	
+	
+	
+	// ================================================= Ubicación =================================================
 	
 	@GetMapping("business/{cif}/ubication")
 	public ResponseEntity getUbicationFromBusiness(@PathVariable String cif) {
@@ -2336,6 +2788,38 @@ public class AppController {
 		);
 	}
 	
+	@PutMapping("business/{cif}/ubication")
+	public ResponseEntity editUbicationToBusiness(@PathVariable String cif, @RequestBody Location location) {
+
+		Business business = businessService.get(cif.toUpperCase());									// Obtenemos la empresa
+
+		if (business == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "No existe esta empresa")		// Si no existe la empresa lo indicamos
+			);
+		}
+		else if (business.getLocation() == null) { 
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "Ubicación no establecida")		// Si no existe la empresa lo indicamos
+			);
+		}
+		else if (location.getLatitude() == null || location.getLatitude() == 0) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+					new RestError(HttpStatus.BAD_REQUEST, "Indique latitud")		// Si no existe la empresa lo indicamos
+			);			
+		}
+		else if (location.getLongitude() == null || location.getLongitude() == 0) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+					new RestError(HttpStatus.BAD_REQUEST, "Indique longitud")		// Si no existe la empresa lo indicamos
+			);			
+		}
+		
+			
+		return ResponseEntity.status(HttpStatus.OK).body(
+				locationService.editLocation(business.getLocation().getId(), location.getLongitude(), location.getLatitude())
+		);
+	}
+	
 	
 	@DeleteMapping("business/{cif}/ubication")
 	public ResponseEntity removeUbicationToBusiness(@PathVariable String cif) {
@@ -2360,7 +2844,6 @@ public class AppController {
 		businessService.save(business);
 		
 		locationService.removeLocation(locationToRemove.getId());
-		
 			
 		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 	}
