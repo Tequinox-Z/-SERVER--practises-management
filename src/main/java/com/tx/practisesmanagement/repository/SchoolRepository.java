@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import com.tx.practisesmanagement.model.Location;
 import com.tx.practisesmanagement.model.School;
 
 
@@ -26,4 +27,7 @@ public interface SchoolRepository extends JpaRepository<School, Integer>{
 	@Query("SELECT s FROM School s WHERE UPPER(s.name) LIKE %?1%")
 	List<School> findAllByName(String name);
 	
+	
+	@Query("SELECT s FROM School s WHERE s.location = ?1")
+	School getByLocation(Location location);
 }

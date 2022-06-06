@@ -1,6 +1,9 @@
 package com.tx.practisesmanagement.repository;
 
+import com.tx.practisesmanagement.model.Location;
 
+
+import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -31,4 +34,11 @@ public interface BusinessRepository extends JpaRepository<Business, String>{
 	 */
 	@Query(value = "SELECT COUNT(b) From Business b")
 	public Integer getCount();
+	
+	
+	@Query(value = "SELECT b FROM Business b WHERE UPPER(b.name) LIKE %?1%")
+	public List<Business> getAllByName(String name);
+	
+	@Query(value = "SELECT b FROM Business b WHERE b.location = ?1")
+	public Business getByLocation(Location location);
 }

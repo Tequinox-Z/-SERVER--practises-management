@@ -268,5 +268,9 @@ public class SchoolService {
 		
 		return professionalDegreeService.saveProfessionalDegree(professionalDegreeToAdd);
 	}
+	
+	public School getSchoolByLocation(Location location) {
+		return this.schoolRepository.getByLocation(location);
+	}
 		
 }

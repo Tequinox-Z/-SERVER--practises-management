@@ -85,6 +85,11 @@ public class BusinessService {
 		return businessRepository.save(business);
 	}
 	
+	
+	public Business getByLocation(Location location) {
+		return businessRepository.getByLocation(location);
+	}
+	
 	/**
 	 * Comprueba si existe una empresa
 	 * @param business: Empresa a comprobar
@@ -92,6 +97,11 @@ public class BusinessService {
 	 */
 	public boolean exist(Business business) {
 		return businessRepository.existsById(business.getCif());
+	}
+	
+	public List<Business> getAllByName(String name) {
+		
+		return businessRepository.getAllByName(name.toUpperCase());
 	}
 	
 	/**

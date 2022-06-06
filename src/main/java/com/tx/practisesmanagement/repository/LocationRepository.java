@@ -23,6 +23,9 @@ public interface LocationRepository extends JpaRepository<Location, Integer> {
 	@Query(value = "SELECT l FROM Location l, Business b WHERE b.location.id = l.id")
 	List<Location> getAllLocationBusineses();
 	
+	@Query(value = "SELECT l FROM Location l, Business b WHERE b.location.id = l.id AND UPPER(b.name) like %?1%")
+	List<Location> getAllLocationByName(String name);
+	
 	/**
 	 * Obtiene la localización de todos los centros
 	 * @return Lista de localización de centros

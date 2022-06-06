@@ -307,6 +307,8 @@ public class AppController {
 			);
 		}
 
+		currentAdministrator.getSchoolSetted().setPassword("");
+		
 		return ResponseEntity.status(HttpStatus.OK).body(currentAdministrator.getSchoolSetted());							// Devolvemos la escuela
 	}
 	
@@ -865,6 +867,10 @@ public class AppController {
 		}
 		else {
 			schools = schoolService.getAll();
+			
+			for (School school : schools) {
+				school.setPassword("");
+			}
 		}
 		
 		return ResponseEntity.status(HttpStatus.OK).body(schools);						// Retornamos los centros 
@@ -884,6 +890,7 @@ public class AppController {
 			);
 		}
 		else {
+			school.setPassword("");
 			return ResponseEntity.status(HttpStatus.OK).body(school);							// Si existe lo retornamos
 		}
 	}
@@ -926,7 +933,7 @@ public class AppController {
 					new RestError(HttpStatus.BAD_REQUEST, "Indique hora de cierre")					// Si no nos indican el nombre lo avisamos
 			);
 		}
-		else if (school.getOpeningTime().isAfter(school.getClosingTime())) {
+		else if (school.getOpeningTime().after(school.getClosingTime())) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
 					new RestError(HttpStatus.BAD_REQUEST, "Horario no válido")					// Si no nos indican el nombre lo avisamos
 			);
@@ -980,7 +987,7 @@ public class AppController {
 					new RestError(HttpStatus.BAD_REQUEST, "Indique hora de cierre")					// Si no nos indican el nombre lo avisamos
 			);
 		}
-		else if (school.getOpeningTime().isAfter(school.getClosingTime())) {
+		else if (school.getOpeningTime().after(school.getClosingTime())) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
 					new RestError(HttpStatus.BAD_REQUEST, "Horario no válido")					// Si no nos indican el nombre lo avisamos
 			);
@@ -2403,9 +2410,16 @@ public class AppController {
 	 * @return Listado de empresas
 	 */
 	@GetMapping("business")
-	public ResponseEntity getAllBusiness() {
-		List<Business> allBusiness = businessService.getAll();											// Obtenemos todas las empresas
+	public ResponseEntity getAllBusiness(@RequestParam(required = false) String name) {
+		List<Business> allBusiness;											// Obtenemos todas las empresas
 
+		if (name != null) {
+			allBusiness = businessService.getAllByName(name);
+		}
+		else {
+			allBusiness = businessService.getAll();
+		}
+		
 		return ResponseEntity.status(HttpStatus.OK).body(
 				allBusiness 																		// Si hay las retornamos
 		);

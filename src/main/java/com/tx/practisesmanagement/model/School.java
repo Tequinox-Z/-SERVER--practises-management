@@ -1,8 +1,6 @@
 package com.tx.practisesmanagement.model;
 
-
-
-import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -13,8 +11,11 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.format.annotation.DateTimeFormat.ISO;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -34,13 +35,13 @@ public class School {
 	private String image;									// Imagen
 	private String password;								// Contraseña
 	
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
-	@DateTimeFormat
-	private LocalDateTime openingTime;						// Hora de apertura
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date openingTime;						// Hora de apertura
 	
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
-	@DateTimeFormat
-	private LocalDateTime closingTime;						// Hora de cierre
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date closingTime;						// Hora de cierre
 	
 	@JsonIgnore
 	@OneToOne
@@ -97,8 +98,8 @@ public class School {
 	 * @param professionalDegrees Ciclos
 	 * @param administrators Administradores
 	 */
-	public School(Integer id, String name, String address, String image, String password, LocalDateTime openingTime,
-			LocalDateTime closingTime, Location location, List<RegTemp> temperatureRecords,
+	public School(Integer id, String name, String address, String image, String password, Date openingTime,
+			Date closingTime, Location location, List<RegTemp> temperatureRecords,
 			List<UnusualMovement> unusualsMovements, List<ProfessionalDegree> professionalDegrees,
 			List<Administrator> administrators) {
 		super();
@@ -130,8 +131,8 @@ public class School {
 	 * @param professionalDegrees Ciclos
 	 * @param administrators Administradores
 	 */
-	public School(String name, String address, String image, String password, LocalDateTime openingTime,
-			LocalDateTime closingTime, Location location, List<RegTemp> temperatureRecords,
+	public School(String name, String address, String image, String password, Date openingTime,
+			Date closingTime, Location location, List<RegTemp> temperatureRecords,
 			List<UnusualMovement> unusualsMovements, List<ProfessionalDegree> professionalDegrees,
 			List<Administrator> administrators) {
 		super();
@@ -239,7 +240,7 @@ public class School {
 	 * Obtiene la hora de apertura
 	 * @return Hora de apertura
 	 */
-	public LocalDateTime getOpeningTime() {
+	public Date getOpeningTime() {
 		return openingTime;
 	}
 
@@ -247,7 +248,7 @@ public class School {
 	 * Establece la hora de apertura
 	 * @param openingTime Nueva hora de apertura
 	 */
-	public void setOpeningTime(LocalDateTime openingTime) {
+	public void setOpeningTime(Date openingTime) {
 		this.openingTime = openingTime;
 	}
 
@@ -255,7 +256,7 @@ public class School {
 	 * Obtiene la hora de cierre
 	 * @return Hora de cierre
 	 */
-	public LocalDateTime getClosingTime() {
+	public Date getClosingTime() {
 		return closingTime;
 	}
 
@@ -263,7 +264,7 @@ public class School {
 	 * Establece la hora de cierrre
 	 * @param closingTime Hora de cierre
 	 */
-	public void setClosingTime(LocalDateTime closingTime) {
+	public void setClosingTime(Date closingTime) {
 		this.closingTime = closingTime;
 	}
 

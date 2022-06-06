@@ -3,6 +3,7 @@ package com.tx.practisesmanagement.controller;
 
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -24,16 +25,20 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tx.practisesmanagement.component.SmtpMailSender;
 import com.tx.practisesmanagement.dto.BriefingDTO;
 import com.tx.practisesmanagement.dto.EmailDTO;
+import com.tx.practisesmanagement.dto.LocationAndBusinessDTO;
+import com.tx.practisesmanagement.dto.LocationAndSchoolDTO;
 import com.tx.practisesmanagement.dto.PersonDTO;
 import com.tx.practisesmanagement.dto.ResetPasswordDTO;
 import com.tx.practisesmanagement.enumerators.TypeTokenToGenerate;
 import com.tx.practisesmanagement.error.RestError;
 import com.tx.practisesmanagement.model.Administrator;
+import com.tx.practisesmanagement.model.Business;
 import com.tx.practisesmanagement.model.Location;
 import com.tx.practisesmanagement.model.Person;
 import com.tx.practisesmanagement.model.RegTemp;
@@ -119,7 +124,7 @@ public class AditionalsFunctionsController {
 	 * @param minLongitude Longitud mínima
 	 */
 	@GetMapping("location/schools")
-	public ResponseEntity<List<Location>> getLocationsOfSchools(@QueryParam("maxLatitude") Double maxLatitude, @QueryParam("minLatitude") Double minLatitude, @QueryParam("maxLongitude") Double maxLongitude, @QueryParam("minLongitude") Double minLongitude) {
+	public ResponseEntity getLocationsOfSchools(@QueryParam("maxLatitude") Double maxLatitude, @QueryParam("minLatitude") Double minLatitude, @QueryParam("maxLongitude") Double maxLongitude, @QueryParam("minLongitude") Double minLongitude) {
 		
 		List<Location> locations;										// Esta variable tendrá las localizaciones
 		
@@ -132,8 +137,28 @@ public class AditionalsFunctionsController {
 			locations = locationService.getAllShoolsLocations();																		// Buscamos las localizaciones
 		}
 		
+		List<LocationAndSchoolDTO> locationsData = new ArrayList<>();
+		
+		
+		for (Location currentLocation: locations) {			
+			School school = schoolService.getSchoolByLocation(currentLocation);
+			
+			if (school != null) {
+				LocationAndSchoolDTO newLocation = new LocationAndSchoolDTO();
+				
+				newLocation.setLatitude(currentLocation.getLatitude());
+				newLocation.setLongitude(currentLocation.getLongitude());
+				
+				newLocation.setId(school.getId());
+				
+				newLocation.setName(school.getName());
+				locationsData.add(newLocation);
+			}
+		}
+		
+		
 		return ResponseEntity.status(HttpStatus.OK).body(
-			locations																				// Retornamos el resultado
+				locationsData																				// Retornamos el resultado
 		);
 
 	}
@@ -146,22 +171,41 @@ public class AditionalsFunctionsController {
 	 * @return
 	 */
 	@GetMapping("location/business")
-	public ResponseEntity<List<Location>> getLocationsOfBusiness(@QueryParam("maxLatitude") Double maxLatitude, @QueryParam("minLatitude") Double minLatitude, @QueryParam("maxLongitude") Double maxLongitude, @QueryParam("minLongitude") Double minLongitude) {
+	public ResponseEntity getLocationsOfBusiness(@RequestParam(required = false) String name, @QueryParam("maxLatitude") Double maxLatitude, @QueryParam("minLatitude") Double minLatitude, @QueryParam("maxLongitude") Double maxLongitude, @QueryParam("minLongitude") Double minLongitude) {
 		
 		List<Location> locations;												// Esta variable almacenará las distinas localizaciones
-		
+		List<LocationAndBusinessDTO> businessDTO = new ArrayList<>();
 		
 		// Si nos han pasado un cuadrado de localizaciones...
 		
-		if (maxLongitude != null && minLongitude != null && maxLatitude != null && minLatitude != null) {
-			locations = locationService.getAllBusinessLocationsByLocation(maxLatitude, minLatitude, maxLongitude, minLongitude); 	// Buscamos las localizaciones
+		if (name != null) {
+			locations = locationService.getAllBusinessLocationsAndName(name);
 		}
 		else {
 			locations = locationService.getAllBusinessLocations();																	// Buscamos las localizaciones
 		}
 		
+		
+		for (Location currentLocation: locations) {			
+			Business business = businessService.getByLocation(currentLocation);
+			
+
+			if (business != null) {
+				LocationAndBusinessDTO locationB = new LocationAndBusinessDTO();
+				
+				locationB.setLatitude(currentLocation.getLatitude());
+				locationB.setLongitude(currentLocation.getLongitude());
+				locationB.setCif(business.getCif());
+				locationB.setImage(business.getImage());
+				locationB.setName(business.getName());
+				locationB.setNumberOfStudents(business.getNumberOfStudents());
+				
+				businessDTO.add(locationB);
+			}
+		}
+		
 		return ResponseEntity.status(HttpStatus.OK).body(
-			locations																				// Retornamos las localizaciones
+				businessDTO																				// Retornamos las localizaciones
 		);
 
 	}

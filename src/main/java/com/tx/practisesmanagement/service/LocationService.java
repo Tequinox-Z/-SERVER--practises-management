@@ -18,6 +18,14 @@ public class LocationService {
 		return this.locationRepository.save(newLocation);
 	}
 	
+	public List<Location> getAllBusinessLocationsAndName(String name) {
+		return this.locationRepository.getAllLocationByName(name.toUpperCase());
+	}
+	
+	public List<Location> getAllBusinessLocations() {
+		return this.locationRepository.getAllLocationBusineses();
+	}
+	
 	public Location getLocationById(Integer id) {
 		return this.locationRepository.findById(id).orElse(null);
 	}
@@ -33,9 +41,7 @@ public class LocationService {
 		return this.locationRepository.getAllLocationSchools();
 	}
 	
-	public List<Location> getAllBusinessLocations() {
-		return this.locationRepository.getAllLocationBusineses();
-	}
+
 	
 	public void removeLocation(Integer id) {
 		this.locationRepository.deleteById(id);

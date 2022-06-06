@@ -24,17 +24,17 @@ import com.tx.practisesmanagement.service.PersonService;
 
 
 /**
- * JWT Filtro
- * @author Salva
+ * Filtro JWT, establece por cada rol a que rutas tiene acceso
+ * @author Salvador
  */
 @Component
 public class JWTFilter extends OncePerRequestFilter {
 	
-	// Servicio
+	// ============================================ Servicios ============================================
 	
     	@Autowired private MyUserDetailsService userDetailsService; 
     	
-    // Utiles
+    // ============================================= Útiles ============================================
     	
     	@Autowired private JWTUtil jwtUtil;
 

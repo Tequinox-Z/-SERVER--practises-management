@@ -15,7 +15,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.tx.practisesmanagement.enumerators.TypeTokenToGenerate;
 
 /**
- * JWT Util
+ * JWT Util, otorga las funciones de generación de token y validación del mismo
  * @author Salva
  */
 @Component
@@ -35,10 +35,10 @@ public class JWTUtil {
     
     /**
      * Genera el token
-     * @param username: Usuario
-     * @return
-     * @throws IllegalArgumentException
-     * @throws JWTCreationException
+     * @param username: Dni del usuario
+     * @return Token generado
+     * @throws IllegalArgumentException Argumentos inválidos
+     * @throws JWTCreationException Error al crear token
      */
     public String generateToken(String username, TypeTokenToGenerate type) throws IllegalArgumentException, JWTCreationException {
       	
@@ -62,6 +62,7 @@ public class JWTUtil {
     	Calendar date = Calendar.getInstance();
     	Calendar expirationDate = Calendar.getInstance();
     	expirationDate.add(Calendar.MINUTE, minutesToAdd);
+    	
     	// Asignamos datos
     	
         return JWT.create()

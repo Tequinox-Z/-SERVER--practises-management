@@ -19,7 +19,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 /**
  * Clase de configuración de seguridad JWT
- * @author Salva
+ * @author Salvador
  */
 @Configuration
 @EnableWebSecurity
@@ -42,7 +42,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 		"/auth/login", "/send-reset-password", "/", "/auth/login-iot"
                 ).permitAll()
                 
-                
    // Sólo lectura
                 
                 .antMatchers(
@@ -56,15 +55,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 )
                 .hasAnyRole("ADMIN", "TEACHER", "STUDENT", "LABOR_TUTOR")
                 
-                
-   // Acceso sólo para el administrador
-                
-                
+   // Acceso sólo para el administrador  
                 
                 .antMatchers(
                 		"/administrator", "/administrator/**", "/auth/register", "/temp-humidity", "/motions", "/disable-user", "/enable-user"
                 ).hasAnyRole("ADMIN")
-                
                 
    // Acceso para cualquier usuario registrado
                 
