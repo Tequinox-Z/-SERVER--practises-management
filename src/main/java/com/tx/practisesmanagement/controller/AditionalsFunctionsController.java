@@ -64,7 +64,7 @@ import com.tx.practisesmanagement.service.UnusualMovementService;
  * @author Salvador
  */
 @RestController
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = {"https://tequinox-z.github.io/", "http://localhost:4200"})
 public class AditionalsFunctionsController {
 	
 	// Servicios

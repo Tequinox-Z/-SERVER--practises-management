@@ -48,7 +48,7 @@ import com.tx.practisesmanagement.service.TeacherService;
  * Controlador de autenticación
  * @author Salvador
  */
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = {"https://tequinox-z.github.io/", "http://localhost:4200"})
 @RestController
 public class AuthController {
 	
