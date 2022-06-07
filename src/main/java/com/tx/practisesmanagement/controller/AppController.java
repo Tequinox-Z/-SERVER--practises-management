@@ -65,7 +65,7 @@ import com.tx.practisesmanagement.service.UnusualMovementService;
  * Controlador de los recursos de Practises Management
  * @author Salva
  */
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = {"https://tequinox-z.github.io/"})
 @RestController
 public class AppController {
 
