@@ -31,11 +31,11 @@ public class Practise {
 	private Integer id;									// Identificador de la práctica
 	
 	@Temporal(TemporalType.TIMESTAMP)
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
+//	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
 	private Date start;									// Fecha de inicio
 	
 	@Temporal(TemporalType.TIMESTAMP)
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
+//	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
 	private Date finish;								// Fecha de fin
 		
 	@OneToOne(mappedBy = "practise", fetch = FetchType.EAGER)
