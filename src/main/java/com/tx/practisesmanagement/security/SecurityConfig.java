@@ -64,11 +64,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
    // Acceso para cualquier usuario registrado
                 
                 .antMatchers(
-                		"/auth/checktoken", "/student/**", "/enrollment/**", "/business/**", "/exist-person/**", "/person/**", "/configure-new-password"
+                		"/auth/checktoken", "/student/**", "/enrollment/**", "/business/**", "/exist-person/**", "/person/**", "/configure-new-password", "/school/**"
                 ).hasAnyRole("ADMIN", "TEACHER", "STUDENT", "LABOR_TUTOR")
                 
-                
-
                 
    // Acceso sólo para profesor y administrador
                 

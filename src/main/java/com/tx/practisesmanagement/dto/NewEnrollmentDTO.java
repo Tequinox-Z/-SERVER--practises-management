@@ -19,7 +19,7 @@ public class NewEnrollmentDTO implements Serializable {
 
 	private static final long serialVersionUID = -9147305346693669322L;
 
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
+//	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
 	@Temporal(TemporalType.DATE)
 	private Date date;									// Fecha de matriculación
 	private String dniStudent;							// Dni del estudiante

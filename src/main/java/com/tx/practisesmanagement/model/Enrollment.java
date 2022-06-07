@@ -28,12 +28,11 @@ public class Enrollment {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer id;									// Identificador de la matricula
 	
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
+//	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
 	@Temporal(TemporalType.DATE)
 	private Date date;									// Fecha de matriculación
 	
 	@ManyToOne
-	@JsonIgnore
 	private Student student;							// Estudiante 
 	
 	@OneToMany(mappedBy = "enrollment")
@@ -45,7 +44,6 @@ public class Enrollment {
 	private Practise practise;							// Práctica
 	
 	@ManyToOne
-	@JsonIgnore
 	private ProfessionalDegree professionalDegree;		// Ciclo matriculado
 	
 	

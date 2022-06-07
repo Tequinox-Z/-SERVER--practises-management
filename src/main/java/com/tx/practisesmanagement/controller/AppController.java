@@ -1370,6 +1370,53 @@ public class AppController {
 		);
 	}
 	
+	@PutMapping("school/{idSchool}/degree/{idDegree}")
+	public ResponseEntity editDegree(@PathVariable Integer idSchool, @RequestBody ProfessionalDegree degree, @PathVariable Integer idDegree) {
+		School currentSchool = schoolService.get(idSchool);
+		
+		if (currentSchool == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "Centro no encontrado")									// Si no existe lo indicamos
+			);
+		}
+		
+		ProfessionalDegree pf = professionalDegreeService.get(idDegree);
+		
+		if (pf == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "Ciclo no encontrado")									// Si no existe lo indicamos
+			);
+		}
+		
+		if (degree.getName() == null) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+					new RestError(HttpStatus.BAD_REQUEST, "Indique un nombre")									// Si no existe lo indicamos
+			);
+		}
+		else if (degree.getYear() == null) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+					new RestError(HttpStatus.BAD_REQUEST, "Indique un año")										// Si no existe lo indicamos
+			);
+		}
+		else if (degree.getImage() == null) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+					new RestError(HttpStatus.BAD_REQUEST, "Indique la imagen del ciclo")						// Si no existe lo indicamos
+			);
+		}
+		
+		degree.setId(null);		
+		
+		pf.setName(degree.getName());
+		pf.setImage(degree.getImage());
+		pf.setYear(degree.getYear());
+		
+		return ResponseEntity.status(HttpStatus.OK).body(
+				professionalDegreeService.saveProfessionalDegree(pf)
+		);
+	}
+	
+	
+	
 	@DeleteMapping("school/{idSchool}/degree/{idDegree}")
 	public ResponseEntity removeDegree(@PathVariable Integer idSchool, @PathVariable Integer idDegree) {
 		School currentSchool = schoolService.get(idSchool);
@@ -1503,8 +1550,8 @@ public class AppController {
 		);
 	}
 	
-	@DeleteMapping("degree/{idDegree}/teacher")
-	public ResponseEntity quitTeacherFromDegree(@PathVariable Integer idDegree, @RequestBody Teacher teacher) {
+	@DeleteMapping("degree/{idDegree}/teacher/{idTeacher}")
+	public ResponseEntity quitTeacherFromDegree(@PathVariable Integer idDegree, @PathVariable String idTeacher) {
 		ProfessionalDegree professionalDegree = professionalDegreeService.get(idDegree);
 		
 		if (professionalDegree == null) {
@@ -1512,15 +1559,13 @@ public class AppController {
 				new RestError(HttpStatus.NOT_FOUND, "El ciclo no existe")									// Si no existe lo indicamos
 			);
 		}
-		else if (teacher.getDni() == null) {
+		else if (idTeacher == null) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
 				new RestError(HttpStatus.BAD_REQUEST, "Indique dni del profesor")		
 			);
 		}
-		
-		teacher.setDni(teacher.getDni().toUpperCase());
-		
-		Teacher teacherDB = teacherService.get(teacher.getDni());
+
+		Teacher teacherDB = teacherService.get(idTeacher.toUpperCase());
 		
 		if (teacherDB == null) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(

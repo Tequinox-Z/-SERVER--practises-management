@@ -1,6 +1,7 @@
 package com.tx.practisesmanagement.controller;
 
 
+import com.tx.practisesmanagement.model.ProfessionalDegree;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -10,6 +11,7 @@ import java.util.List;
 import javax.mail.MessagingException;
 import javax.ws.rs.QueryParam;
 
+import org.bouncycastle.asn1.isismtt.x509.ProfessionInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -35,6 +37,7 @@ import com.tx.practisesmanagement.dto.LocationAndBusinessDTO;
 import com.tx.practisesmanagement.dto.LocationAndSchoolDTO;
 import com.tx.practisesmanagement.dto.PersonDTO;
 import com.tx.practisesmanagement.dto.ResetPasswordDTO;
+import com.tx.practisesmanagement.dto.YearsDTO;
 import com.tx.practisesmanagement.enumerators.TypeTokenToGenerate;
 import com.tx.practisesmanagement.error.RestError;
 import com.tx.practisesmanagement.model.Administrator;
@@ -162,6 +165,34 @@ public class AditionalsFunctionsController {
 		);
 
 	}
+	
+	
+	@GetMapping("school/{idSchool}/degree-years")
+	public ResponseEntity getDegree(@PathVariable Integer idSchool) {
+		School currentSchool = schoolService.get(idSchool);
+		
+		if (currentSchool == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "Centro no encontrado")									// Si no existe lo indicamos
+			);
+		}
+		
+		YearsDTO years = new YearsDTO();
+		
+		for (ProfessionalDegree pf : schoolService.getAllProfessionalDegrees(idSchool)) {
+			if (!years.getYears().contains(pf.getYear())) {
+				years.getYears().add(pf.getYear());
+			}
+		}
+		
+		return ResponseEntity.status(HttpStatus.OK).body(
+			years
+		);			
+				
+	}
+	
+	
+	
 	/**
 	 * Obtiene las localizaciones de las empresas
 	 * @param maxLatitude Latitud máxima
