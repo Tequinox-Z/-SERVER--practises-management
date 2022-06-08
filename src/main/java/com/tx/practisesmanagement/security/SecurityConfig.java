@@ -64,16 +64,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
    // Acceso para cualquier usuario registrado
                 
                 .antMatchers(
-                		HttpMethod.POST, "/auth/checktoken", "/student/**", "/enrollment/**", "/business/**", "/exist-person/**", "/person/**", "/configure-new-password", "/school/**"
+                		HttpMethod.POST, "/temp-humidity", "/motion", "/auth/checktoken", "/student/**", "/enrollment/**", "/business/**", "/exist-person/**", "/person/**", "/configure-new-password", "/school/**"
                 ).hasAnyRole("ADMIN", "TEACHER", "STUDENT", "LABOR_TUTOR")
                 .antMatchers(
-                		HttpMethod.PUT, "/auth/checktoken", "/student/**", "/enrollment/**", "/business/**", "/exist-person/**", "/person/**", "/configure-new-password", "/school/**"
+                		HttpMethod.PUT, "/temp-humidity", "/motion", "/auth/checktoken", "/student/**", "/enrollment/**", "/business/**", "/exist-person/**", "/person/**", "/configure-new-password", "/school/**"
                 ).hasAnyRole("ADMIN", "TEACHER", "STUDENT", "LABOR_TUTOR")
                 .antMatchers(
-                		 HttpMethod.DELETE, "/auth/checktoken", "/student/**", "/enrollment/**", "/business/**", "/exist-person/**", "/person/**", "/configure-new-password", "/school/**"
+                		 HttpMethod.DELETE, "/temp-humidity", "/motion", "/auth/checktoken", "/student/**", "/enrollment/**", "/business/**", "/exist-person/**", "/person/**", "/configure-new-password", "/school/**"
                 ).hasAnyRole("ADMIN", "TEACHER", "STUDENT", "LABOR_TUTOR")
                 .antMatchers(
-                		HttpMethod.GET, "/auth/checktoken", "/student/**", "/enrollment/**", "/business/**", "/exist-person/**", "/person/**", "/configure-new-password", "/school/**"
+                		HttpMethod.GET, "/temp-humidity", "/motion", "/auth/checktoken", "/student/**", "/enrollment/**", "/business/**", "/exist-person/**", "/person/**", "/configure-new-password", "/school/**"
                 ).hasAnyRole("ADMIN", "TEACHER", "STUDENT", "LABOR_TUTOR")
                 
                 
@@ -81,7 +81,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
    // Acceso sólo para profesor y administrador
                 
                 .antMatchers(
-                		"/teacher/**", "/school/**"
+                		"/teacher/**", "/school/**", "/temp-humidity", "/motion"
                 ).hasAnyRole("ADMIN","TEACHER")
                 
                 .and()
