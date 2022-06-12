@@ -48,7 +48,7 @@ import com.tx.practisesmanagement.service.TeacherService;
  * Controlador de autenticación
  * @author Salvador
  */
-@CrossOrigin(origins = {"https://tequinox-z.github.io/", "http://localhost:4200"})
+@CrossOrigin(origins = {"https://tequinox-z.github.io/", "http://localhost:4200", "http://localhost:43205"})
 @RestController
 public class AuthController {
 	
@@ -137,8 +137,15 @@ public class AuthController {
 	    	else if (user.getRol() == null) {
 	    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RestError(HttpStatus.BAD_REQUEST, "No se expecificó un rol para este usuario"));		// Si no nos han indicado un rol lo indicamos
 	    	}
+	    	
+	    	if (user.getRol() == Rol.ROLE_LABOR_TUTOR || user.getRol() == Rol.ROLE_STUDENT) {
+	    		user.setEnabled(false);	
+	    	}
+	    	else {
+	    		user.setEnabled(true);	
+	    	}
 	   	    
-	    	user.setEnabled(true);											// Lo habilitamos
+	    											// Lo habilitamos
 	    	
 	    	user.setDni(user.getDni().trim().toUpperCase());				// Convertimos el dni en mayúsculas																											// Convertimos el DNI en mayúscula
 	    	

@@ -2,6 +2,8 @@ package com.tx.practisesmanagement.repository;
 
 
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -23,7 +25,9 @@ public interface TeacherRepository extends JpaRepository<Teacher, String> {
 	 */
 	@Query("SELECT COUNT(DISTINCT tt) FROM ProfessionalDegree pf JOIN pf.teachers tt WHERE pf.school.id = ?1")                 
 	Integer countTeachersFromSchool(Integer id);
-
+	
+	@Query("SELECT t FROM Teacher t WHERE UPPER(t.name) LIKE %?1% OR UPPER(t.dni) LIKE %?1%")
+	List<Teacher> getAllTeacherByName(String name);
 }
 
 

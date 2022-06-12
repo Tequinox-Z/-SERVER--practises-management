@@ -21,7 +21,7 @@ import com.tx.practisesmanagement.model.File;
 import com.tx.practisesmanagement.service.FileService;
 
 @RestController
-@CrossOrigin(origins = {"https://tequinox-z.github.io/", "http://localhost:4200"})
+@CrossOrigin(origins = {"https://tequinox-z.github.io/", "http://localhost:4200", "http://localhost:43205"})
 public class FileController {
 	
 	@Autowired

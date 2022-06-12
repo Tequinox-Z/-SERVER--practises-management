@@ -40,7 +40,6 @@ public class Enrollment {
 	private List<Preference> preferences;				// Preferencias
 	
 	@OneToOne
-	@JsonIgnore
 	private Practise practise;							// Práctica
 	
 	@ManyToOne

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import com.tx.practisesmanagement.dto.PersonDTO;
 import com.tx.practisesmanagement.model.Enrollment;
 import com.tx.practisesmanagement.model.Student;
+import com.tx.practisesmanagement.model.Teacher;
 import com.tx.practisesmanagement.repository.StudentRepository;
 
 
@@ -37,6 +38,10 @@ public class StudentService {
 	
 	public Integer getCountFromSchool(Integer idSchool) {
 		return this.studentRepository.getCountFromSchool(idSchool);
+	}
+	
+	public List<Student> getAllByName(String name) {
+		return studentRepository.getAllStudentByName(name.toUpperCase());
 	}
 	
 	/**

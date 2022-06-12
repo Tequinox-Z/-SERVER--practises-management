@@ -42,6 +42,15 @@ public class TeacherService {
 	}
 	
 	/**
+	 * Obtiene todos los profesores por nombre o dni
+	 * @param name Nombre o dni
+	 * @return
+	 */
+	public List<Teacher> getAllByName(String name) {
+		return teacherRepository.getAllTeacherByName(name.toUpperCase());
+	}
+	
+	/**
 	 * Actualiza un profesor
 	 * @param teacher: Profesor
 	 * @param personData: Datos nuevos

@@ -9,6 +9,7 @@ import com.tx.practisesmanagement.dto.PersonDTO;
 import com.tx.practisesmanagement.model.Administrator;
 import com.tx.practisesmanagement.model.LaborTutor;
 import com.tx.practisesmanagement.model.Practise;
+import com.tx.practisesmanagement.model.Teacher;
 import com.tx.practisesmanagement.repository.LaborTutorRepository;
 
 @Service
@@ -29,11 +30,12 @@ public class LaborTutorService {
 		return laborTutorRepository.findAll();
 	}
 	
+	
+	public List<LaborTutor> getAllByName(String name) {
+		return laborTutorRepository.getAllTutorByName(name.toUpperCase());
+	}
+	
 	public void remove(String dni) {
-
-//		if (laborTutor.getBusiness().getTutors().size() == 1) {
-		//			Esto al controlador			
-//		}
 
 		LaborTutor laborTutor = getById(dni);
 		laborTutor.setBusiness(null);

@@ -1,17 +1,17 @@
 package com.tx.practisesmanagement.controller;
 
 
-import com.tx.practisesmanagement.model.ProfessionalDegree;
-
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import javax.mail.MessagingException;
 import javax.ws.rs.QueryParam;
 
-import org.bouncycastle.asn1.isismtt.x509.ProfessionInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -44,6 +44,7 @@ import com.tx.practisesmanagement.model.Administrator;
 import com.tx.practisesmanagement.model.Business;
 import com.tx.practisesmanagement.model.Location;
 import com.tx.practisesmanagement.model.Person;
+import com.tx.practisesmanagement.model.ProfessionalDegree;
 import com.tx.practisesmanagement.model.RegTemp;
 import com.tx.practisesmanagement.model.School;
 import com.tx.practisesmanagement.model.UnusualMovement;
@@ -64,7 +65,7 @@ import com.tx.practisesmanagement.service.UnusualMovementService;
  * @author Salvador
  */
 @RestController
-@CrossOrigin(origins = {"https://tequinox-z.github.io/", "http://localhost:4200"})
+@CrossOrigin(origins = {"https://tequinox-z.github.io/", "http://localhost:4200", "http://localhost:43205"})
 public class AditionalsFunctionsController {
 	
 	// Servicios
@@ -373,6 +374,38 @@ public class AditionalsFunctionsController {
         // Comprobamos si tiene escuela asignada
         
         if (admin.getSchoolSetted() != null) {
+        	
+        
+        	// Comprobamos is es nulo
+        	
+        	if (admin.getSchoolSetted().getOpeningTime() == null || admin.getSchoolSetted().getClosingTime() == null) {
+        		return ResponseEntity.status(HttpStatus.CONFLICT).body(
+            			new RestError(HttpStatus.CONFLICT, "Asigne hora de apertura y cierre")										
+        		);
+        	}
+        	
+        	
+        	// Obtenemos la fecha actual
+        	
+        	LocalTime newTime = LocalTime.now();
+        	
+        	
+        	/*  Convertimos las fechas a tiempo */
+        	
+        	LocalTime openTime = LocalDateTime.ofInstant(admin.getSchoolSetted().getOpeningTime().toInstant(), ZoneId.systemDefault()).toLocalTime();
+        	LocalTime closeTime = LocalDateTime.ofInstant(admin.getSchoolSetted().getClosingTime().toInstant(), ZoneId.systemDefault()).toLocalTime();
+        	
+        	// Comprobamos si está en el horario del colegio
+
+        	if (newTime.isAfter(openTime) && newTime.isBefore(closeTime)) {
+            	return ResponseEntity.status(HttpStatus.CONFLICT).body(
+                    	new RestError(HttpStatus.CONFLICT, "Escuela abierta aún")										
+                );
+        	}
+        	
+        	
+        	// Si no está creamos un movimiento
+        	
         	unusualMovement = new UnusualMovement();																// Creamos el movimiento
         	unusualMovement.setDate(LocalDateTime.now());															// Le ponemos la fecha
         	
