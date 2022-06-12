@@ -5,12 +5,12 @@ package com.tx.practisesmanagement.service;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.tx.practisesmanagement.dto.PersonDTO;
 import com.tx.practisesmanagement.model.Enrollment;
 import com.tx.practisesmanagement.model.Student;
-import com.tx.practisesmanagement.model.Teacher;
 import com.tx.practisesmanagement.repository.StudentRepository;
 
 
@@ -27,6 +27,7 @@ public class StudentService {
 	// Servicio
 		@Autowired private EnrollmentService enrollmentService;
 	
+
 	/**
 	 * Guarda un estudiante
 	 * @param student: Estudiante a guardar
@@ -73,7 +74,12 @@ public class StudentService {
 		
 		student.setAddress(personData.getAddress());
 		student.setBirthDate(personData.getBirthDate());
-		student.setImage(personData.getImage());
+		
+		
+		if (personData.getImage() != null) {
+			student.setImage(personData.getImage());
+		}
+		
 		student.setLastName(personData.getLastName());
 		student.setName(personData.getName());
 		student.setPassword(personData.getPassword());
@@ -97,7 +103,6 @@ public class StudentService {
 			enrollmentService.delete(currentEnrollment);					// Por cada matrícula que tenga la eliminamos
 		}
 		
-		studentRepository.save(student);									// Guardamos el estudiante 
 		studentRepository.delete(student);									// Borramos el estudiante
 	}
 	

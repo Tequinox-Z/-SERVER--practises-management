@@ -111,7 +111,9 @@ public class EnrollmentService {
 			practiseService.remove(practiseID);
 		}
 				
-		enrollmentRepository.deleteById(enrollmentUpdate.getId());
+		if (enrollmentRepository.findById(enrollmentUpdate.getId()).orElse(null) != null) {
+			enrollmentRepository.deleteById(enrollmentUpdate.getId());
+		}
 	}
 	
 	

@@ -3,6 +3,7 @@ package com.tx.practisesmanagement.service;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.tx.practisesmanagement.dto.PersonDTO;
@@ -17,6 +18,7 @@ public class LaborTutorService {
 
 	@Autowired LaborTutorRepository laborTutorRepository;
 	@Autowired PractiseService practisesService;
+	
 	
 	public LaborTutor save(LaborTutor laborTutor) {
 		return laborTutorRepository.save(laborTutor);
@@ -53,6 +55,7 @@ public class LaborTutorService {
 		LaborTutor tutor = getById(dni);
 		
 		// Actualizamos los datos
+		
 		
 		if (personData.getBirthDate() != null) {
 			tutor.setBirthDate(personData.getBirthDate());

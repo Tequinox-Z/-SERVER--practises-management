@@ -137,6 +137,14 @@ public class AppController {
     			new PersonDTO(student)																		// Si existe lo retornamos
     		);
         }
+        
+        LaborTutor tutor = laborTutorService.getById(dni);															// Si no existe lo buscamos en tutores
+
+        if (tutor != null) {
+    		return ResponseEntity.status(HttpStatus.OK).body(
+    			new PersonDTO(tutor)																		// Si existe lo retornamos
+    		);
+        }
 
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
 			new RestError(HttpStatus.NOT_FOUND, "Persona no encontrada")									// Si el usuario no existe, lanzamos error
@@ -168,6 +176,14 @@ public class AppController {
         if (student != null) {
     		return ResponseEntity.status(HttpStatus.OK).body(
     			new PersonDTO(student)																		// Si existe lo retornamos
+    		);
+        }
+        
+        LaborTutor tutor = laborTutorService.getById(dni);															// Si no existe lo buscamos en tutores
+
+        if (tutor != null) {
+    		return ResponseEntity.status(HttpStatus.OK).body(
+    			new PersonDTO(tutor)																		// Si existe lo retornamos
     		);
         }
 
@@ -299,6 +315,10 @@ public class AppController {
     	else if (administrator.getAddress() == null || administrator.getAddress().trim().length() == 0) {
     		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RestError(HttpStatus.BAD_REQUEST, "No se expecificó una dirección"));						// Si no nos han pasado un correo lo indicamos
     	}
+		
+		if (administrator.getPassword() != null) {
+			currentAdministrator.setPassword(passwordEncoder.encode(administrator.getPassword()));
+		}
 		
 		return ResponseEntity.status(HttpStatus.OK).body(
 				administratorService.updateAdministrator(currentAdministrator.getDni(), administrator)							// Actualizamos el administrador y devolvemos el resultado
@@ -520,6 +540,10 @@ public class AppController {
     		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RestError(HttpStatus.BAD_REQUEST, "No se expecificó una dirección"));						// Si no nos han pasado un correo lo indicamos
     	}
 		
+		if (tutor.getPassword() != null) {
+			currentTutor.setPassword(passwordEncoder.encode(tutor.getPassword()));
+		}
+		
 		return ResponseEntity.status(HttpStatus.OK).body(
 				laborTutorService.updateLaborTutor(currentTutor.getDni(), tutor)							// Actualizamos el administrador y devolvemos el resultado
 		);
@@ -739,6 +763,10 @@ public class AppController {
     	else if (teacher.getAddress() == null || teacher.getAddress().trim().length() == 0) {
     		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RestError(HttpStatus.BAD_REQUEST, "No se expecificó una dirección"));						// Si no nos han pasado un correo lo indicamos
     	}
+		
+		if (teacher.getPassword() != null) {
+			currentTeacher.setPassword(passwordEncoder.encode(teacher.getPassword()));
+		}
 
 		return ResponseEntity.status(HttpStatus.OK).body(
 			teacherService.updateTeacher(currentTeacher, teacher)										// Si todo está correcto actualizamos el profesor y lo retornamos
@@ -856,6 +884,21 @@ public class AppController {
 		}
 	}
 	
+	@DeleteMapping("student/{dni}")
+	public ResponseEntity deleteStudent(@PathVariable String dni) {
+		dni = dni.toUpperCase();
+		Student student = studentService.get(dni);															// Buscamos el profesor
+
+		if (student == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "El estudiante no existe")							// Si no existe lo indicamos
+			);
+		}
+		else {
+			studentService.deleteStudent(dni);																// Si existe lo borramos
+			return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+		}
+	}
 	
 	@GetMapping("student/{dni}/enrollment")
 	public ResponseEntity getEnrollmentsFromStudent(@PathVariable String dni) {
@@ -905,6 +948,11 @@ public class AppController {
     	else if (student.getAddress() == null || student.getAddress().trim().length() == 0) {
     		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new RestError(HttpStatus.BAD_REQUEST, "No se expecificó una dirección"));						// Si no nos han pasado un correo lo indicamos
     	}
+		
+		
+		if (student.getPassword() != null) {
+			currentStudent.setPassword(passwordEncoder.encode(student.getPassword()));
+		}
 		
 		return ResponseEntity.status(HttpStatus.OK).body(
 				studentService.updateStudent(currentStudent, student)							// Actualizamos el administrador y devolvemos el resultado

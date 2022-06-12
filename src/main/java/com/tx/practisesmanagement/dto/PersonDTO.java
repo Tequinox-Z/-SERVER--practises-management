@@ -9,6 +9,7 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.tx.practisesmanagement.enumerators.Rol;
 import com.tx.practisesmanagement.model.Administrator;
+import com.tx.practisesmanagement.model.LaborTutor;
 import com.tx.practisesmanagement.model.Student;
 import com.tx.practisesmanagement.model.Teacher;
 
@@ -70,6 +71,24 @@ public class PersonDTO implements Serializable {
 		this.email = administrator.getEmail();
 		this.password = administrator.getPassword();
 		this.enabled = administrator.isEnabled();
+	}
+	
+	public PersonDTO(LaborTutor tutor) {
+		super();
+		
+		// Asignamos todos los campos 
+		
+		this.dni = tutor.getDni();
+		this.birthDate = tutor.getBirthDate();
+		this.name = tutor.getName();
+		this.lastName = tutor.getLastName();
+		this.image = tutor.getImage();
+		this.telefone = tutor.getTelefone();
+		this.address = tutor.getAddress();
+		this.rol = tutor.getRol();
+		this.email = tutor.getEmail();
+		this.password = tutor.getPassword();
+		this.enabled = tutor.isEnabled();
 	}
 	
 	/**
