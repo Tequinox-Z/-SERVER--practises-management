@@ -3,6 +3,7 @@ package com.tx.practisesmanagement.controller;
 
 
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -2703,6 +2704,32 @@ public class AppController {
 		else {
 			return ResponseEntity.status(HttpStatus.OK).body(
 					business															// Si existe la retornamos
+			);
+		}
+	}
+	
+	/**
+	 * Valida si existe una empresa
+	 * @param cif
+	 * @return
+	 */
+	@GetMapping("exist-business/{cif}")
+	public ResponseEntity existBusiness(@PathVariable String cif) {
+		
+		ArrayList<Business> businessResult = new ArrayList<>();
+		Business business = businessService.get(cif.toUpperCase());									// Obtenemos la empresa
+
+		if (business != null) {
+			
+			businessResult.add(business);
+			
+			return ResponseEntity.status(HttpStatus.OK).body(
+					businessResult
+			);
+		}
+		else {
+			return ResponseEntity.status(HttpStatus.OK).body(
+					businessResult															
 			);
 		}
 	}

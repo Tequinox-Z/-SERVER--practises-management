@@ -73,7 +73,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 		 HttpMethod.DELETE, "/temp-humidity", "/motion", "/auth/checktoken", "/student/**", "/enrollment/**", "/business/**", "/exist-person/**", "/person/**", "/configure-new-password", "/school/**"
                 ).hasAnyRole("ADMIN", "TEACHER", "STUDENT", "LABOR_TUTOR")
                 .antMatchers(
-                		HttpMethod.GET, "/temp-humidity", "/motion", "/auth/checktoken", "/student/**", "/enrollment/**", "/business/**", "/exist-person/**", "/person/**", "/configure-new-password", "/school/**"
+                		HttpMethod.GET, "/temp-humidity", "/motion", "/auth/checktoken", "/student/**", "/enrollment/**", "/business/**", "/exist-person/**", "/person/**", "/configure-new-password", "/school/**", "exist-business/**"
                 ).hasAnyRole("ADMIN", "TEACHER", "STUDENT", "LABOR_TUTOR")
                 
                 
