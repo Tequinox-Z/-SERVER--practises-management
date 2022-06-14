@@ -387,7 +387,7 @@ public class AditionalsFunctionsController {
         	
         	// Obtenemos la fecha actual
         	
-        	LocalTime newTime = LocalTime.now().plusHours(2);
+        	LocalTime newTime = LocalTime.now();
         	
         	
         	/*  Convertimos las fechas a tiempo */
@@ -407,7 +407,7 @@ public class AditionalsFunctionsController {
         	// Si no está creamos un movimiento
         	
         	unusualMovement = new UnusualMovement();																// Creamos el movimiento
-        	unusualMovement.setDate(LocalDateTime.now().plusHours(2));															// Le ponemos la fecha
+        	unusualMovement.setDate(LocalDateTime.now());															// Le ponemos la fecha
         	
         	unusualMovementService.saveUnusualMovement(unusualMovement);											// Guardamos el movimiento
         	School school = admin.getSchoolSetted();																// Obtenemos la escuela
@@ -445,7 +445,7 @@ public class AditionalsFunctionsController {
 	    		);
 	        }
 	        
-	        regTemp.setDate(LocalDateTime.now().plusHours(2));																		// Ponemos la fecha y hora
+	        regTemp.setDate(LocalDateTime.now());																		// Ponemos la fecha y hora
 	        
 	        
 	        // Comprobamos si tiene escuela asignada
@@ -453,17 +453,10 @@ public class AditionalsFunctionsController {
 	        if (admin.getSchoolSetted() != null) {
 	        	regTemp.setId(null);																					// Ponemos el id en nulo
 	        	
-	        	School school = admin.getSchoolSetted();																// Obtenemos la escuela
-	        	
-	        	RegTemp newReg = regTempService.save(regTemp, admin.getSchoolSetted().getId());							// Guardamos el registro de temperatura si no existe o si existe ya uno con la misma hora y fecha hace la media
-	        	
-	        	
-	        	// Comprobamos si no existe un registro de temperatura con la misma fecha  
-	        	
-	        	if (!school.getTemperatureRecords().contains(newReg)) {
-	        		school.getTemperatureRecords().add(newReg);					// Si no existe lo añadimos al centro
-	        		schoolService.save(school);									// Guardamos
-	        	}
+	        	schoolService.addRegTemp(admin.getSchoolSetted(), regTemp);
+//	        	School school = admin.getSchoolSetted();																// Obtenemos la escuela
+//	        	
+//	        	RegTemp newReg = regTempService.save(regTemp, admin.getSchoolSetted().getId());							// Guardamos el registro de temperatura si no existe o si existe ya uno con la misma hora y fecha hace la media	        	
 	        }
 	        else {
 	    		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(

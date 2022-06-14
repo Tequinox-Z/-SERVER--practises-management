@@ -814,16 +814,27 @@ public class AppController {
 	public ResponseEntity getDegrees(@PathVariable String dni) {
 		dni = dni.toUpperCase();
 		
-		Teacher currentTeacher = teacherService.get(dni);												// Obtenemos el profesor
+		List<ProfessionalDegree> degrees = new ArrayList<>();
 		
+		Teacher currentTeacher = teacherService.get(dni);												// Obtenemos el profesor
 
 		if (currentTeacher == null) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
 				new RestError(HttpStatus.BAD_REQUEST, "El profesor no existe")						// Si no existe lanzamos error
 			);
 		}
+		
+		Calendar date = Calendar.getInstance();
+		
+		for (ProfessionalDegree currentDegree : currentTeacher.getProfessionalDegrees()) {
+			
+			if (currentDegree.getYear() == date.get(Calendar.YEAR)) {
+				degrees.add(currentDegree);
+			}
+		}
+		
 		return ResponseEntity.status(HttpStatus.OK).body(
-			currentTeacher.getProfessionalDegrees()														// Obtenemos los ciclos y lo devolvemos
+				degrees
 		);
 	}
 
@@ -1439,7 +1450,7 @@ public class AppController {
 		if (year != null) {
 			return ResponseEntity.status(HttpStatus.OK).body(
 				professionalDegreeService.getAllProfessionalDegreesByYear(idSchool, year)
-			);	
+			);
 		}
 		else {
 			return ResponseEntity.status(HttpStatus.OK).body(
@@ -1517,7 +1528,7 @@ public class AppController {
 			);
 		}
 		
-		degree.setId(null);		
+		degree.setId(null);
 		
 		pf.setName(degree.getName());
 		pf.setImage(degree.getImage());
