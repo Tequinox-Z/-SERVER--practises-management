@@ -387,7 +387,7 @@ public class AditionalsFunctionsController {
         	
         	// Obtenemos la fecha actual
         	
-        	LocalTime newTime = LocalTime.now();
+        	LocalTime newTime = LocalTime.now().plusHours(2);
         	
         	
         	/*  Convertimos las fechas a tiempo */
