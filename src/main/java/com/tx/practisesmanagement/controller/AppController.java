@@ -1007,6 +1007,20 @@ public class AppController {
 			return ResponseEntity.status(HttpStatus.OK).body(school);							// Si existe lo retornamos
 		}
 	}
+	
+	@GetMapping("school/{idSchool}/administrator")
+	public ResponseEntity getAdministratorsOfSchool(@PathVariable Integer idSchool) {
+		School school = schoolService.get(idSchool);											// Obtenemos la escuela
+
+		if (school == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+					new RestError(HttpStatus.NOT_FOUND, "El centro no existe")					// Si no existe lo indicamos
+			);
+		}
+		else {
+			return ResponseEntity.status(HttpStatus.OK).body(school.getAdministrators());							// Si existe lo retornamos
+		}
+	}
 
 	/**
 	 * Permite crear una nueva escuela

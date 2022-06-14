@@ -407,7 +407,7 @@ public class AditionalsFunctionsController {
         	// Si no está creamos un movimiento
         	
         	unusualMovement = new UnusualMovement();																// Creamos el movimiento
-        	unusualMovement.setDate(LocalDateTime.now());															// Le ponemos la fecha
+        	unusualMovement.setDate(LocalDateTime.now().plusHours(2));															// Le ponemos la fecha
         	
         	unusualMovementService.saveUnusualMovement(unusualMovement);											// Guardamos el movimiento
         	School school = admin.getSchoolSetted();																// Obtenemos la escuela
