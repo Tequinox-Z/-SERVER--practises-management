@@ -412,15 +412,33 @@ public class AditionalsFunctionsController {
         	unusualMovementService.saveUnusualMovement(unusualMovement);											// Guardamos el movimiento
         	School school = admin.getSchoolSetted();																// Obtenemos la escuela
         	
-        	school.getUnusualsMovements().add(unusualMovement);														// Añadimos el moimiento
+        	school.getUnusualsMovements().add(unusualMovement);														// Añadimos el movimiento
         	
         	schoolService.save(school);																				// Guardamos la escuela
+        	
+            // Avisamos a los administradores del centro
+            
+        	
+	        try {
+	            for (Administrator administrator: school.getAdministrators()) {
+	            	smtpMailSender.send(administrator.getEmail(), "Movimiento inusual detectado", "Se ha detectado un movimiento inusual fuera de las horas de apertura del centro");
+	            }
+			} 
+	        catch (Exception e) {
+				
+			}
+
+        	
         }
         else {
     		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
         			new RestError(HttpStatus.NOT_FOUND, "Escuela no asignada")										// Si no, indicamos que es nulo
     		);
         }
+        
+        
+
+        
         
 		return ResponseEntity.status(HttpStatus.CREATED).body(
 				unusualMovement																						// Retornamos el resultado
@@ -453,10 +471,7 @@ public class AditionalsFunctionsController {
 	        if (admin.getSchoolSetted() != null) {
 	        	regTemp.setId(null);																					// Ponemos el id en nulo
 	        	
-	        	schoolService.addRegTemp(admin.getSchoolSetted(), regTemp);
-//	        	School school = admin.getSchoolSetted();																// Obtenemos la escuela
-//	        	
-//	        	RegTemp newReg = regTempService.save(regTemp, admin.getSchoolSetted().getId());							// Guardamos el registro de temperatura si no existe o si existe ya uno con la misma hora y fecha hace la media	        	
+	        	schoolService.addRegTemp(admin.getSchoolSetted(), regTemp);												// Añadimos el registro
 	        }
 	        else {
 	    		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(

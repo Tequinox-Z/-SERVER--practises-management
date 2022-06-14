@@ -149,6 +149,7 @@ public class AuthController {
 	    	
 	    	user.setDni(user.getDni().trim().toUpperCase());				// Convertimos el dni en mayúsculas																											// Convertimos el DNI en mayúscula
 	    	
+	    	String passwordNotEncoded = user.getPassword();
 	    	
 	    	// Comprobamos si existe ya
 	    	
@@ -190,7 +191,7 @@ public class AuthController {
 	        try {
 	        	// Enviamos un correo de bienvenida
 	        	
-				smtpMailSender.send(user.getEmail(), "Bienvenido a Practises Management", "La cuenta de correo " + user.getEmail() + " ha sido registrada satisfactoriamente en Practises Management. Puede iniciar sesión con su dni.");
+				smtpMailSender.send(user.getEmail(), "Bienvenido a Practises Management", "La cuenta de correo " + user.getEmail() + " ha sido registrada satisfactoriamente en Practises Management. Puede iniciar sesión con su dni " + user.getDni() + " y contraseña " + encodedPass);
 			} 
 	        catch (Exception e) {
 				
