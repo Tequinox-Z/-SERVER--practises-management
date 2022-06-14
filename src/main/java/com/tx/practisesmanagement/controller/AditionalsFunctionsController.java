@@ -445,7 +445,7 @@ public class AditionalsFunctionsController {
 	    		);
 	        }
 	        
-	        regTemp.setDate(LocalDateTime.now());																		// Ponemos la fecha y hora
+	        regTemp.setDate(LocalDateTime.now().plusHours(2));																		// Ponemos la fecha y hora
 	        
 	        
 	        // Comprobamos si tiene escuela asignada
