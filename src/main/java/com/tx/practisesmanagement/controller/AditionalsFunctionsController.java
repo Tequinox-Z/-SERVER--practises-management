@@ -42,6 +42,7 @@ import com.tx.practisesmanagement.enumerators.TypeTokenToGenerate;
 import com.tx.practisesmanagement.error.RestError;
 import com.tx.practisesmanagement.model.Administrator;
 import com.tx.practisesmanagement.model.Business;
+import com.tx.practisesmanagement.model.LaborTutor;
 import com.tx.practisesmanagement.model.Location;
 import com.tx.practisesmanagement.model.Person;
 import com.tx.practisesmanagement.model.ProfessionalDegree;
@@ -52,6 +53,7 @@ import com.tx.practisesmanagement.security.JWTUtil;
 import com.tx.practisesmanagement.service.AditionalsFunctionsService;
 import com.tx.practisesmanagement.service.AdministratorService;
 import com.tx.practisesmanagement.service.BusinessService;
+import com.tx.practisesmanagement.service.LaborTutorService;
 import com.tx.practisesmanagement.service.LocationService;
 import com.tx.practisesmanagement.service.PersonService;
 import com.tx.practisesmanagement.service.RegTempService;
@@ -80,6 +82,8 @@ public class AditionalsFunctionsController {
 		@Autowired private RegTempService regTempService;					// Servicio de temperatura					
 		@Autowired private UnusualMovementService unusualMovementService;	// Servicio de movimientos inusuales
 		@Autowired private BusinessService businessService;					// Servicio de empresas
+		@Autowired private LaborTutorService laborTutorService;
+
 		
 		@Autowired private AuthenticationManager authManager;				// Administrador de autenticación
 		@Autowired private SmtpMailSender smtpMailSender;					// Componente de correo
@@ -190,6 +194,29 @@ public class AditionalsFunctionsController {
 			years
 		);			
 				
+	}
+	
+	
+	/**
+	 * Obtiene los tutores que no tienen escuela asignada
+	 * @return Lista de tutores libres
+	 */
+	@GetMapping("labor-tutor/free")
+	public ResponseEntity getTutorsFree() {
+		List<LaborTutor> tutors = laborTutorService.getAll();
+		
+		List<LaborTutor> freeTutors = new ArrayList<>();
+		
+		for (LaborTutor currentTutor: tutors) {
+			if (currentTutor.getBusiness() == null) {
+				freeTutors.add(currentTutor);
+			}
+		}
+		
+		
+		return ResponseEntity.status(HttpStatus.OK).body(
+				freeTutors											// Retornamos el resultado
+		);
 	}
 	
 	
