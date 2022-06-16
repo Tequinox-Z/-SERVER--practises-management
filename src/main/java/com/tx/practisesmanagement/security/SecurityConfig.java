@@ -39,7 +39,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
    // Público
                 
                 .antMatchers(
-                		"/auth/login", "/send-reset-password", "/", "/auth/login-iot", "/auth/register"
+                		"/auth/login", "/send-reset-password", "/", "/auth/login-iot"
                 ).permitAll()
                 
    // Sólo lectura
@@ -58,7 +58,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
    // Acceso sólo para el administrador  
                 
                 .antMatchers(
-                		"/administrator", "/administrator/**", "/temp-humidity", "/motions", "/disable-user", "/enable-user"
+                		"/administrator", "/administrator/**", "/auth/register", "/temp-humidity", "/motions", "/disable-user", "/enable-user"
                 ).hasAnyRole("ADMIN")
                 
    // Acceso para cualquier usuario registrado
