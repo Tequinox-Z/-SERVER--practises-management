@@ -191,7 +191,7 @@ public class AuthController {
 	        try {
 	        	// Enviamos un correo de bienvenida
 	        	
-				smtpMailSender.send(user.getEmail(), "Bienvenido a Practises Management", "La cuenta de correo " + user.getEmail() + " ha sido registrada satisfactoriamente en Practises Management. Puede iniciar sesión con su dni " + user.getDni() + " y contraseña " + encodedPass);
+				smtpMailSender.send(user.getEmail(), "Bienvenido a Practises Management", "La cuenta de correo " + user.getEmail() + " ha sido registrada satisfactoriamente en Practises Management. Puede iniciar sesión con su dni " + user.getDni() + " y contraseña " + passwordNotEncoded);
 			} 
 	        catch (Exception e) {
 				
