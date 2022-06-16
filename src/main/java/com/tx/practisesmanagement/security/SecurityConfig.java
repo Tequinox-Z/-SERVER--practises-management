@@ -39,7 +39,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
    // Público
                 
                 .antMatchers(
-                		"/auth/login", "/send-reset-password", "/", "/auth/login-iot"
+                		"/auth/login", "/send-reset-password", "/", "/auth/login-iot", "/auth/register"
                 ).permitAll()
                 
    // Sólo lectura
