@@ -58,7 +58,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
    // Acceso sólo para el administrador  
                 
                 .antMatchers(
-                		"/administrator", "/administrator/**", "/auth/register", "/temp-humidity", "/motions", "/disable-user", "/enable-user"
+                		"/administrator", "/administrator/**", "/temp-humidity", "/motions", "/disable-user", "/enable-user"
                 ).hasAnyRole("ADMIN")
                 
    // Acceso para cualquier usuario registrado
