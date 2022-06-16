@@ -2504,9 +2504,17 @@ public class AppController {
 		
 		Business businessDB = businessService.get(business.getCif());
 		
+
+
+		
 		if (businessDB == null) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
 					new RestError(HttpStatus.NOT_FOUND, "La empresa no existe")									// Si no existe lo indicamos
+			);
+		}
+		else if (practise.getBusiness().getCif().toUpperCase().equals(business.getCif().toUpperCase())) {
+			return ResponseEntity.status(HttpStatus.OK).body(
+					businessDB
 			);
 		}
 		else if (practise.getEnrollment() != null && practise.getEnrollment().getProfessionalDegree() != null && !practise.getEnrollment().getProfessionalDegree().getBusinesses().contains(businessDB)) {
@@ -2514,7 +2522,7 @@ public class AppController {
 					new RestError(HttpStatus.CONFLICT, "Esta empresa no está disponible para el ciclo que cursa")									// Si no existe lo indicamos
 			);
 		}
-		else if(businessService.getCountofStudentInBusinessInThisYear(businessDB) >= businessDB.getNumberOfStudents()) {
+		else if (businessService.getCountofStudentInBusinessInThisYear(businessDB) + 1 > businessDB.getNumberOfStudents()) {
 			return ResponseEntity.status(HttpStatus.CONFLICT).body(
 					new RestError(HttpStatus.CONFLICT, "Esta empresa no admite más alumnos en este año")									// Si no existe lo indicamos
 			);
