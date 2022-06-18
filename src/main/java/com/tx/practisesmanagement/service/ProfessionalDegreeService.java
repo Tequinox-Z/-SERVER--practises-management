@@ -68,16 +68,19 @@ public class ProfessionalDegreeService {
 		
 		professionalDegreeRepository.save(professionalDegree);							// Guarda el ciclo
 		
+		
+		for (Teacher teacher: professionalDegree.getTeachers()) {
+			teacher.getProfessionalDegrees().remove(professionalDegree);
+			teacherService.save(teacher);
+		}
+		
 		for (Enrollment currentEnrollment : professionalDegree.getEnrollments()) {
 			currentEnrollment.setProfessionalDegree(null);								// Por cada matrícula establece el ciclo a nulo
 			enrollmentService.save(currentEnrollment);
 			enrollmentService.delete(currentEnrollment);
 		}
 		
-		for (Teacher teacher: professionalDegree.getTeachers()) {
-			teacher.getProfessionalDegrees().remove(professionalDegree);
-			teacherService.save(teacher);
-		}
+
 		
 		professionalDegreeRepository.delete(professionalDegree);						// Borra el ciclo
 	}
