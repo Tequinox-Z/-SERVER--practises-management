@@ -145,8 +145,10 @@ public class AditionalsFunctionsController {
 			locations = locationService.getAllShoolsLocations();																		// Buscamos las localizaciones
 		}
 		
-		List<LocationAndSchoolDTO> locationsData = new ArrayList<>();
+		List<LocationAndSchoolDTO> locationsData = new ArrayList<>();								// Obtenemos todas las localizaciones
 		
+		
+		// Comprobamos si tiene establecida la ubicación, en el caso de que no tenga ubicación establecida no lo añadimos
 		
 		for (Location currentLocation: locations) {			
 			School school = schoolService.getSchoolByLocation(currentLocation);
@@ -164,32 +166,43 @@ public class AditionalsFunctionsController {
 			}
 		}
 		
-		
+		// Retornamos todas las ubicaciones
 		return ResponseEntity.status(HttpStatus.OK).body(
 				locationsData																				// Retornamos el resultado
 		);
 
 	}
 	
-	
+	/**
+	 * Obtiene los años de los ciclos
+	 * @param idSchool: Id del Centro
+	 * @return Lista de años
+	 */
 	@GetMapping("school/{idSchool}/degree-years")
 	public ResponseEntity getDegree(@PathVariable Integer idSchool) {
+		
+		// Obtenemos la escuela
 		School currentSchool = schoolService.get(idSchool);
 		
+		// Si no existe lo indicamos
 		if (currentSchool == null) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
 					new RestError(HttpStatus.NOT_FOUND, "Centro no encontrado")									// Si no existe lo indicamos
 			);
 		}
 		
+		// Creamos un nuevo dto de años
+		
 		YearsDTO years = new YearsDTO();
 		
+		// Los recorremos y comprobamos si el año ya está añadido
 		for (ProfessionalDegree pf : schoolService.getAllProfessionalDegrees(idSchool)) {
 			if (!years.getYears().contains(pf.getYear())) {
 				years.getYears().add(pf.getYear());
 			}
 		}
 		
+		// Retornamos los años
 		return ResponseEntity.status(HttpStatus.OK).body(
 			years
 		);			
@@ -203,9 +216,11 @@ public class AditionalsFunctionsController {
 	 */
 	@GetMapping("labor-tutor/free")
 	public ResponseEntity getTutorsFree() {
-		List<LaborTutor> tutors = laborTutorService.getAll();
+		List<LaborTutor> tutors = laborTutorService.getAll();				// Obtenemos los tutores
 		
-		List<LaborTutor> freeTutors = new ArrayList<>();
+		List<LaborTutor> freeTutors = new ArrayList<>();					// Lista con el resultado
+
+		// Comprobamos si está libre lo añadimos
 		
 		for (LaborTutor currentTutor: tutors) {
 			if (currentTutor.getBusiness() == null) {
@@ -213,7 +228,7 @@ public class AditionalsFunctionsController {
 			}
 		}
 		
-		
+		// Retornamos el resultado
 		return ResponseEntity.status(HttpStatus.OK).body(
 				freeTutors											// Retornamos el resultado
 		);
@@ -244,6 +259,7 @@ public class AditionalsFunctionsController {
 			locations = locationService.getAllBusinessLocations();																	// Buscamos las localizaciones
 		}
 		
+		// Creamos un dto de empresa con la localización por cada localización
 		
 		for (Location currentLocation: locations) {			
 			Business business = businessService.getByLocation(currentLocation);
@@ -465,7 +481,6 @@ public class AditionalsFunctionsController {
         
         
 
-        
         
 		return ResponseEntity.status(HttpStatus.CREATED).body(
 				unusualMovement																						// Retornamos el resultado

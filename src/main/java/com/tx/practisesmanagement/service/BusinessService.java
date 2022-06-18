@@ -41,6 +41,10 @@ public class BusinessService {
 		return businessRepository.findAll();
 	}
 	
+	/**
+	 * Obtiene el recuento de empresas que hay en la aplicación
+	 * @return  Número de empresas
+	 */
 	public Integer getCount() {
 		return this.businessRepository.getCount();
 	}
@@ -85,7 +89,11 @@ public class BusinessService {
 		return businessRepository.save(business);
 	}
 	
-	
+	/**
+	 * Obtiene información de una empresa por su localización
+	 * @param location: Localización
+	 * @return: Empresa solicitada
+	 */
 	public Business getByLocation(Location location) {
 		return businessRepository.getByLocation(location);
 	}
@@ -99,8 +107,12 @@ public class BusinessService {
 		return businessRepository.existsById(business.getCif());
 	}
 	
+	/**
+	 * Permite buscar empresas por una cadena de texto
+	 * @param name Nombre de la empresa o porción del nombre del mismo
+	 * @return Lista de empresas
+	 */
 	public List<Business> getAllByName(String name) {
-		
 		return businessRepository.getAllByName(name.toUpperCase());
 	}
 	
@@ -108,10 +120,13 @@ public class BusinessService {
 	 * Borra una empresa
 	 */
 	public void remove(String cif) throws UserErrorException {
-		Business business = this.get(cif);
-		List<Practise> practises = business.getPractises();
+		Business business = this.get(cif);										// Obtenemos la empresa
 		
-		Date currentDate = new Date();
+		List<Practise> practises = business.getPractises();						// Obtenemos la lista de prácticas
+		
+		Date currentDate = new Date();											// Obtenemos la fecha actual
+		
+		// Verificamos que todas las prácticas hayan terminado
 		
 		for (Practise currentPractise : practises) {
 			if (!(currentPractise.getFinish() == null || currentPractise.getStart() == null) && currentPractise.getFinish().after(currentDate)) {
@@ -119,36 +134,61 @@ public class BusinessService {
 			}
 		}
 		
+		// Quitamos todas las prácticas
+		
 		for (Practise currentPractise : practises) {
 			currentPractise.setBusiness(null);
 			practiseService.save(currentPractise);
 		}
 		
+		// Obtenemos su localización
+		
 		Location location = business.getLocation();
+		
+		// Obtenemos los trabajadores de contacto
+		
 		List<ContactWorker> contactWorkers = new ArrayList<>(business.getContactWorkers());
+		
+		// Limpiamos las dependencias
 		
 		business.getDegrees().clear();
 		business.getContactWorkers().clear();		
 		business.setLocation(null);
 		
+		
+		// Guardamos
+		
 		this.save(business);
 				
+		// Quitamos la localización
+		
 		if (location != null) {			
 			locationService.removeLocation(location.getId());
 		}
 		
+		// Borramos los trabajadores de contacto
+		
 		for (ContactWorker currentContactWorker: contactWorkers) {
 			contactWorkerService.remove(currentContactWorker.getId());
 		}
+		
+		// Quitamos la empresa de los tutores laborales
 		
 		for (LaborTutor currentTutor : business.getTutors()) {
 			currentTutor.setBusiness(null);
 			laborTutorService.save(currentTutor);
 		}
 		
+		// Finalmente borramos
+		
 		businessRepository.delete(business);
 	}
 	
+	/**
+	 * Obtiene el número de estudiantes que hay este año
+	 * @param business: Empresa
+	 * @return Número de estudiantes
+	 */
 	public Integer getCountofStudentInBusinessInThisYear(Business business) {
 		return this.businessRepository.getCountOfStudentInBusinessAndYear(business, Calendar.getInstance().get(Calendar.YEAR));
 	}

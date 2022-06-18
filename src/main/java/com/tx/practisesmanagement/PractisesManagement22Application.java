@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
-@EnableEurekaClient
+@EnableEurekaClient						// Habilita el registro como microservicio en eureka server
 @SpringBootApplication
 public class PractisesManagement22Application extends SpringBootServletInitializer {
 

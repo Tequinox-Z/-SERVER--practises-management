@@ -11,16 +11,33 @@ import com.tx.practisesmanagement.model.UnusualMovement;
 import com.tx.practisesmanagement.repository.UnusualMovementRepository;
 
 @Service
+/**
+ * Servicio de movimientos inusuales
+ * @author Salvador
+ *
+ */
 public class UnusualMovementService {
 	
-	@Autowired UnusualMovementRepository unusualMovementRepository;
+	// Repositorios
 	
+		@Autowired UnusualMovementRepository unusualMovementRepository;
+	
+	
+	/**
+	 * Guarda un movimiento inusual	
+	 * @param newUnusualMovement Nuevo movimiento inusual
+	 * @return MOvimieno a guardar
+	 */
 	public UnusualMovement saveUnusualMovement(UnusualMovement newUnusualMovement) {
 		newUnusualMovement.setDate(LocalDateTime.now());
 		
 		return this.unusualMovementRepository.save(newUnusualMovement);
 	}
 	
+	/**
+	 * Borra un movimiento inusual
+	 * @param id Id del movimiento
+	 */
 	public void removeUnusualMovement(Integer id) {
 		this.unusualMovementRepository.deleteById(id);
 	}

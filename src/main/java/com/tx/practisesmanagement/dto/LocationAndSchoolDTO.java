@@ -15,9 +15,20 @@ public class LocationAndSchoolDTO implements Serializable {
 	private Integer id;													// Identificador
 	private String name;												// Nombre
 
+	/**
+	 * Constructor sin parámetros
+	 */
 	public LocationAndSchoolDTO() {
 		super();
 	}
+	
+	/**
+	 * Constructor con parámetros
+	 * @param latitude: Latitud
+	 * @param longitude: Longitud
+	 * @param id: Id
+	 * @param name: Nombre
+	 */
 	public LocationAndSchoolDTO(Double latitude, Double longitude, Integer id, String name) {
 		super();
 		this.latitude = latitude;
@@ -25,30 +36,73 @@ public class LocationAndSchoolDTO implements Serializable {
 		this.id = id;
 		this.name = name;
 	}
+	/**
+	 * Obtiene el id
+	 * @return Identificador
+	 */
 	public static long getSerialversionuid() {
 		return serialVersionUID;
 	}
+	/**
+	 * Obtiene la latitud
+	 * @return Latitud
+	 */
 	public Double getLatitude() {
 		return latitude;
 	}
+	
+	/**
+	 * Obtiene la latitud
+	 * @param latitude Latitud
+	 */
 	public void setLatitude(Double latitude) {
 		this.latitude = latitude;
 	}
+	
+	/**
+	 * Obtiene la longitud
+	 * @return Longitud
+	 */
 	public Double getLongitude() {
 		return longitude;
 	}
+	
+	/**
+	 * Establece la longitud
+	 * @param longitude Nueva lonigitud
+	 */
 	public void setLongitude(Double longitude) {
 		this.longitude = longitude;
 	}
+	
+	/**
+	 * Obtiene la longitid
+	 * @return Longitud
+	 */
 	public Integer getId() {
 		return id;
 	}
+	
+	/**
+	 * Estbalece el id
+	 * @param id: Nuevo id
+	 */
 	public void setId(Integer id) {
 		this.id = id;
 	}
+	
+	/**
+	 * Obtiene el nombre
+	 * @return: Nombre
+	 */
 	public String getName() {
 		return name;
 	}
+	
+	/**
+	 * Establece el nombr
+	 * @param name
+	 */
 	public void setName(String name) {
 		this.name = name;
 	}

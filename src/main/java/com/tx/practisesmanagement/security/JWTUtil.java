@@ -16,7 +16,7 @@ import com.tx.practisesmanagement.enumerators.TypeTokenToGenerate;
 
 /**
  * JWT Util, otorga las funciones de generación de token y validación del mismo
- * @author Salva
+ * @author Salvador
  */
 @Component
 public class JWTUtil {
@@ -42,26 +42,30 @@ public class JWTUtil {
      */
     public String generateToken(String username, TypeTokenToGenerate type) throws IllegalArgumentException, JWTCreationException {
       	
+    	// Comprobamos hacia quien va dirigido el token, asignando un tiempo de vida concreto
+    	
     	Integer minutesToAdd;
     	
     	switch (type) {
 		case TOKEN_IOT:
-			minutesToAdd = minutesTokenIoT;
+			minutesToAdd = minutesTokenIoT;							// En caso de un inicio del dispositivo IoT
 			break;
 		case TOKEN_RESET_PASSWORD:
-			minutesToAdd = minutesTokenEmail;
+			minutesToAdd = minutesTokenEmail;						// En caso de un token para resetear la contraseña del usuario
 			break;
 		case TOKEN_USER:
-			minutesToAdd = minutesUser;
+			minutesToAdd = minutesUser;								// En caso de un inicio de sesión normal
 			break;
 		default:
-			minutesToAdd = 0;
+			minutesToAdd = 0;										// En caso desconocido
 			break;
 		}
     	
+    	// Establecemos la fecha de expiración
+    	
     	Calendar date = Calendar.getInstance();
     	Calendar expirationDate = Calendar.getInstance();
-    	expirationDate.add(Calendar.MINUTE, minutesToAdd);
+    	expirationDate.add(Calendar.MINUTE, minutesToAdd);				// Añadimos los minutos de diferencia
     	
     	// Asignamos datos
     	

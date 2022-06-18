@@ -4,13 +4,25 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Dto con los distintos años de un centro
+ * @author Salvador
+ */
 public class YearsDTO {
-	private List<Integer> years;
+	private List<Integer> years;							// Lista de años
 
+	/**
+	 * Obtiene los años
+	 * @return Lista con lo distintos años
+	 */
 	public List<Integer> getYears() {
 		return years;
 	}
 
+	/**
+	 * Establece la lista de años
+	 * @param years: Nueva lista de años
+	 */
 	public void setYears(List<Integer> years) {
 		this.years = years;
 	}
@@ -37,6 +49,9 @@ public class YearsDTO {
 		return "YearsDTO [years=" + years + "]";
 	}
 
+	/**
+	 * Constructor sin parámetros
+	 */
 	public YearsDTO() {
 		super();
 		this.years = new ArrayList();

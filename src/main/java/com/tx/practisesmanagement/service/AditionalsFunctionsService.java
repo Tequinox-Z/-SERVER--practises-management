@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 public class AditionalsFunctionsService {
 
 	/**
-	 * Desencripta cifrado MD%
+	 * Desencripta cifrado MD5
 	 * @param hash: Hash
 	 * @return Texto descifrado
 	 * @throws IOException

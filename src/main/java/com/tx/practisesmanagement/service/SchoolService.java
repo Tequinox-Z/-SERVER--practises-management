@@ -19,16 +19,18 @@ import com.tx.practisesmanagement.model.UnusualMovement;
 import com.tx.practisesmanagement.repository.SchoolRepository;
 
 /**
- * Servicio de escuela
+ * Servicio de centro
  * @author Salva
  */
 @Service
 public class SchoolService {
 		
 	// Repositorio
+	
 		@Autowired SchoolRepository schoolRepository;
 	
-	// Servicio
+	// Servicios
+		
 		@Autowired ProfessionalDegreeService professionalDegreeService; 
 		@Autowired UnusualMovementService unusualMovementService;
 		@Autowired RegTempService regTempService;
@@ -64,7 +66,12 @@ public class SchoolService {
 	
 	
 	
-	
+	/**
+	 * Añade un movimiento inusual
+	 * @param school Centro al que se añadirá el movimiento
+	 * @param newMovement Nuevo movimiento
+	 * @return Movimiento guardado
+	 */
 	public UnusualMovement addUnusualMovement(School school, UnusualMovement newMovement) {
 		
 		UnusualMovement currentMovement = unusualMovementService.saveUnusualMovement(newMovement);
@@ -75,7 +82,12 @@ public class SchoolService {
 		return currentMovement;
 	}  
 	
-	
+	/**
+	 * Añade un nuevo registro de temperatura
+	 * @param school Escuela a la que se le añadirá el registro
+	 * @param regTemp Registro de temperatura
+	 * @return Registro de temperatura guardado
+	 */
 	
 	public RegTemp addRegTemp(School school, RegTemp regTemp) {
 		
@@ -159,6 +171,12 @@ public class SchoolService {
 		schoolRepository.delete(school);
 	}
 	
+	/**
+	 * Establece una ubicación a un centro
+	 * @param idSchool Id del centro
+	 * @param location Localización
+	 * @return Localización guardada
+	 */
 	public Location setLocation(Integer idSchool, Location location) {
 		School currentSchool = get(idSchool);
 	
@@ -170,16 +188,21 @@ public class SchoolService {
 		return currentLocation;
 	}
 	
+	
+	/**
+	 * Borra la localización del centro
+	 * @param idSchool Id del centro
+	 */
 	public void removeLocation(Integer idSchool) {
-		School currentSchool = get(idSchool);
+		School currentSchool = get(idSchool);					// Obtenemos el centro
 		
-		Location location = currentSchool.getLocation();
-		if (location != null) {
-			currentSchool.setLocation(null);
+		Location location = currentSchool.getLocation();		// Obtenemos la localización
+		if (location != null) {									
+			currentSchool.setLocation(null);					// Si existe la quitamos
 			
-			save(currentSchool);
+			save(currentSchool);								// Guardamos
 			
-			locationService.removeLocation(location.getId());
+			locationService.removeLocation(location.getId());	// Borramos la localización
 		}
 	}
 	
@@ -203,7 +226,12 @@ public class SchoolService {
 		return school.getProfessionalDegrees().contains(professionalDegree);		// Verificamos si contiene el ciclo
 	}
 	
-	
+	/**
+	 * Comprueba si existe un ciclo por nombre
+	 * @param school Centro a buscar
+	 * @param nameDegree Nombre del ciclo
+	 * @return ¿Existe?
+	 */
 	public boolean containProfessionalDegreeByName(School school, String nameDegree) {
 		return professionalDegreeService.existProfessionalDegreeByNameInSchool(school, nameDegree);
 	}
@@ -224,43 +252,66 @@ public class SchoolService {
 	public List<School> getAll() {
 		return schoolRepository.findAll();
 	}
-	
+	/**
+	 * Obtiene los movimientos por id del centro
+	 * @param id Id del centro
+	 * @return Lista de movimientos
+	 */
 	public List<UnusualMovement> getMovementsById(Integer id) {
 		School school = get(id);
 		return school.getUnusualsMovements();
 	}
 	
+	/**
+	 * Obtiene los registros de temperatura por fecha
+	 * @param id Id del centro
+	 * @param date Fecha de los registros
+	 * @return Lista de registros de temperatura
+	 */
 	public List<RegTemp> getRegTempsByDate(Integer id, LocalDateTime date) {		
 		return this.regTempService.getAllRegTempForDay(date, id);
 	}
 	
+	/**
+	 * Borra todos los registros de temperatura 
+	 * @param id Id del centro
+	 */
 	public void removeAllRegTempByIdSchool(Integer id) {
-		School school = get(id);
+		School school = get(id);															// Obtenemos el centro
 
-		List<RegTemp> regTemps = new ArrayList<>(school.getTemperatureRecords());
-		school.getTemperatureRecords().clear();
+		List<RegTemp> regTemps = new ArrayList<>(school.getTemperatureRecords());			// Obtenemos sus registros
+		school.getTemperatureRecords().clear();												// Limpiamos los registros
 		
-		save(school);
+		save(school);																		// Guardamos el centro
 				
 		for (RegTemp currentRegTemp : regTemps) {
-			regTempService.remove(currentRegTemp.getId());
+			regTempService.remove(currentRegTemp.getId());									// Borramos cada registro
 		}
 	}
 	
+	/**
+	 * Borra todos los movimientos inusuales
+	 * @param id: Id del centro
+	 */
 	public void removeAllUnsualsMovements(Integer id) {
-		School school = get(id);
+		School school = get(id);																// Obtenemos el centro
 		
-		List<UnusualMovement> movements = new ArrayList<>(school.getUnusualsMovements());
-		school.getUnusualsMovements().clear();
+		List<UnusualMovement> movements = new ArrayList<>(school.getUnusualsMovements());		// obtenemos sus movimientos
+		school.getUnusualsMovements().clear();													// Limpiamos los movimientos
 		
-		save(school);
+		save(school);																			// Guardamos 
 		
 		for (UnusualMovement currentMovement: movements) {
-			this.unusualMovementService.removeUnusualMovement(currentMovement.getId());
+			this.unusualMovementService.removeUnusualMovement(currentMovement.getId());			// Borramos cada movimiento
 		}
 	}
 
-	
+	/**
+	 * Añade un ciclo a un centro
+	 * @param idSchool Id del centro
+	 * @param professionalDegreeToAdd Ciclo a añadir
+	 * @return CIclo añadido
+	 */
 	public ProfessionalDegree addDegreeToSchool(Integer idSchool, ProfessionalDegree professionalDegreeToAdd) {
 		School school = get(idSchool);
 		
@@ -269,6 +320,11 @@ public class SchoolService {
 		return professionalDegreeService.saveProfessionalDegree(professionalDegreeToAdd);
 	}
 	
+	/**
+	 * Obtiene un centro por su localización 
+	 * @param location Localización
+	 * @return Centro al que pertenece la localización
+	 */
 	public School getSchoolByLocation(Location location) {
 		return this.schoolRepository.getByLocation(location);
 	}

@@ -14,29 +14,56 @@ import com.tx.practisesmanagement.model.Teacher;
 import com.tx.practisesmanagement.repository.LaborTutorRepository;
 
 @Service
+/**
+ * Servicio de tutores laborales
+ * @author Salvador
+ */
 public class LaborTutorService {
 
-	@Autowired LaborTutorRepository laborTutorRepository;
-	@Autowired PractiseService practisesService;
+	// Servicios
 	
+		@Autowired LaborTutorRepository laborTutorRepository;									
+		@Autowired PractiseService practisesService;
 	
+	/**
+	 * Guarda un tutor
+	 * @param laborTutor: Nuevo tutor
+	 * @return Tutor guardado
+	 */
 	public LaborTutor save(LaborTutor laborTutor) {
 		return laborTutorRepository.save(laborTutor);
 	}
 	
+	/**
+	 * Obtiene un tutor por su id
+	 * @param dni: Dni del tutor
+	 * @return Tutor solicitado
+	 */
 	public LaborTutor getById(String dni) {
 		return laborTutorRepository.findById(dni).orElse(null);
 	}
 	
+	/**
+	 * Obtiene todos los tutores
+	 * @return Lista de tutores
+	 */
 	public List<LaborTutor> getAll() {
 		return laborTutorRepository.findAll();
 	}
 	
-	
+	/**
+	 * Obtiene tutores por su nombre
+	 * @param name: Nombre del tutor
+	 * @return: Lista de tutores
+	 */
 	public List<LaborTutor> getAllByName(String name) {
 		return laborTutorRepository.getAllTutorByName(name.toUpperCase());
 	}
 	
+	/**
+	 * Borra un tutor
+	 * @param dni DNi del tutor
+	 */
 	public void remove(String dni) {
 
 		LaborTutor laborTutor = getById(dni);
@@ -50,6 +77,12 @@ public class LaborTutorService {
 		this.laborTutorRepository.deleteById(dni);
 	}
 	
+	/**
+	 * Actualiza un tutor
+	 * @param dni: Dni del tutor
+	 * @param personData Datos de la persona
+	 * @return Persona actualizada
+	 */
 	public LaborTutor updateLaborTutor(String dni, PersonDTO personData) {
 		
 		LaborTutor tutor = getById(dni);

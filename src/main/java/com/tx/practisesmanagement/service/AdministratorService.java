@@ -94,24 +94,28 @@ public class AdministratorService {
 		
 		return adminRepository.save(admin);
 	}
-	
+	/**
+	 * Borra un administrador
+	 * @param dni: Dni del administrador
+	 * @throws UserErrorException: Excepción en caso de error
+	 */
 	public void deleteAdministrator(String dni) throws UserErrorException {
 		
-		Administrator administrator = get(dni);
+		Administrator administrator = get(dni);								// Lo obtnemos si existe
 		
 		if (administrator == null) {
-			throw new UserErrorException("El usuario no existe");
+			throw new UserErrorException("El usuario no existe");			// Lanzamos excepción en caso de que no exista
 		}
 		else {
-			removeAdministratorFromPractise(dni);
+			removeAdministratorFromPractise(dni);							// SI existe lo borramos
 			
 			if (administrator.getSchoolSetted() != null) {
-				removeSchoolFromAdministrator(dni);
+				removeSchoolFromAdministrator(dni);							// Si tiene escuela asignada se la quitamos
 			}
 
-			removeDegreesFromAdministrator(dni);
+			removeDegreesFromAdministrator(dni);							// Quitamos los ciclos que imparte clases
 			
-			adminRepository.delete(administrator);
+			adminRepository.delete(administrator);							// Borramos el administrador
 		}	
 	}
 	
@@ -128,15 +132,20 @@ public class AdministratorService {
 		return adminRepository.save(administrator);				// Guardamos
 	}
 	
+	/**
+	 * Borra las prácticas de un administrador
+	 * @param dni: Dni del administrador
+	 * @return El administrador
+	 */
 	public Administrator removeAdministratorFromPractise(String dni) {
 		
-		Administrator administrator = get(dni);
+		Administrator administrator = get(dni);									// Lo obtenemos
 		
 		for (Practise currentPractise: administrator.getPractises()) {
-			practiseService.setTeacher(currentPractise.getId(), null);
+			practiseService.setTeacher(currentPractise.getId(), null);			// Por cada práctica quitamos el profesor
 		}
 		
-		return administrator;
+		return administrator;													// Retornamos el administrador
 	}
 	
 	

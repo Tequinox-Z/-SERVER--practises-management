@@ -33,10 +33,22 @@ public class PractiseService {
 		return practiseRepository.findById(id).orElse(null);
 	}
 	
+	/**
+	 * Edita una practica
+	 * @param practise Practica a editar
+	 * @return Pratica edita
+	 * @throws UserErrorException En caso de que no exista
+	 */
 	public Practise edit(Practise practise) throws UserErrorException {
-		Practise practiseBBDD = practiseRepository.findById(practise.getId()).orElse(null);
+		Practise practiseBBDD = practiseRepository.findById(practise.getId()).orElse(null);			// Lo obtenemos
+		
+		
+		// Comprobamos si existe
 		
 		if (practiseBBDD != null) {
+			
+			
+			// Si exisste comenzamos a establecer los nuevos datos
 			
 			if (practise.getStart() != null) {
 				practiseBBDD.setStart(practise.getStart());
@@ -54,28 +66,50 @@ public class PractiseService {
 				practiseBBDD.setBusiness(practise.getBusiness());
 			}
 			
-			return practiseRepository.save(practiseBBDD);
+			return practiseRepository.save(practiseBBDD);			// Guardamos cambios
 			
 		}
 		else {
-			throw new UserErrorException("La prácatica no existe");
+			
+			// SI no existe lo indicamos
+			throw new UserErrorException("La práctica no existe");
 		}
 
 	}
-	
+	/**
+	 * Obtiene una empresa desde una practica
+	 * @param id Id de la practica
+	 * @return Empresa asignada
+	 */
 	public Business getBusinessFromPractise(Integer id) {
 		Practise currentPractise = get(id);
 		return currentPractise.getBusiness();
 	}
 	
+	/**
+	 * Obtiene el profesor asignado a una practica
+	 * @param id Id de la practica
+	 * @return Profesor asignado
+	 */
 	public Teacher getTeacherFromPractise(Integer id) {
 		return get(id).getTeacher();
 	}
 	
+	/**
+	 * Obtiene el tutor laboral establecido en la practica
+	 * @param id Id de la practica
+	 * @return Tutor laboral establecido
+	 */
 	public LaborTutor getLaborTutorFromPractise(Integer id) {
 		return get(id).getLaborTutor();
 	}
 	
+	/**
+	 * Establece un profesor a la practica
+	 * @param id Id de la practica
+	 * @param teacher Profesor asignado
+	 * @return Practica editada
+	 */
 	public Practise setTeacher(Integer id, Teacher teacher) {
 		Practise practise = get(id);
 		
@@ -100,22 +134,40 @@ public class PractiseService {
 		practiseRepository.delete(practise);						// Borramos la práctica
 	}
 	
+	
+	/**
+	 * Guarda una practica
+	 * @param practise Practica a guardar
+	 * @return Practica editada
+	 */
 	public Practise save(Practise practise) {
 		return practiseRepository.save(practise);
 	}
 	
+	
+	/**
+	 * Comprueba si existe una practica
+	 * @param id Id de la practica
+	 * @return ¿Existe la practica?
+	 */
 	public boolean exist(Integer id) {
 		return get(id) != null;
 	}
 	
+	/**
+	 * Actualiza una practica
+	 * @param practise: Practica a editar
+	 * @param practiseData: Datos de la practica
+	 * @return Practica editada
+	 */
 	public Practise updatePractise(Practise practise, Practise practiseData) {
 		if (practiseData.getStart() != null) {
-			practise.setStart(practiseData.getStart());
+			practise.setStart(practiseData.getStart());								// Actualizamos la fecha de inicio
 		}
 		if (practiseData.getFinish() != null) {
-			practise.setFinish(practiseData.getFinish());
+			practise.setFinish(practiseData.getFinish());							// Actualizamos la fecha de fin
 		}
 		
-		return save(practise);
+		return save(practise);														// Guardamos
 	}
 }

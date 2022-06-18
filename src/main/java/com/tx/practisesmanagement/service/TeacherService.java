@@ -115,6 +115,12 @@ public class TeacherService {
 		return teacherRepository.save(teacher);						// Guardamos el profesor
 	}
 	
+	/**
+	 * Añade un nuevo ciclo al profesor
+	 * @param professionalDegree CIclo a añadir 
+	 * @param teacher Profesor al que se le añadirá
+	 * @return Profesor con ciclo añadido
+	 */
 	public Teacher addDegree(ProfessionalDegree professionalDegree, Teacher teacher) {
 		Teacher currentTeacher = get(teacher.getDni());
 		
@@ -123,6 +129,11 @@ public class TeacherService {
 		return save(currentTeacher);
 	}
 	
+	/**
+	 * Obtiene el numero de profesor de una escuela
+	 * @param id Id de la escuela
+	 * @return Numero de profesores
+	 */
 	public Integer getCountTeacherFromSchool(Integer id) {
 		return this.teacherRepository.countTeachersFromSchool(id);
 	}

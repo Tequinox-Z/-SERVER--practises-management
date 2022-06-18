@@ -37,10 +37,20 @@ public class StudentService {
 		return studentRepository.save(student);
 	}
 	
+	/**
+	 * Obtiene el numero de estudiantes en una escuela
+	 * @param idSchool Id del centro
+	 * @return Numero de estudiantes
+	 */
 	public Integer getCountFromSchool(Integer idSchool) {
 		return this.studentRepository.getCountFromSchool(idSchool);
 	}
 	
+	/**
+	 * Obtiene todos los estudiantes por nombre
+	 * @param name Nombre a buscar
+	 * @return Lista de estudiantes que coinciden con la busqueda
+	 */
 	public List<Student> getAllByName(String name) {
 		return studentRepository.getAllStudentByName(name.toUpperCase());
 	}
