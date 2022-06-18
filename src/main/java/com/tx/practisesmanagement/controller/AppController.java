@@ -794,6 +794,13 @@ public class AppController {
 			);
 		}
 		else {
+			Teacher teacher = teacherService.get(dni);
+			
+			for (Practise currentPractise : teacher.getPractises()) {
+				currentPractise.setTeacher(null);
+				practiseService.save(currentPractise);
+			}
+			
 			teacherService.deleteTeacher(dni);																				// Borramos el profesor			
 		}
 		
